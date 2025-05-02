@@ -74,7 +74,7 @@ $_SESSION['verification_time'] = time();
 $_SESSION['code_expiry'] = time() + 900; // 15 minutes expiry
 
 function sendSMS($to, $message, &$error = null) {
-    $apiKey = '7a5f9e5d1e1f483402f9ac9e02d6bc73'; // Your API KEY
+    $apiKey = '0e1eb241cf70f66127f683cfb8a90e34'; // Your API KEY
 
     // Prepare the data
     $postData = [
