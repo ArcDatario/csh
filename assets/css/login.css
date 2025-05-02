@@ -1,0 +1,104 @@
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #a1c6ea 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-container {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.form-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.form-control {
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+}
+
+#forgotPasswordGroup {
+    display: none;
+}
+
+#loginButton {
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 500;
+    background-color: var(--primary-color);
+    border: none;
+}
+
+/* Minimalist Toast */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background: white;
+}
+
+.toast-header {
+    border-bottom: none;
+    background: transparent;
+    padding: 12px 16px;
+}
+
+.toast-body {
+    padding: 6px 16px;
+}
+
+.toast-success .toast-header {
+    color: #28a745;
+}
+
+.toast-error .toast-header {
+    color: #dc3545;
+}
+
+/* Email exists alert */
+#emailExistAlert {
+    display: none;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .login-container {
+        padding: 20px;
+    }
+}

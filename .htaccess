@@ -1,0 +1,10 @@
+# filepath: c:\xampp\htdocs\csh-enterprises\.htaccess
+RewriteEngine On
+
+# Remove .php extension from URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Rewrite 'home' to 'index.php'
+RewriteRule ^home$ index.php [L]

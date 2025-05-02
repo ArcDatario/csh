@@ -1,0 +1,255 @@
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+       
+
+    .modal-content {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+    .modal.show .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-content.small {
+        max-width: 400px;
+    }
+
+    /* Modal Header */
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f9fafb;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        transition: color 0.2s;
+        padding: 4px;
+        line-height: 1;
+    }
+
+    .modal-close:hover {
+        color: #111827;
+    }
+
+    /* Modal Body */
+    .modal-body {
+        padding: 24px;
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        background-color: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+    .form-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Add spacing between buttons */
+}
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background-color: #ffffff;
+        color: #111827;
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-group input::placeholder {
+        color: #9ca3af;
+    }
+
+    /* Button Styles */
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-outline:hover {
+        background-color: #f9fafb;
+        border-color: #d1d5db;
+    }
+
+    .btn-primary {
+        background-color: #6366f1;
+        color: white;
+        border-color: #6366f1;
+    }
+
+    .btn-primary:hover {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+    }
+
+    .btn-danger {
+        background-color: #ef4444;
+        color: white;
+        border-color: #ef4444;
+    }
+
+    .btn-danger:hover {
+        background-color: #dc2626;
+        border-color: #dc2626;
+    }
+
+    /* Delete Modal Specific */
+    #deleteModal .modal-body {
+        text-align: center;
+        padding: 32px 24px;
+    }
+
+    #deleteModal .modal-body p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 1rem;
+    }
+
+    /* Password Input Icons */
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+    }
+
+    /* Add this CSS to your style block or stylesheet */
+
+/* Modern design for action buttons */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: #f3f4f6; /* Light gray background */
+    color: #374151; /* Dark gray icon color */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon:hover {
+    background-color: #e5e7eb; /* Slightly darker gray on hover */
+    color: #111827; /* Darker icon color on hover */
+    transform: scale(1.1); /* Slight zoom effect */
+}
+
+.btn-icon:active {
+    transform: scale(1); /* Reset zoom on click */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Slightly deeper shadow */
+}
+
+/* Specific colors for edit and delete buttons */
+.btn-icon.edit-admin {
+    background-color: #dbeafe; /* Light blue background */
+    color: #2563eb; /* Blue icon color */
+}
+
+.btn-icon.edit-admin:hover {
+    background-color: #bfdbfe; /* Darker blue on hover */
+    color: #1d4ed8; /* Darker blue icon color */
+}
+
+.btn-icon.delete-admin {
+    background-color: #fee2e2; /* Light red background */
+    color: #dc2626; /* Red icon color */
+}
+
+.btn-icon.delete-admin:hover {
+    background-color: #fecaca; /* Darker red on hover */
+    color: #b91c1c; /* Darker red icon color */
+}
