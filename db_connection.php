@@ -1,9 +1,9 @@
 <?php
 // Database configuration
 $host = 'localhost'; // Database host
-$username = 'u182822994_csh'; // Database username
-$password = 'Xk1J>ZFmwcc:'; // Database password (leave empty for XAMPP default)
-$database = 'u182822994_csh'; // Replace with your database name
+$username = 'root'; // Database username
+$password = ''; // Database password (leave empty for XAMPP default)
+$database = 'csh'; // Replace with your database name
 
 // Create a connection
 $conn = new mysqli($host, $username, $password, $database);

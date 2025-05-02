@@ -6,7 +6,7 @@ session_start();
 require '../../db_connection.php'; // Adjust this to your database connection file
 
 // Check if the request is POST and user is logged in
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     // Get data from POST request
     $id = isset($_POST['id']) ? $_POST['id'] : null;
     $price = isset($_POST['price']) ? $_POST['price'] : null;

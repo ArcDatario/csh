@@ -9,7 +9,7 @@ function isLoggedIn() {
     
     // Check for remember me token
     if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
-        require '../db_connection.php';
+        require 'db_connection.php';
         
         $token = $_COOKIE['remember_token'];
         

@@ -1,3 +1,4 @@
+
 <?php
 // Ensure no output before session_start()
 if (headers_sent($filename, $linenum)) {
@@ -49,7 +50,7 @@ try {
     if (empty($password)) throw new Exception('Please provide your password');
 
     // Database check
-    $stmt = $conn->prepare("SELECT id, password, country, full_address FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, password, address FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -103,14 +104,10 @@ try {
         }
     }
 
-    // Include address details in the response
+    // Include address in the response
     $response['success'] = true;
     $response['redirect'] = 'user/home';
-    $response['address'] = [
-        'country'      => $user['country'],
-        'full_address'    => $user['full_address']
-       
-    ];
+    $response['address'] = $user['address'];
 
 } catch (Exception $e) {
     $response['message'] = $e->getMessage();
