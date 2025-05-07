@@ -2,10 +2,10 @@
 
 $ch = curl_init();
 $parameters = array(
-    'apikey' => '7a5f9e5d1e1f483402f9ac9e02d6bc73', //Your API KEY
-    'number' => '09686409348',
+    'apikey' => '0e1eb241cf70f66127f683cfb8a90e34', //Your API KEY
+    'number' => '09566320135',
     'message' => 'I just sent my first message with Semaphore',
-    'sendername' => 'Melzar'
+    'sendername' => 'CSH'
 );
 curl_setopt( $ch, CURLOPT_URL,'https://semaphore.co/api/v4/messages' );
 curl_setopt( $ch, CURLOPT_POST, 1 );

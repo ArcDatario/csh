@@ -1,26 +1,26 @@
+
 <?php 
 require '../auth_check.php';
 redirectIfNotLoggedIn();
 
-require '../../db_connection.php';
+require '../db_connection.php';
 
 // Fetch user ID from session
 $user_id = $_SESSION['user_id'] ?? null;
 
 if ($user_id) {
-    // Query the database for the user's country and address
-    $stmt = $conn->prepare("SELECT country, full_address FROM users WHERE id = ?");
+    // Query the database for the user's address only
+    $stmt = $conn->prepare("SELECT address FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
-        $country = $user['country'] ?? '';
-        $address = $user['full_address'] ?? '';
+        $address = $user['address'] ?? '';
     } else {
-        // If no user is found, set default empty values
-        $country = $address = '';
+        // If no user is found, set default empty value
+        $address = '';
     }
 } else {
     // If no user ID is found in the session, redirect to login
@@ -28,9 +28,10 @@ if ($user_id) {
     exit();
 }
 
-// Combine country and address into a single string
-$full_address = trim("$country, $address", ', ');
+// Use address directly
+$full_address = trim($address);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -373,14 +374,16 @@ body.order-modal-open {
                 <i class="fas fa-bars"></i>
             </button>
             <nav id="nav">
+                                
                 <ul>
                     <li><a href="home">Home</a></li>
-                    <li><a href="services">Services</a></li>
-                    <li><a href="gallery">Gallery</a></li>
-                    <li><a href="contact">Contact</a></li>
+                    <li><a href="home#services">Services</a></li>
+                    <li><a href="home#gallery">Gallery</a></li>
+                    <li><a href="home#contact">Contact</a></li>
                     <li><a href="quote" class="active">Quote</a></li>                     
                     <li><a href="logout">Logout</a></li>
                 </ul>
+
             </nav>
         </div>
     </header>
@@ -391,7 +394,7 @@ body.order-modal-open {
             
           
         <?php
-include 'db_connection.php'; // Make sure you have your database connection file
+include '../db_connection.php';
 
 // Fetch initial orders for the logged-in user
 $user_id = $_SESSION['user_id'] ?? null;
@@ -409,6 +412,19 @@ if ($user_id) {
             $statusClass = 'status-' . strtolower(str_replace(' ', '-', $status));
             $createdAt = date('M d, Y', strtotime($order['created_at']));
             $subtotal = $order['pricing'] * $order['quantity'];
+            
+            // Check if user has already approved/rejected
+            $isUserApproved = null;
+            if ($order['is_user_approved'] === 'yes') {
+                $isUserApproved = true;
+            } elseif ($order['is_user_approved'] === 'no') {
+                $isUserApproved = false;
+            }
+
+            // Format dates
+            $pickupDate = $order['pickup_date'] ? date('M d, Y', strtotime($order['pickup_date'])) : 'Pending';
+            $processingDate = $order['processing_date'] ? date('M d, Y', strtotime($order['processing_date'])) : 'Pending';
+            $deliveredDate = $order['delivered_date'] ? date('M d, Y', strtotime($order['delivered_date'])) : 'Pending';
 
             echo '
             <div class="quote-card animate__animated animate__fadeInUp">
@@ -434,7 +450,14 @@ if ($user_id) {
                             ' . ($order['is_approved_admin'] === 'yes' ? 'true' : 'false') . ',
                             ' . $order['pricing'] . ',
                             ' . $subtotal . ',
-                            ' . $order['quantity'] . '
+                            ' . $order['quantity'] . ',
+                            ' . ($isUserApproved === null ? 'null' : ($isUserApproved ? 'true' : 'false')) . ',
+                            ' . ($order['is_for_pickup'] !== null ? 'true' : 'false') . ',
+                            \'' . $pickupDate . '\',
+                            ' . ($order['is_for_processing'] !== null ? 'true' : 'false') . ',
+                            \'' . $processingDate . '\',
+                            ' . ($order['is_delivered'] !== null ? 'true' : 'false') . ',
+                            \'' . $deliveredDate . '\'
                         )">
                             <i class="fas fa-eye"></i> View
                         </button>
@@ -529,7 +552,22 @@ $conn->close();
 
     <script>
 // Open order process modal
-function openOrderProcessModal(ticketNumber, quotePlacedDate, approvedDate, isApproved, unitPrice, subtotal, quantity) {
+function openOrderProcessModal(
+    ticketNumber, 
+    quotePlacedDate, 
+    approvedDate, 
+    isApproved, 
+    unitPrice, 
+    subtotal, 
+    quantity, 
+    isUserApproved,
+    isForPickup,
+    pickupDate,
+    isForProcessing,
+    processingDate,
+    isDelivered,
+    deliveredDate
+) {
     const modal = document.getElementById('orderProcessModal');
     const stepsContainer = document.getElementById('orderProcessSteps');
     const title = document.getElementById('orderProcessTitle');
@@ -564,37 +602,48 @@ function openOrderProcessModal(ticketNumber, quotePlacedDate, approvedDate, isAp
             `,
             date: approvedDate,
             completed: true,
-            needsUserApproval: true  // Flag to show user confirmation buttons
+            needsUserApproval: (isUserApproved === null)
         });
         
-        // Add remaining steps (only if user agrees later)
-        steps.push(
-            {
-                title: "Production",
-                description: "Your items are being manufactured",
-                date: "Pending user confirmation",
-                completed: false
-            },
-            {
-                title: "Quality Check",
-                description: "Items undergoing final inspection",
-                date: "Pending",
-                completed: false
-            },
-            {
-                title: "Shipping",
-                description: "Preparing for delivery",
-                date: "Pending",
-                completed: false
+        // Add remaining steps if user has approved
+        if (isUserApproved === true) {
+            // Pick up step
+            if (isForPickup === 'true') {
+                steps.push({
+                    title: "Pick up",
+                    description: "Your items will be picked up at your location",
+                    date: pickupDate,
+                    completed: pickupDate !== 'Pending'
+                });
             }
-        );
+            
+            // Processing step
+            if (isForProcessing === 'true') {
+                steps.push({
+                    title: "Processing",
+                    description: "Items are in the printing process",
+                    date: processingDate,
+                    completed: processingDate !== 'Pending'
+                });
+            }
+            
+            // Delivered step
+            if (isDelivered === 'true') {
+                steps.push({
+                    title: "Delivered",
+                    description: "Items have been delivered",
+                    date: deliveredDate,
+                    completed: deliveredDate !== 'Pending'
+                });
+            }
+        }
     } 
     // If pending admin approval, show only "Quote Placed" + "Admin Review"
-    else if (approvedDate) {
+    else {
         steps.push({
             title: "Admin Review",
             description: "Your order is being reviewed by our team",
-            date: approvedDate,
+            date: approvedDate || "Pending",
             completed: false
         });
     }
@@ -639,8 +688,6 @@ function openOrderProcessModal(ticketNumber, quotePlacedDate, approvedDate, isAp
 }
 
 // User confirms/rejects the approved pricing
-// User confirms/rejects the approved pricing
-// User confirms/rejects the approved pricing
 function userConfirmOrder(ticketNumber, isConfirmed) {
     // Send AJAX request to update order status
     fetch('update_is_user_approved.php', {
@@ -660,7 +707,7 @@ function userConfirmOrder(ticketNumber, isConfirmed) {
             confirmationModal.innerHTML = `
                 <div class="agree-confirmation-modal-content">
                     <h3>${isConfirmed ? "Quote Confirmed" : "Order Rejected"}</h3>
-                    <p>${isConfirmed ? "Items will be pick up on your location" : "Your order has been rejected."}</p>
+                    <p>${isConfirmed ? "Items will be picked up at your location" : "Your order has been rejected."}</p>
                     <div class="modal-buttons">
                         <button id="closeAgreeConfirmationModal" class="modal-close-btn">Agree & Continue</button>
                         <button id="cancelAgreeConfirmationModal" class="modal-cancel-btn">Cancel</button>
@@ -685,14 +732,15 @@ function userConfirmOrder(ticketNumber, isConfirmed) {
                 // Call the toast notification
                 if (isConfirmed) {
                     showToast('Agree item will be picked up at your location');
+                    setTimeout(() => {
+                        location.reload(); // Reload the page after a short delay
+                    }, 1500);
                 } else {
                     showToast('Order has been rejected', 'error');
                 }
 
                 // Close the order process modal
                 closeOrderProcessModal();
-
-                // Optionally refresh the order list or update the UI
             });
 
             // Close modal on "Cancel" button click

@@ -352,6 +352,9 @@ body.order-modal-open {
 .modal-cancel-btn:hover {
     background-color: #c82333;
 }
+
+
+
     </style>
 
 </head>
@@ -383,15 +386,189 @@ body.order-modal-open {
                     <li><a href="quote" class="active">Quote</a></li>                     
                     <li><a href="logout">Logout</a></li>
                 </ul>
-
             </nav>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="quotes-container">
+
+    <style>
+.orders-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e1e1e1;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For IE and Edge */
+}
+
+.orders-tabs::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
+
+.tab-button {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b7280;
+    position: relative;
+    margin-right: 0;
+    white-space: nowrap;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    border-radius: 4px 4px 0 0;
+}
+
+.tab-button:hover {
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.05);
+}
+
+.tab-button.active {
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #4f46e5;
+    border-radius: 3px 3px 0 0;
+    transform-origin: bottom center;
+    animation: scaleIn 0.25s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Ripple effect */
+.tab-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(79, 70, 229, 0.3);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.tab-button:focus:not(.active)::before {
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .orders-tabs {
+        padding: 0 8px;
+    }
+    
+    .tab-button {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+</style>
+
+<div class="orders-tabs">
+    <button class="tab-button active" data-tab="pending-orders-container">Pending</button>
+    <button class="tab-button" data-tab="approved-orders-container">Approved</button>
+    <button class="tab-button" data-tab="pickup-orders-container">To Pick Up</button>
+    <button class="tab-button" data-tab="ship-orders-container">To Ship</button>
+    <button class="tab-button" data-tab="completed-orders-container">Completed</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    
+    tabButtons.forEach(button => {
+        // Add click animation
+        button.addEventListener('mousedown', function() {
+            this.style.transform = 'scale(0.98)';
+        });
+        
+        button.addEventListener('mouseup', function() {
+            this.style.transform = 'scale(1)';
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+        
+        // Tab switching functionality
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.transform = 'scale(1)'; // Reset any transforms
+            });
             
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Hide all containers
+            document.querySelectorAll('.quotes-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // Show the selected container
+            const tabId = this.getAttribute('data-tab');
+            if (tabId && document.getElementById(tabId)) {
+                document.getElementById(tabId).style.display = 'flex';
+                
+                // Smooth scroll to tabs if mobile (optional)
+                if (window.innerWidth < 768) {
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
+
+        <div class="quotes-container" id="pending-orders-container" style="display:flex;">
+           
           
         <?php
 include '../db_connection.php';
@@ -476,7 +653,12 @@ if ($user_id) {
 $conn->close();
 ?>
         </div>
+
+        <div class="quotes-container approved-orders-container" id="approved-orders-container" style="display:none;">
+        <h1>asdasdasdasd</h1>
+        </div>
     </main>
+
 
 
     <div id="orderProcessModal" class="order-process-modal">
