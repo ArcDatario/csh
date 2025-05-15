@@ -1,0 +1,308 @@
+     /* Order Process Modal Styles */
+     .order-process-modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .order-process-modal-content {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .order-process-close-btn {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 24px;
+        color: #666;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .order-process-close-btn:hover {
+        color: #333;
+    }
+    
+    .order-process-title {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    
+    .order-process-steps-container {
+        margin-top: 15px;
+    }
+    
+    .order-step {
+        display: flex;
+        margin-bottom: 20px;
+        opacity: 0.6;
+    }
+    
+    .order-step-completed {
+        opacity: 1;
+    }
+    
+    .order-step-number {
+        width: 26px;
+        height: 26px;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    
+    .order-step-connector {
+        width: 2px;
+        background-color: #e0e0e0;
+        margin: 0 12px;
+        min-height: 40px;
+    }
+    
+    .order-step-content {
+        flex: 1;
+        padding-bottom: 15px;
+    }
+    
+    .order-step-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+        font-size: 1rem;
+    }
+    
+    .order-step-description {
+        color: #555;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 5px;
+    }
+    
+    .order-step-date {
+        color: #777;
+        font-size: 0.8rem;
+        font-style: italic;
+    }
+    
+    .order-summary-details {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .order-subtotal {
+        font-weight: 600;
+        margin-top: 5px;
+        color: #333;
+    }
+    
+    .order-approval-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .order-approval-actions {
+        text-align: center;
+    }
+    
+    .order-approval-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+    
+    .order-agree-btn, .order-cancel-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    
+    .order-agree-btn {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .order-agree-btn:hover {
+        background-color: #218838;
+    }
+    
+    .order-cancel-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .order-cancel-btn:hover {
+        background-color: #c82333;
+    }
+    
+    body.order-modal-open {
+        overflow: hidden;
+    }
+    
+    
+    
+    /* Responsive styles for order approval buttons */
+    .order-approval-actions {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .order-approval-buttons {
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically on smaller screens */
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    @media (min-width: 768px) {
+        .order-approval-buttons {
+            flex-direction: row; /* Display buttons side by side on larger screens */
+            gap: 15px;
+        }
+    }
+    
+    .order-agree-btn, .order-cancel-btn {
+        width: 100%; /* Full width on smaller screens */
+        max-width: 200px; /* Limit button width on larger screens */
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    
+    .order-agree-btn {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .order-agree-btn:hover {
+        background-color: #218838;
+    }
+    
+    .order-cancel-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .order-cancel-btn:hover {
+        background-color: #c82333;
+    }
+    
+    
+    /* Agree Confirmation Modal Styles */
+    .agree-confirmation-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 1050;
+    }
+    
+    .agree-confirmation-modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .agree-confirmation-modal-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        width: 90%;
+    }
+    
+    .agree-confirmation-modal-content h3 {
+        margin: 0 0 10px;
+        font-size: 1.5rem;
+        color: #333;
+    }
+    
+    .agree-confirmation-modal-content p {
+        margin: 0 0 20px;
+        font-size: 1rem;
+        color: #555;
+    }
+    
+    /* Modal Buttons */
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .modal-close-btn {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+    }
+    
+    .modal-close-btn:hover {
+        background-color: #218838;
+    }
+    
+    .modal-cancel-btn {
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+    }
+    
+    .modal-cancel-btn:hover {
+        background-color: #c82333;
+    }
+    
+    
+    
