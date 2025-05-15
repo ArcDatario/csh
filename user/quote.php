@@ -45,9 +45,14 @@ $full_address = trim($address);
     
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/quote.css">
-    <link rel="stylesheet" href="../assets/css/quote-modal.css">
+    <link rel="stylesheet" href="../assets/css/order-process-modal.css">
 
-
+    <style>
+        .quote-date{
+            font-size:12px;
+            margin-left:7px;
+        }
+    </style>
 </head>
 <body>
     <!-- Loader -->
@@ -105,72 +110,166 @@ include '../db_connection.php';
 
 // Fetch initial orders for the logged-in user
 $user_id = $_SESSION['user_id'] ?? null;
+$has_orders = false;
+$orders = [];
 
 if ($user_id) {
-    $sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
+    $sql = "SELECT * FROM orders WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
+        $has_orders = true;
         while ($order = $result->fetch_assoc()) {
-            $status = $order['is_approved_admin'] === 'yes' ? 'Approved' : ($order['admin_approved_date'] ? 'Pending' : 'Processing');
-            $statusClass = 'status-' . strtolower(str_replace(' ', '-', $status));
-            $createdAt = date('M d, Y', strtotime($order['created_at']));
-            $subtotal = $order['pricing'] * $order['quantity'];
-            
-            echo '
-            <div class="quote-card animate__animated animate__fadeInUp">
-                <img src="' . htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') . '" alt="Design" class="card-image">
-                <span class="card-status ' . $statusClass . '">' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . '</span>
-                <div class="card-content">
-                    <h3 class="card-title">' . htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') . '</h3>
-                    <div class="card-details">
-                        <div class="card-detail">
-                            <span class="detail-label">Quantity</span>
-                            <span class="detail-value">' . htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') . '</span>
-                        </div>
-                        <div class="card-detail">
-                            <span class="detail-label">Ticket #</span>
-                            <span class="detail-value">' . htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') . '</span>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="view-details-btn view-pending-orders">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        <span class="quote-date">' . $createdAt . '</span>
-                    </div>
-                </div>
-            </div>';
+            $orders[] = $order;
         }
-    } else {
-        echo '<div class="no-orders">No orders found</div>';
     }
     $stmt->close();
-} else {
-    echo '<div class="no-orders">No user ID found. Please log in.</div>';
 }
-
 ?>
+
+<!-- HTML Structure -->
+<?php if (!$user_id): ?>
+    <div class="no-orders">No user ID found. Please log in.</div>
+<?php elseif (!$has_orders): ?>
+    <div class="no-orders">No orders found</div>
+<?php else: ?>
+    <?php foreach ($orders as $order): 
+        $status = $order['is_approved_admin'] === 'yes' ? 'Approved' : ($order['admin_approved_date'] ? 'Pending' : 'Processing');
+        $statusClass = 'status-' . strtolower(str_replace(' ', '-', $status));
+        $createdAt = date('M d, Y', strtotime($order['created_at']));
+        $subtotal = $order['pricing'] * $order['quantity'];
+    ?>
+        <div class="quote-card animate__animated animate__fadeInUp">
+            <img src="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" alt="Design" class="card-image">
+            <span class="card-status <?= $statusClass ?>"><?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?></span>
+            <div class="card-content">
+                <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
+                <div class="card-details">
+                    <div class="card-detail">
+                        <span class="detail-label">Quantity</span>
+                        <span class="detail-value"><?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?></span>
+                    </div>
+                    <div class="card-detail">
+                        <span class="detail-label">Ticket #</span>
+                        <span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                <button class="view-details-btn view-pending-orders" 
+        data-id="<?= htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8') ?>" 
+        data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>" 
+        data-created-at="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>">
+    <i class="fas fa-eye"></i> View
+</button>
+                    <span class="quote-date"><?= $createdAt ?></span>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
         </div>
 
-        <div class="quotes-container approved-orders-container" id="approved-orders-container" style="display:none;">
-        <h1>asdasdasdasd</h1>
-        </div>
+        <?php include "includes/approved-order.php";?>
     </main>
 
 
 
-    <div id="orderProcessModal" class="order-process-modal">
+    <div id="pendingOrderProcessModal" class="order-process-modal">
     <div class="order-process-modal-content">
-        <span class="order-process-close-btn" onclick="closeOrderProcessModal()">&times;</span>
-        <h2 id="orderProcessTitle" class="order-process-title"></h2>
-        <div id="orderProcessSteps" class="order-process-steps-container"></div>
-        <div id="orderApprovalSection" class="order-approval-section"></div>
+        <span class="order-process-close-btn" onclick="closePendingOrderProcessModal()">&times;</span>
+        <h2 id="pendingOrderProcessTitle" class="order-process-title">Ticket #12345 Process Details</h2>
+        
+        <div id="pendingOrderProcessSteps" class="order-process-steps-container">
+            <!-- Quote Placed Step -->
+            <div class="order-step order-step-completed">
+                <div class="order-step-number">1</div>
+                <div class="order-step-connector-completed"></div>
+                <div class="order-step-content">
+                    <div id="pendingQuotePlacedTitle" class="order-step-title">Quote Placed</div>
+                    <div id="pendingQuotePlacedDesc" class="order-step-description">Your order request has been received</div>
+                    <div id="pendingQuotePlacedDate" class="order-step-date">Jan 15, 2023</div>
+                </div>
+            </div>
+            
+            <!-- Admin Approved Step -->
+            <div class="order-step order-step-current">
+                <div class="order-step-number">2</div>
+                <div class="order-step-connector-current"></div>
+                <div class="order-step-content">
+                    <div id="pendingAdminApprovedTitle" class="order-step-title">Admin Approved</div>
+                    <div class="order-step-description">
+                        <div id="pendingOrderSummary" class="order-summary-details">
+                            <p id="pendingUnitPrice">Unit Price:Pending</p>
+                            <p id="pendingQuantity">Quantity: Pending</p>
+                            <p id="pendingSubtotal" class="order-subtotal">Subtotal: Pending</p>
+                        </div>
+                    </div>
+                    <div id="pendingAdminApprovedDate" class="order-step-date">Pending</div>
+                </div>
+                <!-- User Approval Buttons (shown when needed) -->
+                <div class="order-approval-actions">
+                    <div class="order-approval-buttons">
+                        <button class="order-agree-btn" >
+                            <i class="fas fa-check-circle" disabled></i> Agree
+                        </button>
+                        <button class="order-cancel-btn">
+                            <i class="fas fa-times-circle" disabled></i> Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pick Up Step (conditional) -->
+            <!-- <div class="order-step">
+                <div class="order-step-number">3</div>
+                <div class="order-step-connector"></div>
+                <div class="order-step-content">
+                    <div id="pendingPickupTitle" class="order-step-title">Pick up</div>
+                    <div id="pendingPickupDesc" class="order-step-description">Your items will be picked up at your location</div>
+                    <div id="pendingPickupDate" class="order-step-date">Pending</div>
+                </div>
+            </div> -->
+            
+            <!-- Processing Step (conditional) -->
+            <!-- <div class="order-step">
+                <div class="order-step-number">4</div>
+                <div class="order-step-connector"></div>
+                <div class="order-step-content">
+                    <div id="pendingProcessingTitle" class="order-step-title">Processing</div>
+                    <div id="pendingProcessingDesc" class="order-step-description">Items are in the printing process</div>
+                    <div id="pendingProcessingDate" class="order-step-date">Pending</div>
+                </div>
+            </div> -->
+            
+            <!-- Delivered Step (conditional) -->
+            <!-- <div class="order-step">
+                <div class="order-step-number">5</div>
+                <div class="order-step-connector"></div>
+                <div class="order-step-content">
+                    <div id="pendingDeliveredTitle" class="order-step-title">Delivered</div>
+                    <div id="pendingDeliveredDesc" class="order-step-description">Items have been delivered</div>
+                    <div id="pendingDeliveredDate" class="order-step-date">Pending</div>
+                </div>
+            </div> -->
+        </div>
     </div>
 </div>
+
+<!-- Confirmation Modal (dynamically shown when user confirms/rejects) -->
+<div id="agreeConfirmationModal" class="agree-confirmation-modal" style="display: none;">
+    <div class="agree-confirmation-modal-content">
+        <h3>Quote Confirmed</h3>
+        <p>Items will be picked up at your location</p>
+        <div class="modal-buttons">
+            <button id="closeAgreeConfirmationModal" class="modal-close-btn">Agree & Continue</button>
+            <button id="cancelAgreeConfirmationModal" class="modal-cancel-btn">Cancel</button>
+        </div>
+    </div>
+</div>
+<!-- Confirmation Modal (dynamically shown when user confirms/rejects) ends -->
 
     <!-- Add Quote Button -->
     <button class="add-quote-btn pulse" id="addQuoteBtn">
@@ -234,9 +333,52 @@ if ($user_id) {
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/quote.js"></script>
 
-    <script src="../assets/js/submit-quote.js"></script>
-
     <script src="../assets/js/quote-swtich-tab-modal.js"></script>
+
+    <script>
+   // Function to open the modal with order details
+function openPendingOrderModal(event) {
+    const button = event.currentTarget;
+    const ticket = button.getAttribute('data-ticket');
+    const createdAt = button.getAttribute('data-created-at');
+    
+    // Format the date (assuming createdAt is in ISO format like 'YYYY-MM-DD HH:MM:SS')
+    const date = new Date(createdAt);
+    const formattedDate = date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+
+    // Update modal content with the order details
+    document.getElementById('pendingOrderProcessTitle').textContent = `Ticket #${ticket} Process Details`;
+    document.getElementById('pendingQuotePlacedDate').textContent = formattedDate;
+
+    // Show the modal
+    document.getElementById('pendingOrderProcessModal').style.display = 'flex';
+}
+
+// Function to close the modal
+function closePendingOrderProcessModal() {
+    document.getElementById('pendingOrderProcessModal').style.display = 'none';
+}
+
+// Set up event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Open modal when view buttons are clicked and pass data
+    document.querySelectorAll('.view-details-btn.view-pending-orders').forEach(button => {
+        button.addEventListener('click', openPendingOrderModal);
+    });
+    
+    // Close modal when clicking outside content
+    document.getElementById('pendingOrderProcessModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeOrderProcessModal();
+        }
+    });
+});
+    </script>
+
 
 </body>
 </html>

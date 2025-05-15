@@ -73,9 +73,23 @@
         flex-shrink: 0;
     }
     
-    .order-step-connector {
+    .order-step-connector-completed {
         width: 2px;
-        background-color: #e0e0e0;
+        background-color: rgb(42, 42, 230);
+        margin: 0 12px;
+        min-height: 40px;
+    }
+
+    .order-step-connector-current {
+        width: 2px;
+        background-color: rgb(0, 196, 0);
+        margin: 0 12px;
+        min-height: 40px;
+    }
+
+    .order-step-connector-pending {
+        width: 2px;
+        background-color: rgb(207, 143, 23);
         margin: 0 12px;
         min-height: 40px;
     }
