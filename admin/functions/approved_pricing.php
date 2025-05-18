@@ -4,6 +4,10 @@
 // Start session and include database connection
 session_start();
 require '../../db_connection.php'; // Adjust this to your database connection file
+require '../../vendor/autoload.php'; // Include PHPMailer autoloader
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 // Check if the request is POST and user is logged in
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
@@ -13,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     $subtotal = isset($_POST['subtotal']) ? $_POST['subtotal'] : null;
     $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : null;
     $ticket = isset($_POST['ticket']) ? $_POST['ticket'] : null;
+    $quantity = isset($_POST['quantity']) ? $_POST['quantity'] : null; // Added quantity
 
     // Validate required inputs
     if (empty($id) || empty($user_id) || empty($ticket)) {
@@ -21,6 +26,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     }
 
     try {
+        // First, get user's email from database
+        $user_query = $conn->prepare("SELECT email FROM users WHERE id = ?");
+        $user_query->bind_param("i", $user_id);
+        $user_query->execute();
+        $user_result = $user_query->get_result();
+        
+        if ($user_result->num_rows === 0) {
+            throw new Exception("User not found");
+        }
+        
+        $user_data = $user_result->fetch_assoc();
+        $user_email = $user_data['email'];
+        $user_query->close();
+
         // Build the SQL query dynamically based on provided values
         $query = "UPDATE orders SET is_approved_admin = 'yes', admin_approved_date = NOW(), status = 'approved'";
         $params = [];
@@ -62,7 +81,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
             $notify_stmt->bind_param("is", $user_id, $content);
 
             if ($notify_stmt->execute()) {
-                echo json_encode(['success' => true, 'message' => 'Pricing updated successfully']);
+                // Send email notification
+                $mail = new PHPMailer(true);
+                
+                try {
+                    // Server settings
+                    $mail->isSMTP();
+                    $mail->Host       = 'smtp.gmail.com';
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = 'capstoneproject0101@gmail.com';
+                    $mail->Password   = 'sgox knuc kool pftq';
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port       = 587;
+
+                    // Recipients
+                    $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Enterprises');
+                    $mail->addAddress($user_email); // User's email
+
+                    // Content
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Your Quote for Ticket #' . $ticket . ' Has Been Approved';
+                    
+                    // Build the email body with proper formatting
+                    $emailBody = '
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: Arial, sans-serif; line-height: 1.6; }
+                            .details { margin: 20px 0; }
+                            .details li { margin-bottom: 10px; }
+                            .thank-you { margin-top: 20px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <p>Dear Valued Customer,</p>
+                        
+                        <p>We are pleased to inform you that your quote has been approved. Below are the details:</p>
+                        
+                        <div class="details">
+                            <ul>
+                                <li><strong>Ticket Number:</strong> #' . htmlspecialchars($ticket) . '</li>
+                                <li><strong>Unit Price:</strong> ₱' . htmlspecialchars(number_format($price, 2)) . '</li>
+                                <li><strong>Quantity:</strong> ' . htmlspecialchars($quantity) . '</li>
+                                <li><strong>Total Amount:</strong> ₱' . htmlspecialchars(number_format($subtotal, 2)) . '</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="thank-you">Thank you for choosing our service!</p>
+                        
+                        <p>Should you have any questions, please don\'t hesitate to contact us.</p>
+                        
+                        <p>Best regards,<br>
+                        Admin Team</p>
+                    </body>
+                    </html>';
+
+                    $mail->Body = $emailBody;
+                    $mail->AltBody = "Dear Valued Customer,\n\n"
+                        . "We are pleased to inform you that your quote has been approved. Below are the details:\n\n"
+                        . "Ticket Number: #" . $ticket . "\n"
+                        . "Unit Price: ₱" . number_format($price, 2) . "\n"
+                        . "Quantity: " . $quantity . "\n"
+                        . "Total Amount: ₱" . number_format($subtotal, 2) . "\n\n"
+                        . "Thank you for choosing our service!\n\n"
+                        . "Best regards,\n"
+                        . "Admin Team";
+
+                    $mail->send();
+                    
+                    // All operations successful
+                    echo json_encode(['success' => true, 'message' => 'Pricing updated and notifications sent successfully']);
+                } catch (Exception $emailException) {
+                    // Email failed but database operations succeeded
+                    error_log("Email sending failed: " . $emailException->getMessage());
+                    echo json_encode(['success' => true, 'message' => 'Pricing updated but email notification failed']);
+                }
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to insert notification']);
             }

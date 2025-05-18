@@ -67,15 +67,6 @@ if ($user_id) {
 
  
         
-
-
-
-
-
-
-
-
-
         <div id="approvedOrderProcessModal" class="order-process-modal">
     <div class="order-process-modal-content">
     <span class="order-process-close-btn" onclick="closeApprovedOrderProcessModal()">&times;</span>
