@@ -173,6 +173,7 @@ if ($user_id) {
         </div>
 
         <?php include "includes/approved-order.php";?>
+         <?php include "includes/to-pick-up-order.php";?>
     </main>
 
 

@@ -51,12 +51,19 @@ if ($user_id) {
                     </div>
                 </div>
                 <div class="card-actions">
+                            
                 <button class="view-details-btn approved-order-btn" 
-        data-approved-id="<?= htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8') ?>" 
-        data-approved-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>" 
-        data-approved-created-at="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>">
-    <i class="fas fa-eye"></i> View
-</button>
+                    data-approved-id="<?= htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8') ?>" 
+                    data-approved-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>" 
+                    data-approved-created-at="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
+                    data-approved-admin="<?= htmlspecialchars($order['is_approved_admin'], ENT_QUOTES, 'UTF-8') ?>"
+                    data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8') ?>"
+                    data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
+                    data-subtotal="<?= htmlspecialchars($order['pricing'] * $order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
+                    data-admin-approved-date="<?= htmlspecialchars($order['admin_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
+                >
+                    <i class="fas fa-eye"></i> View
+                </button>
                     <span class="quote-date"><?= $createdAt ?></span>
                 </div>
             </div>
@@ -67,7 +74,7 @@ if ($user_id) {
 
  
         
-        <div id="approvedOrderProcessModal" class="order-process-modal">
+<div id="approvedOrderProcessModal" class="order-process-modal">
     <div class="order-process-modal-content">
     <span class="order-process-close-btn" onclick="closeApprovedOrderProcessModal()">&times;</span>
         <h2 id="approvedOrderProcessTitle" class="order-process-title">Ticket #12345 Process Details</h2>
@@ -111,8 +118,20 @@ if ($user_id) {
                 </div>
             </div>
             
-            <!-- Processing Step -->
+
+              <!-- Ready for Pickup/Delivery Step -->
             <div class="order-step order-step-current">
+                <div class="order-step-number">4</div>
+                <div class="order-step-connector-pending"></div>
+                <div class="order-step-content">
+                    <div id="approvedReadyTitle" class="order-step-title">Ready</div>
+                    <div id="approvedReadyDesc" class="order-step-description">Your order is ready for pickup</div>
+                    <div id="approvedReadyDate" class="order-step-date">Pending</div>
+                </div>
+            </div>
+
+            <!-- Processing Step -->
+            <!-- <div class="order-step order-step-current">
                 <div class="order-step-number">3</div>
                 <div class="order-step-connector-pending"></div>
                 <div class="order-step-content">
@@ -120,18 +139,9 @@ if ($user_id) {
                     <div id="approvedProcessingDesc" class="order-step-description">Items are in the printing process</div>
                     <div id="approvedProcessingDate" class="order-step-date">Jan 17, 2023</div>
                 </div>
-            </div>
-            
-            <!-- Ready for Pickup/Delivery Step -->
-            <!-- <div class="order-step">
-                <div class="order-step-number">4</div>
-                <div class="order-step-connector"></div>
-                <div class="order-step-content">
-                    <div id="approvedReadyTitle" class="order-step-title">Ready</div>
-                    <div id="approvedReadyDesc" class="order-step-description">Your order is ready for pickup/delivery</div>
-                    <div id="approvedReadyDate" class="order-step-date">Pending</div>
-                </div>
             </div> -->
+            
+          
             
             <!-- Completed Step -->
             <!-- <div class="order-step">
@@ -146,16 +156,16 @@ if ($user_id) {
         </div>
     </div>
 </div>
-
-
 <script>
-   // Function to open the approved order modal with order details
 function openApprovedOrderModal(event) {
     const button = event.currentTarget;
     const ticket = button.getAttribute('data-approved-ticket');
     const createdAt = button.getAttribute('data-approved-created-at');
-    const id = button.getAttribute('data-approved-id');
-    
+    const pricing = button.getAttribute('data-pricing');
+    const quantity = button.getAttribute('data-quantity');
+    const subtotal = button.getAttribute('data-subtotal');
+    const adminApprovedDate = button.getAttribute('data-admin-approved-date');
+
     // Format the dates
     const date = new Date(createdAt);
     const formattedDate = date.toLocaleDateString('en-US', { 
@@ -164,44 +174,209 @@ function openApprovedOrderModal(event) {
         day: 'numeric' 
     });
 
-    // Update modal content
+    // Format admin approved date if available
+    let formattedAdminApprovedDate = 'N/A';
+    if (adminApprovedDate && adminApprovedDate !== 'null' && adminApprovedDate !== '') {
+        const adminDate = new Date(adminApprovedDate);
+        if (!isNaN(adminDate)) {
+            formattedAdminApprovedDate = adminDate.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+    }
+
     document.getElementById('approvedOrderProcessTitle').textContent = `Ticket #${ticket} Process Details`;
     document.getElementById('approvedQuotePlacedDate').textContent = formattedDate;
-    
-    // Set example data (replace with actual data from your backend)
-    document.getElementById('approvedUnitPrice').textContent = `Unit Price: $10.00`;
-    document.getElementById('approvedQuantity').textContent = `Quantity: 5`;
-    document.getElementById('approvedSubtotal').textContent = `Subtotal: $50.00`;
-    document.getElementById('approvedAdminApprovedDate').textContent = formattedDate;
-    document.getElementById('approvedProcessingDate').textContent = new Date(date.getTime() + 86400000).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-    });
+    document.getElementById('approvedUnitPrice').textContent = `Unit Price: ₱${parseFloat(pricing).toFixed(2)}`;
+    document.getElementById('approvedQuantity').textContent = `Quantity: ${quantity}`;
+    document.getElementById('approvedSubtotal').textContent = `Subtotal: ₱${parseFloat(subtotal).toFixed(2)}`;
+    document.getElementById('approvedAdminApprovedDate').textContent = formattedAdminApprovedDate;
 
-    // Show the modal
+    // Remove or skip updating the Processing step date
+    // (No reference to 'approvedProcessingDate' here)
+
+    document.getElementById('approvedOrderProcessModal').setAttribute('data-ticket', ticket);
     document.getElementById('approvedOrderProcessModal').style.display = 'flex';
 }
 
-// Function to close the modal (works with onclick handler)
 function closeApprovedOrderProcessModal() {
     document.getElementById('approvedOrderProcessModal').style.display = 'none';
 }
 
-// Set up event listeners when page loads
+// Confirmation modal logic
+function showConfirmationModal(message, onConfirm) {
+    let modal = document.getElementById('confirmationModal');
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'confirmationModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            backdrop-filter: blur(2px);
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: #fff;
+                padding: 32px;
+                border-radius: 12px;
+                max-width: 90vw;
+                width: 380px;
+                text-align: center;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+                transform: translateY(10px);
+                transition: transform 0.2s ease;
+            ">
+                <div id="confirmationModalMessage" style="
+                    margin-bottom: 28px;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    color: #333;
+                "></div>
+                <div style="display: flex; justify-content: center; gap: 12px;">
+                    <button id="confirmNoBtn" style="
+                        padding: 10px 20px;
+                        background: #f5f5f5;
+                        color: #333;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    ">Cancel</button>
+                    <button id="confirmYesBtn" style="
+                        padding: 10px 20px;
+                        background: #000;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    ">Confirm</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Add hover effects
+        const yesBtn = document.getElementById('confirmYesBtn');
+        const noBtn = document.getElementById('confirmNoBtn');
+        
+        yesBtn.onmouseenter = () => yesBtn.style.transform = 'translateY(-1px)';
+        yesBtn.onmouseleave = () => yesBtn.style.transform = 'translateY(0)';
+        noBtn.onmouseenter = () => noBtn.style.transform = 'translateY(-1px)';
+        noBtn.onmouseleave = () => noBtn.style.transform = 'translateY(0)';
+        
+        // Add active/click effects
+        yesBtn.onmousedown = () => yesBtn.style.transform = 'translateY(1px)';
+        yesBtn.onmouseup = () => yesBtn.style.transform = 'translateY(-1px)';
+        noBtn.onmousedown = () => noBtn.style.transform = 'translateY(1px)';
+        noBtn.onmouseup = () => noBtn.style.transform = 'translateY(-1px)';
+    }
+    
+    document.getElementById('confirmationModalMessage').textContent = message;
+    
+    // Show with animation
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modal.children[0].style.transform = 'translateY(0)';
+    }, 10);
+    
+    document.getElementById('confirmYesBtn').onclick = function() {
+        modal.style.opacity = '0';
+        modal.children[0].style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            onConfirm();
+        }, 200);
+    };
+    
+    document.getElementById('confirmNoBtn').onclick = function() {
+        modal.style.opacity = '0';
+        modal.children[0].style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 200);
+    };
+}
+
+function userApproveOrder(ticketNumber, action) {
+    fetch('functions/user_approve_order.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ ticketNumber, action })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+    showToast(
+        'Successful! The items will be picked up on your location',
+        '',
+        'success',
+        3500 // duration in ms
+    );
+    closeApprovedOrderProcessModal();
+    
+    // Save the tab to localStorage before reloading
+    localStorage.setItem('activeTab', 'pickup-orders-container');
+    
+    // Reload after the toast disappears
+    setTimeout(() => location.reload(), 3500);
+} else {
+            showToast('Error', data.message, 'error', 3500);
+        }
+    })
+    .catch(() => showToast('Error', 'An error occurred. Please try again.', 'error', 3500));
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Open modal when approved order buttons are clicked
     document.querySelectorAll('.approved-order-btn').forEach(button => {
         button.addEventListener('click', openApprovedOrderModal);
     });
-    
-    // Close modal when clicking outside content
+
+    document.querySelector('.order-agree-btn').addEventListener('click', function() {
+        const ticket = document.getElementById('approvedOrderProcessModal').getAttribute('data-ticket');
+        if (!ticket) {
+            showToast('Error', 'Ticket number not found.', 'error');
+            return;
+        }
+        showConfirmationModal('Are you sure you want to agree to this quote?', function() {
+            userApproveOrder(ticket, 'agree');
+        });
+    });
+
+    document.querySelector('.order-cancel-btn').addEventListener('click', function() {
+        const ticket = document.getElementById('approvedOrderProcessModal').getAttribute('data-ticket');
+        if (!ticket) {
+            showToast('Error', 'Ticket number not found.', 'error');
+            return;
+        }
+        showConfirmationModal('Are you sure you want to reject this quote?', function() {
+            userApproveOrder(ticket, 'reject');
+        });
+    });
+
     document.getElementById('approvedOrderProcessModal').addEventListener('click', function(e) {
         if (e.target === this) {
-            closeOrderProcessModal();
+            closeApprovedOrderProcessModal();
         }
     });
 });
 </script>
-
 
