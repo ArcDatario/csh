@@ -637,16 +637,17 @@ function handleViewButtonClick() {
 // Save quote handler
 function handleSaveQuote() {
     const quoteAmount = priceInput.value;
-const subtotalAmount = subtotalInput.value;
-const id = quoteModal.getAttribute('data-current-id');
-const userId = document.getElementById('user_id').value;
-const ticket = document.getElementById('ticket-value-input').value;
+    const subtotalAmount = subtotalInput.value;
+    const id = quoteModal.getAttribute('data-current-id');
+    const userId = document.getElementById('user_id').value;
+    const ticket = document.getElementById('ticket-value-input').value;
+    const quantity = document.getElementById('quote-modal-quantity').textContent.trim(); // <-- Add this
 
-// Remove the requirement for quoteAmount
-if (quoteAmount && isNaN(quoteAmount)) {
-    showToast('Error', 'Please enter a valid quote amount', 'error');
-    return;
-}
+    // Remove the requirement for quoteAmount
+    if (quoteAmount && isNaN(quoteAmount)) {
+        showToast('Error', 'Please enter a valid quote amount', 'error');
+        return;
+    }
 
     const formData = new FormData();
     formData.append('id', id);
@@ -654,6 +655,7 @@ if (quoteAmount && isNaN(quoteAmount)) {
     formData.append('subtotal', subtotalAmount);
     formData.append('user_id', userId);
     formData.append('ticket', ticket);
+    formData.append('quantity', quantity); // <-- Add this
 
     // Show loading state
     const originalText = saveBtn.textContent;
