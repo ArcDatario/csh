@@ -17,11 +17,13 @@ $action = $data['action'];
 if ($action === 'agree') {
     $isUserApproved = 'yes';
     $status = 'to-pick-up'; // New status for agreed orders
+    $isForPickup = 'no';    // Always set to 'no' on agree
     $content = "Quote #$ticketNumber has been agreed to the price";
     $successMessage = "Successful, the items will be picked up at your location";
 } else if ($action === 'reject') {
     $isUserApproved = 'no';
     $status = 'rejected'; // New status for rejected orders
+    $isForPickup = 'no';  // Always set to 'no' on reject as well
     $content = "Quote #$ticketNumber has been rejected by the user";
     $successMessage = "Successfully rejected the quote";
 } else {
@@ -29,10 +31,10 @@ if ($action === 'agree') {
     exit();
 }
 
-// Update both is_user_approved and status fields
-$sql = "UPDATE orders SET is_user_approved = ?, user_approved_date = NOW(), status = ? WHERE ticket = ?";
+// Update is_user_approved, status, user_approved_date, and is_for_pickup fields
+$sql = "UPDATE orders SET is_user_approved = ?, user_approved_date = NOW(), status = ?, is_for_pickup = ? WHERE ticket = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sss", $isUserApproved, $status, $ticketNumber);
+$stmt->bind_param("ssss", $isUserApproved, $status, $isForPickup, $ticketNumber);
 
 if ($stmt->execute()) {
     $selectSql = "SELECT id, user_id FROM orders WHERE ticket = ?";
