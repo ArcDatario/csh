@@ -62,7 +62,7 @@ try {
 
         // Insert notification with order_id
         $notificationContent = "New Quote, $printType, $quantity";
-        $notificationStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_designer, created_at) VALUES (?, ?, ?, 'yes', NOW())");
+       $notificationStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_designer, notify_owner, notify_manager, created_at) VALUES (?, ?, ?, 'yes', 'yes', 'yes', NOW())");
         $notificationStmt->bind_param("iis", $userId, $orderId, $notificationContent);
         
         if ($notificationStmt->execute()) {
