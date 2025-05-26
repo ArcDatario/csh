@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 require_once '../db_connection.php';
 require_once '../auth_check.php';
 
@@ -57,10 +58,12 @@ try {
     $stmt->bind_param("isissis", $userId, $printType, $quantity, $note, $designFile, $ticket, $address);
     
     if ($stmt->execute()) {
-        // Insert notification
+        $orderId = $stmt->insert_id; // Get the inserted order's ID
+
+        // Insert notification with order_id
         $notificationContent = "New Quote, $printType, $quantity";
-        $notificationStmt = $conn->prepare("INSERT INTO notification (user_id, content, notify_designer, created_at) VALUES (?, ?, 'yes', NOW())");
-        $notificationStmt->bind_param("is", $userId, $notificationContent);
+        $notificationStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_designer, created_at) VALUES (?, ?, ?, 'yes', NOW())");
+        $notificationStmt->bind_param("iis", $userId, $orderId, $notificationContent);
         
         if ($notificationStmt->execute()) {
             echo json_encode(['success' => true, 'message' => 'Quote submitted successfully', 'ticket' => $ticket]);

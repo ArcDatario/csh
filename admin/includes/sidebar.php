@@ -25,10 +25,8 @@
         $ordersLink = "orders";
         $ordersPage = "orders";
     }
-
-
-    // You may need to adjust how you get the current page, e.g., from $_GET or a routing variable
-    $currentPage = basename($_SERVER['PHP_SELF'], ".php"); // e.g., "orders" or "admintoapprove"
+    // Secretary handled below
+    $currentPage = basename($_SERVER['PHP_SELF'], ".php");
     $isActive = ($currentPage === $ordersPage) ? 'active' : '';
 ?>
 <a href="<?php echo $ordersLink; ?>" class="nav-link <?php echo $isActive; ?>" data-page="<?php echo $ordersPage; ?>">
@@ -77,10 +75,14 @@
             </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Secretary'): ?>
-            <!-- Secretary Menu (Dashboard, Inventory, Admin) -->
+            <!-- Secretary Menu (Dashboard, Orders, Inventory, Admin) -->
             <a href="dashboard" class="nav-link" data-page="dashboard">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
+            </a>
+            <a href="to-pick-up-orders" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'to-pick-up-orders') ? ' active' : ''; ?>" data-page="to-pick-up-orders">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
             </a>
             <a href="inventory" class="nav-link" data-page="inventory">
                 <i class="fas fa-box"></i>

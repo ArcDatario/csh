@@ -319,8 +319,8 @@ if (isset($_SESSION['admin_role'])) {
 
 <body>
     <div class="container">
-        <!-- Sidebar -->
-        <button class="mobile-menu-toggle" id="menuToggle">
+      
+       <button class="mobile-menu-toggle" id="menuToggle">
         <i class="fa-solid fa-bars"></i>
     </button>
 
