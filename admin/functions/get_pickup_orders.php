@@ -8,7 +8,7 @@ $sql = "SELECT orders.id, orders.user_id, orders.ticket, orders.design_file, ord
                orders.pricing, orders.subtotal, users.name, users.phone_number, users.email 
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
-        WHERE orders.status = 'to-pick-up'
+        WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'no'
         ORDER BY orders.created_at DESC";
 
 $result = $conn->query($sql);
