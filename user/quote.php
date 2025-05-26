@@ -1,4 +1,3 @@
-
 <?php 
 require '../auth_check.php';
 redirectIfNotLoggedIn();
@@ -48,10 +47,61 @@ $full_address = trim($address);
     <link rel="stylesheet" href="../assets/css/order-process-modal.css">
 
     <style>
+        
         .quote-date{
             font-size:12px;
             margin-left:7px;
         }
+
+/* Align to right and make it responsive */
+.search-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.6rem;
+}
+
+/* Container with icon */
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+}
+
+/* Modern input field */
+.search-input {
+  width: 100%;
+  padding: 0.6rem 0.5rem 0.6rem 2.5rem; /* space for icon */
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  background-color: #f1f3f5;
+  font-size: 0.8rem;
+  transition: 0.2s all ease-in-out;
+  outline: none;
+}
+
+.search-input:focus {
+  background-color: #fff;
+  border-color: #339af0;
+  box-shadow: 0 0 0 3px rgba(51, 154, 240, 0.2);
+}
+
+/* Search icon inside input */
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.9rem;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+@media (max-width: 576px) {
+  .search-wrapper {
+    justify-content: center;
+  }
+}
+
+        /* style for */
     </style>
 </head>
 <body>
@@ -89,9 +139,7 @@ $full_address = trim($address);
     <!-- Main Content -->
     <main class="main-content">
 
-    <style>
 
-</style>
 
 <div class="orders-tabs">
     <button class="tab-button active" data-tab="pending-orders-container">Pending</button>
@@ -101,9 +149,60 @@ $full_address = trim($address);
     <button class="tab-button" data-tab="completed-orders-container">Completed</button>
 </div>
 
+<div class="search-wrapper">
+  <div class="search-container">
+    <!-- Pending -->
+<div class="pending-search" style="display: block;">
+  <input type="text"
+         id="PendingSearchInput"
+         class="search-input"
+         placeholder="Search by Ticket #">
+  <span class="search-icon">&#128269;</span>
+</div>
+
+<!-- Approved -->
+<div class="approved-search" style="display: none;">
+  <input type="text"
+         id="ApproveSearchInput"
+         class="search-input"
+         placeholder="Search by Ticket #">
+  <span class="search-icon">&#128269;</span>
+</div>
+
+<!-- To-Pickup -->
+<div class="topickup-search" style="display: none;">
+  <input type="text"
+         id="ToPickupSearchInput"
+         class="search-input"
+         placeholder="Search by Ticket #">
+  <span class="search-icon">&#128269;</span>
+</div>
+
+<!-- To-Ship -->
+<div class="toship-search" style="display: none;">
+  <input type="text"
+         id="ToShipSearchInput"
+         class="search-input"
+         placeholder="Search by Ticket #">
+  <span class="search-icon">&#128269;</span>
+</div>
+
+<!-- Completed -->
+<div class="completed-search" style="display: none;">
+  <input type="text"
+         id="CompletedSearchInput"
+         class="search-input"
+         placeholder="Search by Ticket #">
+  <span class="search-icon">&#128269;</span>
+</div>
+
+  </div>
+</div>
 
 
-        <div class="quotes-container" id="pending-orders-container" style="display:flex;">
+
+
+        <div class="quotes-container" id="pending-orders-container" style="display:block;">
            
         <?php
 include '../db_connection.php';
@@ -377,6 +476,37 @@ document.addEventListener('DOMContentLoaded', function() {
             closeOrderProcessModal();
         }
     });
+});
+
+// Pending Orders Search Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('PendingSearchInput');
+    const pendingOrdersContainer = document.getElementById('pending-orders-container');
+
+    if (searchInput && pendingOrdersContainer) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            const cards = pendingOrdersContainer.querySelectorAll('.quote-card');
+
+            cards.forEach(card => {
+                // Find the Ticket # value inside the card
+                let ticketNumber = '';
+                card.querySelectorAll('.card-detail').forEach(detail => {
+                    const label = detail.querySelector('.detail-label');
+                    const value = detail.querySelector('.detail-value');
+                    if (label && value && label.textContent.trim().toLowerCase() === 'ticket #') {
+                        ticketNumber = value.textContent.trim().toLowerCase();
+                    }
+                });
+                // Show card if ticket matches query, else hide
+                if (ticketNumber.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
 });
     </script>
 

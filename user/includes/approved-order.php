@@ -350,6 +350,30 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', openApprovedOrderModal);
     });
 
+    // --- Approved Orders Search Functionality ---
+    const approveSearchInput = document.getElementById('ApproveSearchInput');
+    const approvedOrdersContainer = document.getElementById('approved-orders-container');
+    if (approveSearchInput && approvedOrdersContainer) {
+        approveSearchInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            const cards = approvedOrdersContainer.querySelectorAll('.quote-card');
+            cards.forEach(card => {
+                let ticketNumber = '';
+                card.querySelectorAll('.card-detail').forEach(detail => {
+                    const label = detail.querySelector('.detail-label');
+                    const value = detail.querySelector('.detail-value');
+                    if (label && value && label.textContent.trim().toLowerCase() === 'ticket #') {
+                        ticketNumber = value.textContent.trim().toLowerCase();
+                    }
+                });
+                if (ticketNumber.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
     document.querySelector('.order-agree-btn').addEventListener('click', function() {
         const ticket = document.getElementById('approvedOrderProcessModal').getAttribute('data-ticket');
         if (!ticket) {
