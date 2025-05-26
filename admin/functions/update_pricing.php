@@ -32,10 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
         // Execute the query
         if ($stmt->execute()) {
-            // Insert notification into the notification table
+            // Insert notification into the notification table with order_id
             $content = "Designer just added a quote price of ₱{$price} on ticket #{$ticket}";
-            $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, content, notify_owner, notify_manager) VALUES (?, ?, 'yes', 'yes')");
-            $notify_stmt->bind_param("is", $user_id, $content);
+            $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_owner, notify_manager) VALUES (?, ?, ?, 'yes', 'yes')");
+            $notify_stmt->bind_param("iis", $user_id, $id, $content);
 
             if ($notify_stmt->execute()) {
                 echo json_encode(['success' => true, 'message' => 'Pricing updated successfully']);

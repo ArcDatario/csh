@@ -90,14 +90,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
         // Execute the query
         if ($stmt->execute()) {
-            // Insert notification into the notification table
+            // Insert notification into the notification table with order_id
             $content = "admin just approved a quote price of ₱" . number_format($unit_price, 2) . " on ticket #{$ticket}";
-            $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, content, notify_field) VALUES (?, ?, 'yes')");
+            $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_field) VALUES (?, ?, ?, 'yes')");
             if ($notify_stmt === false) {
                 throw new Exception("Failed to prepare the notification statement: " . $conn->error);
             }
 
-            $notify_stmt->bind_param("is", $user_id, $content);
+            $notify_stmt->bind_param("iis", $user_id, $id, $content);
 
             if ($notify_stmt->execute()) {
                 // Send email notification
