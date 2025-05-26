@@ -30,291 +30,8 @@ if (isset($_SESSION['admin_role'])) {
     <link rel="icon" href="assets/images/analysis.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-/* Minimalist Quote Modal Styles */
-.quote-modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  overflow-y: auto;
-}
-
-.quote-modal-content {
-  background-color: white;
-  margin: 5% auto;
-  padding: 20px;
-  border-radius: 6px;
-  width: 90%;
-  max-width: 450px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.quote-modal-close {
-  color: #999;
-  position: absolute;
-  right: 20px;
-  top: 15px;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.quote-modal-close:hover {
-  color: #333;
-}
-
-.quote-modal h2 {
-  font-size: 1.2rem;
-  margin: 0 0 15px 0;
-  color: #333;
-  font-weight: 600;
-}
-
-.quote-modal-body {
-  margin: 15px 0;
-  font-size: 0.9rem;
-}
-
-.quote-modal-row {
-  margin-bottom: 12px;
-}
-
-.grouped-row {
-  display: flex;
-  gap: 15px;
-}
-
-.grouped-row-2 {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 15px;
-  margin-bottom: 12px;
-}
-
-.grouped-item {
-  flex: 1;
-}
-
-.details-column {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.quote-modal-label {
-  font-weight: 500;
-  color: #666;
-  display: block;
-  margin-bottom: 2px;
-  font-size: 0.85rem;
-}
-
-.quote-modal-value {
-  color: #333;
-  word-break: break-word;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-/* Design section with buttons */
-.design-image-container {
-  position: relative;
-  margin-bottom: 8px;
-}
-
-.design-image {
-  border-radius: 4px;
-  border: 1px solid #eee;
-  max-width: 120px;
-  height: auto;
-  display: block;
-}
-
-.design-buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.view-design-btn, 
-.download-design-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  flex: 1;
-}
-
-.view-design-btn {
-  background-color: #2196F3;
-  color: white;
-}
-
-.view-design-btn:hover {
-  background-color: #0b7dda;
-}
-
-.download-design-btn {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.download-design-btn:hover {
-  background-color: #45a049;
-}
-
-/* Special value styles */
-.note-value {
-  display: inline-block;
-  padding: 6px 8px;
-  background-color: #f8f8f8;
-  border-radius: 3px;
-  width: 100%;
-  font-style: italic;
-}
-
-.address-value {
-  display: inline-block;
-  padding: 6px 8px;
-  background-color: #f5f9ff;
-  border-radius: 3px;
-  width: 100%;
-  white-space: pre-wrap;
-}
-
-/* Subtotal */
-.subtotal-text {
-  display: inline-block;
-  padding: 8px;
-  background-color: #f0f8f0;
-  border-radius: 4px;
-  font-weight: 500;
-  width: 100%;
-  margin-top: 5px;
-}
-
-/* Footer */
-.quote-modal-footer {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-}
-
-#quote-modal-input {
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.quote-modal-btn {
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  transition: background-color 0.2s;
-}
-
-.quote-modal-btn:hover {
-  background-color: #45a049;
-}
-
-/* Image Viewer Modal */
-.image-viewer-modal {
-  display: none;
-  position: fixed;
-  z-index: 1001;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  text-align: center;
-}
-
-.image-viewer-content {
-  margin: auto;
-  display: block;
-  max-width: 90%;
-  max-height: 80vh;
-  margin-top: 10vh;
-}
-
-.close-viewer {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  color: #f1f1f1;
-  font-size: 35px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.close-viewer:hover {
-  color: #bbb;
-}
-
-.viewer-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 1rem;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 480px) {
-  .quote-modal-content {
-    padding: 15px;
-    margin: 10% auto;
-    width: 95%;
-  }
-  
-  .grouped-row {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .grouped-row-2 {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .design-image {
-    max-width: 100px;
-  }
-  
-  .image-viewer-content {
-    max-width: 95%;
-    max-height: 75vh;
-    margin-top: 15vh;
-  }
-  
-  .close-viewer {
-    top: 15px;
-    right: 20px;
-    font-size: 30px;
-  }
-}
-    </style>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/admintoapprove.css">
 </head>
 
 <body>
@@ -352,18 +69,17 @@ if (isset($_SESSION['admin_role'])) {
             <!-- Table -->
             <section class="table-card fade-in">
                 <div class="table-header">
-                    <h3 class="table-title">To Approve Orders</h3>
-                    <div class="table-actions">
-                        <button class="btn btn-outline">
-                            <i class="fas fa-filter"></i>
-                            <span>Filter</span>
-                        </button>
-                        
-                    </div>
-                </div>
+        <h3 class="table-title">Users</h3>
+        <div class="table-actions">
+            <button class="btn btn-outline">
+                <i class="fas fa-filter"></i>
+                <span>Filter</span>
+            </button>
+        </div>
+    </div>
                 
                 <div class="table-responsive">
-                <table id="admins-table">
+                <table id="admins-table" class="">
     <thead>
         <tr>
             <th>Ticket #</th>
@@ -529,11 +245,12 @@ if (isset($_SESSION['admin_role'])) {
       
       <!-- Subtotal -->
       <div class="quote-modal-row">
-      <input type="number" id="subtotal-value" class="subtotal-value" name="subtotal"  hidden>
+      <input type="number" id="subtotal-value" class="subtotal-value" name="subtotal">
+      <input type="number" id="pricing-value" class="pricing-value" name="pricing">
 
-      <input type="number" id="user_id" class="user_id" name="user_id" hidden>
+      <input type="number" id="user_id" class="user_id" name="user_id">
 
-      <input type="number" id="ticket-value-input" class="ticket-value-input" name="ticket-value-input" hidden>
+      <input type="number" id="ticket-value-input" class="ticket-value-input" name="ticket-value-input">
 
       
         <span id="subtotal-text" class="subtotal-text">Updated: ₱</span>
@@ -586,8 +303,8 @@ function handlePriceCalculation() {
     }
 }
 
-// View button click handler
-// View button click handler
+// ...existing code...
+
 function handleViewButtonClick() {
     const id = this.getAttribute('data-id');
     const userId = this.getAttribute('data-user-id');
@@ -625,14 +342,19 @@ function handleViewButtonClick() {
     document.getElementById('quote-modal-price').textContent = pricing ? `₱${parseFloat(pricing).toFixed(2)}` : 'N/A';
     document.getElementById('quote-modal-subtotal').textContent = subtotal ? `₱${parseFloat(subtotal).toFixed(2)}` : 'N/A';
 
-    // Reset input fields
+    // Set the values for the input fields as requested
+    document.getElementById('pricing-value').value = pricing ? parseFloat(pricing) : '';
+    document.getElementById('subtotal-value').value = subtotal ? parseFloat(subtotal) : '';
+
+    // Reset input fields for manual update
     priceInput.value = '';
-    subtotalInput.value = '';
     subtotalText.textContent = 'Updated: ₱0.00';
 
     // Show modal
     quoteModal.style.display = 'block';
 }
+
+// ...existing code...
 
 // Save quote handler
 function handleSaveQuote() {
@@ -641,9 +363,10 @@ function handleSaveQuote() {
     const id = quoteModal.getAttribute('data-current-id');
     const userId = document.getElementById('user_id').value;
     const ticket = document.getElementById('ticket-value-input').value;
-    const quantity = document.getElementById('quote-modal-quantity').textContent.trim(); // <-- Add this
+    const quantity = document.getElementById('quote-modal-quantity').textContent.trim();
+    const pricingValue = document.getElementById('pricing-value').value; // <-- get the hidden pricing value
 
-    // Remove the requirement for quoteAmount
+    // Only validate quoteAmount if it's not empty (allow empty if pricingValue exists)
     if (quoteAmount && isNaN(quoteAmount)) {
         showToast('Error', 'Please enter a valid quote amount', 'error');
         return;
@@ -651,11 +374,12 @@ function handleSaveQuote() {
 
     const formData = new FormData();
     formData.append('id', id);
-    formData.append('price', quoteAmount);
+    formData.append('price', quoteAmount); // can be empty if not entered
     formData.append('subtotal', subtotalAmount);
     formData.append('user_id', userId);
     formData.append('ticket', ticket);
-    formData.append('quantity', quantity); // <-- Add this
+    formData.append('quantity', quantity);
+    formData.append('pricing', pricingValue); // <-- always send this
 
     // Show loading state
     const originalText = saveBtn.textContent;

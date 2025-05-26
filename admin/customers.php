@@ -82,9 +82,6 @@ if (!isLoggedIn()) {
         background: #dee2e6;
     }
 
-
-
-
     .search-input {
     transition: all 0.3s ease;
 }

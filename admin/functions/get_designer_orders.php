@@ -6,7 +6,7 @@ require '../../db_connection.php';
 $sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, users.name, users.phone_number 
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
-        WHERE orders.is_approved_designer = 'no' 
+        WHERE orders.status = 'pending' 
         ORDER BY orders.created_at DESC";
 $result = $conn->query($sql);
 

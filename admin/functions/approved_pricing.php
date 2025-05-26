@@ -1,6 +1,6 @@
 <?php
-// update_pricing.php
 
+// update_pricing.php
 // Start session and include database connection
 session_start();
 require '../../db_connection.php'; // Adjust this to your database connection file
@@ -13,15 +13,34 @@ use PHPMailer\PHPMailer\Exception;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     // Get data from POST request
     $id = isset($_POST['id']) ? $_POST['id'] : null;
-    $price = isset($_POST['price']) ? $_POST['price'] : null;
+    $price = isset($_POST['price']) && $_POST['price'] !== '' ? $_POST['price'] : null;
     $subtotal = isset($_POST['subtotal']) ? $_POST['subtotal'] : null;
     $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : null;
     $ticket = isset($_POST['ticket']) ? $_POST['ticket'] : null;
-    $quantity = isset($_POST['quantity']) ? $_POST['quantity'] : null; // Added quantity
+    $quantity = isset($_POST['quantity']) ? $_POST['quantity'] : null;
+
+    // Get pricing-value if sent
+    $pricing_value = isset($_POST['pricing']) && $_POST['pricing'] !== '' ? $_POST['pricing'] : null;
+
+    // Determine which price to use
+    if (!empty($pricing_value) && is_numeric($pricing_value)) {
+        $unit_price = $pricing_value;
+    } elseif (!empty($price) && is_numeric($price)) {
+        $unit_price = $price;
+    } else {
+        $unit_price = null;
+    }
+
+    // Calculate subtotal
+    if (!empty($unit_price) && !empty($quantity) && is_numeric($unit_price) && is_numeric($quantity)) {
+        $subtotal = $unit_price * $quantity;
+    } else {
+        $subtotal = null;
+    }
 
     // Validate required inputs
-    if (empty($id) || empty($user_id) || empty($ticket)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid input data: Missing required fields']);
+    if (empty($id) || empty($user_id) || empty($ticket) || empty($unit_price) || empty($subtotal)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid input data: Missing required fields or price.']);
         exit;
     }
 
@@ -45,9 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         $params = [];
         $types = "";
 
-        if (!empty($price) && is_numeric($price)) {
+        if (!empty($unit_price) && is_numeric($unit_price)) {
             $query .= ", pricing = ?";
-            $params[] = $price;
+            $params[] = $unit_price;
             $types .= "d";
         }
 
@@ -72,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         // Execute the query
         if ($stmt->execute()) {
             // Insert notification into the notification table
-            $content = "admin just approved a quote price of ₱" . ($price !== null ? $price : "N/A") . " on ticket #{$ticket}";
+            $content = "admin just approved a quote price of ₱" . number_format($unit_price, 2) . " on ticket #{$ticket}";
             $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, content, notify_field) VALUES (?, ?, 'yes')");
             if ($notify_stmt === false) {
                 throw new Exception("Failed to prepare the notification statement: " . $conn->error);
@@ -121,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                         <div class="details">
                             <ul>
                                 <li><strong>Ticket Number:</strong> #' . htmlspecialchars($ticket) . '</li>
-                                <li><strong>Unit Price:</strong> ₱' . htmlspecialchars(number_format($price, 2)) . '</li>
+                                <li><strong>Unit Price:</strong> ₱' . htmlspecialchars(number_format($unit_price, 2)) . '</li>
                                 <li><strong>Quantity:</strong> ' . htmlspecialchars($quantity) . '</li>
                                 <li><strong>Total Amount:</strong> ₱' . htmlspecialchars(number_format($subtotal, 2)) . '</li>
                             </ul>
@@ -132,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                         <p>Should you have any questions, please don\'t hesitate to contact us.</p>
                         
                         <p>Best regards,<br>
-                        Admin Team</p>
+                        CSH Enterprises</p>
                     </body>
                     </html>';
 
@@ -140,12 +159,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                     $mail->AltBody = "Dear Valued Customer,\n\n"
                         . "We are pleased to inform you that your quote has been approved. Below are the details:\n\n"
                         . "Ticket Number: #" . $ticket . "\n"
-                        . "Unit Price: ₱" . number_format($price, 2) . "\n"
+                        . "Unit Price: ₱" . number_format($unit_price, 2) . "\n"
                         . "Quantity: " . $quantity . "\n"
                         . "Total Amount: ₱" . number_format($subtotal, 2) . "\n\n"
                         . "Thank you for choosing our service!\n\n"
                         . "Best regards,\n"
-                        . "Admin Team";
+                        . "CSH Enterprises";
 
                     $mail->send();
                     
