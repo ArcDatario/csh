@@ -122,17 +122,7 @@ $full_address = trim($address);
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
-            <nav id="nav">
-                                
-                <ul>
-                    <li><a href="home">Home</a></li>
-                    <li><a href="home#services">Services</a></li>
-                    <li><a href="home#gallery">Gallery</a></li>
-                    <li><a href="home#contact">Contact</a></li>
-                    <li><a href="quote" class="active">Quote</a></li>                     
-                    <li><a href="logout">Logout</a></li>
-                </ul>
-            </nav>
+             <?php include "includes/navbar.php";?>
         </div>
     </header>
 
