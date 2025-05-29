@@ -32,13 +32,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Check for saved tab on page load
+    // Always default to 'to-pickup' if nothing saved
     const savedTab = localStorage.getItem('activeTab');
-    if (savedTab) {
+    if (savedTab && (savedTab === 'to-pickup' || savedTab === 'on-pickup')) {
         switchTab(savedTab);
     } else {
-        // Default to first tab if nothing saved
-        const defaultTab = tabButtons[0].getAttribute('data-tab');
-        switchTab(defaultTab);
+        switchTab('to-pickup');
     }
 });

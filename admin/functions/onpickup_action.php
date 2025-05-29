@@ -52,6 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                 $emailBody = "Dear Customer,<br><br>We regret to inform you that your order #$ticket has been rejected due to multiple failed pickup attempts.<br><br>Thank you for your understanding.";
                 break;
                 
+            case 'pickedup':
+                $statusUpdate = "UPDATE orders SET status = 'processing', pickup_date = NOW() WHERE id = ?";
+                $notificationContent = "Your order #$ticket has been successfully picked up. Your items are now being processed.";
+                $emailSubject = "Order #$ticket Successfully Picked Up";
+                $emailBody = "Dear Customer,<br><br>We're pleased to inform you that your order #$ticket has been successfully picked up. Thank you for your cooperation!<br><br>Your items are now being processed. We will notify you again once your items are ready to be shipped.<br><br>Thank you for choosing our services!";
+                break;
+                
             default:
                 echo json_encode(['success' => false, 'message' => 'Invalid action']);
                 exit;

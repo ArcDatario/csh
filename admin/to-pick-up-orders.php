@@ -269,10 +269,14 @@ if (isset($_SESSION['admin_role'])) {
             <input type="hidden" id="onpickup-modal-ticket">
             <input type="hidden" id="onpickup-modal-attempt">
             
-            <button id="onpickup-reattempt" class="quote-modal-btn btn-warning">Re-attempt</button>
-            <button id="onpickup-failed" class="quote-modal-btn btn-danger">Failed</button>
-            <button id="onpickup-reject" class="quote-modal-btn btn-outline">Reject</button>
-            <button id="onpickup-close" class="quote-modal-btn btn-secondary">Close</button>
+        
+<div class="quote-modal-footer">
+    <button id="onpickup-reattempt" class="quote-modal-btn btn-warning">Re-attempt</button>
+    <button id="onpickup-failed" class="quote-modal-btn btn-danger">Failed</button>
+    <button id="onpickup-reject" class="quote-modal-btn btn-outline">Reject</button>
+    <button id="onpickup-close" class="quote-modal-btn btn-secondary">Close</button>
+</div>
+  <button id="onpickup-pickedup" class="quote-modal-btn btn-success">Picked Up</button>
         </div>
     </div>
 </div>
@@ -397,6 +401,7 @@ const reattemptBtn = document.getElementById('onpickup-reattempt');
 const failedBtn = document.getElementById('onpickup-failed');
 const rejectBtn = document.getElementById('onpickup-reject');
 const closeOnPickupBtn = document.getElementById('onpickup-close');
+const pickedUpBtn = document.getElementById('onpickup-pickedup');
 
 // View button click handler for on-pickup orders
 function handleOnPickupViewButtonClick() {
@@ -579,6 +584,51 @@ function handleReject() {
         rejectBtn.textContent = originalText;
     });
 }
+function handlePickedUp() {
+    const id = onPickupModal.getAttribute('data-current-id');
+    const userId = document.getElementById('onpickup-modal-user-id').value;
+    const email = document.getElementById('onpickup-modal-email').value;
+    const ticket = document.getElementById('onpickup-modal-ticket').value;
+    const attempt = document.getElementById('onpickup-modal-attempt').value;
+
+    // Show loading state
+    const originalText = pickedUpBtn.textContent;
+    pickedUpBtn.disabled = true;
+    pickedUpBtn.textContent = 'Processing...';
+
+    fetch('functions/onpickup_action.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'pickedup',
+            id: id,
+            user_id: userId,
+            email: email,
+            ticket: ticket,
+            attempt: attempt
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Success', data.message, 'success');
+            onPickupModal.style.display = 'none';
+            refreshPickupTable();
+        } else {
+            showToast('Error', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error', 'An error occurred', 'error');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        pickedUpBtn.disabled = false;
+        pickedUpBtn.textContent = originalText;
+    });
+}
 
 // Modal close handlers
 function closeOnPickupModal() {
@@ -607,6 +657,7 @@ function attachOnPickupEventListeners() {
     reattemptBtn.addEventListener('click', handleReattempt);
     failedBtn.addEventListener('click', handleFailed);
     rejectBtn.addEventListener('click', handleReject);
+    pickedUpBtn.addEventListener('click', handlePickedUp);
 }
 
 // Initialize
