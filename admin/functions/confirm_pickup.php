@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     }
 
     try {
-        // Update order status to mark as ready for pickup
-        $query = "UPDATE orders SET is_for_pickup = 'yes', pickup_date = NOW() WHERE id = ?";
+        // Update order status to mark as ready for pickup and increment pickup_attempt
+        $query = "UPDATE orders SET is_for_pickup = 'yes', pickup_date = NOW(), pickup_attempt = IFNULL(pickup_attempt,0) + 1 WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $id);
         

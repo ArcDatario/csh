@@ -32,6 +32,39 @@ if (isset($_SESSION['admin_role'])) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/quote-modal.css">
+
+   
+<style>
+.table-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+}
+
+.tab-btn.active {
+    color: #333;
+    border-bottom-color: #4CAF50;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+</style>
 </head>
 
 <body>
@@ -65,89 +98,195 @@ if (isset($_SESSION['admin_role'])) {
             
             <!-- Table -->
             <section class="table-card fade-in">
-                <div class="table-header">
-                    <h3 class="table-title">Orders Ready for Pickup</h3>
-                    <div class="table-actions">
-                        <button class="btn btn-outline">
-                            <i class="fas fa-filter"></i>
-                            <span>Filter</span>
-                        </button>
-                    </div>
-                </div>
+               <div class="table-header">
+    <div class="table-tabs">
+        <button class="tab-btn active" data-tab="to-pickup">To Pickup</button>
+        <button class="tab-btn" data-tab="on-pickup">On Pickup</button>
+    </div>
+    <div class="table-actions">
+        <button class="btn btn-outline">
+            <i class="fas fa-filter"></i>
+            <span>Filter</span>
+        </button>
+    </div>
+</div>
                 
-                <div class="table-responsive">
-                    <table id="pickup-table">
-                        <thead>
-                            <tr>
-                                <th>Ticket #</th>
-                                <th>Design</th>
-                                <th>Print Type</th>
-                                <th>Quantity</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <?php
-                        require_once '../db_connection.php';
+                <div id="to-pickup-table" class="table-responsive tab-content active">
+    <table id="pickup-table">
+        <thead>
+            <tr>
+                <th>Ticket #</th>
+                <th>Design</th>
+                <th>Print Type</th>
+                <th>Quantity</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <?php
+        require_once '../db_connection.php';
 
-                        // Fetch orders ready for pickup (status = 'to-pick-up')
-                        $sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, orders.pricing, orders.subtotal, users.name, users.phone_number, users.email 
-                                FROM orders 
-                                INNER JOIN users ON orders.user_id = users.id 
-                                WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'no'
-                                ORDER BY orders.created_at DESC";
-                        $result = $conn->query($sql);
-                        ?>
-                        <tbody id="pickup-table-body">
-                            <?php if ($result->num_rows > 0): ?>
-                                <?php while ($order = $result->fetch_assoc()): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td>
-                                            <div class="user-cell">
-                                                <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
-                                                <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
-                                            </div>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td>
-                                            <span class="status status-success">
-                                                <?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-outline view-pickup-modal" 
-                                                    data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-email="<?php echo htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                View
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="7">No orders ready for pickup</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+        // Fetch orders ready for pickup (status = 'to-pick-up' AND is_for_pickup = 'no')
+        $sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, orders.pricing, orders.subtotal, users.name, users.phone_number, users.email 
+                FROM orders 
+                INNER JOIN users ON orders.user_id = users.id 
+                WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'no'
+                ORDER BY orders.created_at DESC";
+        $result = $conn->query($sql);
+        ?>
+        <tbody id="pickup-table-body">
+            <?php if ($result->num_rows > 0): ?>
+                <?php while ($order = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td>
+                            <div class="user-cell">
+                                <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
+                                <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            </div>
+                        </td>
+                        <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td>
+                            <span class="status status-success">
+                                <?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline view-pickup-modal" 
+                                    data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-email="<?php echo htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7">No orders ready for pickup</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- On Pickup Table -->
+<div id="on-pickup-table" class="table-responsive tab-content">
+    <table id="onpickup-table">
+        <thead>
+            <tr>
+                <th>Ticket #</th>
+                <th>Design</th>
+                <th>Print Type</th>
+                <th>Quantity</th>
+                <th>Date</th>
+                <th>Attempt</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <?php
+        // Fetch orders on pickup (status = 'to-pick-up' AND is_for_pickup = 'yes')
+        $sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, orders.pricing, orders.subtotal,orders.pickup_attempt, users.name, users.phone_number, users.email 
+                FROM orders 
+                INNER JOIN users ON orders.user_id = users.id 
+                WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'yes'
+                ORDER BY orders.created_at DESC";
+        $result = $conn->query($sql);
+        ?>
+        <tbody id="onpickup-table-body">
+            <?php if ($result->num_rows > 0): ?>
+                <?php while ($order = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td>
+                            <div class="user-cell">
+                                <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
+                                <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            </div>
+                        </td>
+                        <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
+                         <td>
+                           <?php echo htmlspecialchars($order['pickup_attempt'], ENT_QUOTES, 'UTF-8'); ?>
+                        </td>
+                        <td>
+                            <span class="status status-warning">
+                                On Pickup
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline view-pickup-modal" 
+                                    data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-email="<?php echo htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7">No orders on pickup</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons and content
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const tabId = this.getAttribute('data-tab');
+            if (tabId === 'to-pickup') {
+                document.getElementById('to-pickup-table').classList.add('active');
+            } else if (tabId === 'on-pickup') {
+                document.getElementById('on-pickup-table').classList.add('active');
+            }
+        });
+    });
+});
+</script>
+
             </section>
         </main>
     </div>

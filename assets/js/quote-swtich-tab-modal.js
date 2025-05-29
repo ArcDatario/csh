@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'approved-orders-container': '.approved-search',
         'pickup-orders-container': '.topickup-search',
         'ship-orders-container': '.toship-search',
-        'completed-orders-container': '.completed-search'
+        'completed-orders-container': '.completed-search',
+        'processing-orders-container': '.processing-search' // <-- Added this line
     };
 
     // Function to activate a tab and show the correct search input

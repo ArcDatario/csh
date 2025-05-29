@@ -145,6 +145,7 @@ $full_address = trim($address);
     <button class="tab-button active" data-tab="pending-orders-container">Pending</button>
     <button class="tab-button" data-tab="approved-orders-container">Approved</button>
     <button class="tab-button" data-tab="pickup-orders-container">To Pick Up</button>
+     <button class="tab-button" data-tab="processing-orders-container">Processing</button>
     <button class="tab-button" data-tab="ship-orders-container">To Ship</button>
     <button class="tab-button" data-tab="completed-orders-container">Completed</button>
 </div>
@@ -173,6 +174,15 @@ $full_address = trim($address);
 <div class="topickup-search" style="display: none;">
   <input type="text"
          id="ToPickupSearchInput"
+         class="search-input"
+         placeholder="Search by Ticket #">
+  <span class="search-icon">&#128269;</span>
+</div>
+
+<!-- To-Processing -->
+<div class="processing-search" style="display: none;">
+  <input type="text"
+         id="ProcessingSearchInput"
          class="search-input"
          placeholder="Search by Ticket #">
   <span class="search-icon">&#128269;</span>
@@ -273,6 +283,7 @@ if ($user_id) {
 
         <?php include "includes/approved-order.php";?>
          <?php include "includes/to-pick-up-order.php";?>
+         <?php include "includes/processing-order.php";?>
     </main>
 
 
