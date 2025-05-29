@@ -64,6 +64,38 @@ if (isset($_SESSION['admin_role'])) {
 .tab-content.active {
     display: block;
 }
+/* On Pickup Modal Specific Styles */
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.quote-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.address-value {
+    display: inline-block;
+    max-width: 100%;
+    word-break: break-word;
+}
 </style>
 </head>
 
@@ -186,110 +218,64 @@ if (isset($_SESSION['admin_role'])) {
 </div>
 
 <!-- On Pickup Table -->
-<div id="on-pickup-table" class="table-responsive tab-content">
-    <table id="onpickup-table">
-        <thead>
-            <tr>
-                <th>Ticket #</th>
-                <th>Design</th>
-                <th>Print Type</th>
-                <th>Quantity</th>
-                <th>Date</th>
-                <th>Attempt</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <?php
-        // Fetch orders on pickup (status = 'to-pick-up' AND is_for_pickup = 'yes')
-        $sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, orders.pricing, orders.subtotal,orders.pickup_attempt, users.name, users.phone_number, users.email 
-                FROM orders 
-                INNER JOIN users ON orders.user_id = users.id 
-                WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'yes'
-                ORDER BY orders.created_at DESC";
-        $result = $conn->query($sql);
-        ?>
-        <tbody id="onpickup-table-body">
-            <?php if ($result->num_rows > 0): ?>
-                <?php while ($order = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td>
-                            <div class="user-cell">
-                                <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
-                                <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
-                            </div>
-                        </td>
-                        <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
-                         <td>
-                           <?php echo htmlspecialchars($order['pickup_attempt'], ENT_QUOTES, 'UTF-8'); ?>
-                        </td>
-                        <td>
-                            <span class="status status-warning">
-                                On Pickup
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-outline view-pickup-modal" 
-                                    data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-email="<?php echo htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>">
-                                View
-                            </button>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="7">No orders on pickup</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
+<?php include "includes/tables/onpickup-table.php"; ?>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons and content
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Show corresponding content
-            const tabId = this.getAttribute('data-tab');
-            if (tabId === 'to-pickup') {
-                document.getElementById('to-pickup-table').classList.add('active');
-            } else if (tabId === 'on-pickup') {
-                document.getElementById('on-pickup-table').classList.add('active');
-            }
-        });
-    });
-});
-</script>
 
             </section>
         </main>
     </div>
+    <!-- On Pickup Modal -->
+<div id="onPickupModal" class="quote-modal">
+    <div class="quote-modal-content">
+        <span class="quote-modal-close">&times;</span>
+        <h2>Order On Pickup</h2>
+        <div class="quote-modal-body">
+            <div class="quote-modal-row grouped-row">
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Ticket #:</span>
+                    <span id="onpickup-modal-ticket" class="quote-modal-value"></span>
+                </div>
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Attempt:</span>
+                    <span id="onpickup-modal-attempt" class="quote-modal-value"></span>
+                </div>
+            </div>
+            
+            <div class="quote-modal-row grouped-row">
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Customer:</span>
+                    <span id="onpickup-modal-name" class="quote-modal-value"></span>
+                </div>
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Mobile #:</span>
+                    <span id="onpickup-modal-mobile" class="quote-modal-value"></span>
+                </div>
+            </div>
+            
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Address:</span>
+                <span id="onpickup-modal-address" class="quote-modal-value address-value"></span>
+            </div>
+            
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Last Pickup Attempt:</span>
+                <span id="onpickup-modal-last-attempt" class="quote-modal-value"></span>
+            </div>
+        </div>
+        <div class="quote-modal-footer">
+            <input type="hidden" id="onpickup-modal-id">
+            <input type="hidden" id="onpickup-modal-user-id">
+            <input type="hidden" id="onpickup-modal-email">
+            <input type="hidden" id="onpickup-modal-ticket">
+            <input type="hidden" id="onpickup-modal-attempt">
+            
+            <button id="onpickup-reattempt" class="quote-modal-btn btn-warning">Re-attempt</button>
+            <button id="onpickup-failed" class="quote-modal-btn btn-danger">Failed</button>
+            <button id="onpickup-reject" class="quote-modal-btn btn-outline">Reject</button>
+            <button id="onpickup-close" class="quote-modal-btn btn-secondary">Close</button>
+        </div>
+    </div>
+</div>
   
     <!-- Pickup Modal -->
     <div id="pickupModal" class="quote-modal">
@@ -399,260 +385,242 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="toast-container" id="toastContainer"></div>
 
     <script src="assets/js/script.js"></script>
-    <script>
-    // Image Viewer Modal
-    const imageViewerModal = document.createElement('div');
-    imageViewerModal.className = 'image-viewer-modal';
-    imageViewerModal.innerHTML = `
-        <span class="close-viewer">&times;</span>
-        <img class="image-viewer-content" id="viewed-image">
-    `;
-    document.body.appendChild(imageViewerModal);
-
-    // View button functionality
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('view-design-btn')) {
-            const imgSrc = e.target.closest('.design-image-container').querySelector('img').src;
-            document.getElementById('viewed-image').src = imgSrc;
-            imageViewerModal.style.display = 'block';
-        }
-    });
-
-    // Close button functionality
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('close-viewer')) {
-            imageViewerModal.style.display = 'none';
-        }
-    });
-
-    // Close viewer when clicking outside the image
-    imageViewerModal.addEventListener('click', function (e) {
-        if (e.target === imageViewerModal) {
-            imageViewerModal.style.display = 'none';
-        }
-    });
-
-    // Download button functionality
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('download-design-btn')) {
-            const container = e.target.closest('.design-image-container');
-            const imgSrc = container.querySelector('img').src;
-            const ticket = document.getElementById('pickup-modal-ticket').textContent;
-            const printType = document.getElementById('pickup-modal-print-type').textContent;
-            
-            // Extract filename from URL
-            const filename = imgSrc.split('/').pop();
-            const extension = filename.split('.').pop();
-            
-            // Create download link
-            const link = document.createElement('a');
-            link.href = imgSrc;
-            link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    });
-    </script>
+    <script src="assets/js/to-pick-up-table-switching.js"></script>
+    <script src="assets/js/to-pick-up-image-viewer.js"></script>
+    <script src="assets/js/to-pick-up-confirm.js"></script>
 
     <script>
-    // Get DOM elements
-    const pickupModal = document.getElementById('pickupModal');
-    const pickupModalClose = document.querySelector('.quote-modal-close');
-    const confirmPickupBtn = document.getElementById('pickup-modal-confirm');
-    const closePickupBtn = document.getElementById('pickup-modal-close');
+        // DOM Elements
+const onPickupModal = document.getElementById('onPickupModal');
+const onPickupModalClose = document.querySelector('#onPickupModal .quote-modal-close');
+const reattemptBtn = document.getElementById('onpickup-reattempt');
+const failedBtn = document.getElementById('onpickup-failed');
+const rejectBtn = document.getElementById('onpickup-reject');
+const closeOnPickupBtn = document.getElementById('onpickup-close');
 
-    // View button click handler
-    function handlePickupViewButtonClick() {
-        const id = this.getAttribute('data-id');
-        const userId = this.getAttribute('data-user-id');
-        const ticket = this.getAttribute('data-ticket');
-        const design = this.getAttribute('data-design');
-        const mobile = this.getAttribute('data-mobile');
-        const name = this.getAttribute('data-name');
-        const printType = this.getAttribute('data-print-type');
-        const quantity = this.getAttribute('data-quantity');
-        const date = this.getAttribute('data-date');
-        const status = this.getAttribute('data-status');
-        const note = this.getAttribute('data-note');
-        const address = this.getAttribute('data-address');
-        const email = this.getAttribute('data-email');
-        const pricing = this.getAttribute('data-pricing');
-        const subtotal = this.getAttribute('data-subtotal');
-        
-        // Store data in modal
-        pickupModal.setAttribute('data-current-id', id);
-        document.getElementById('pickup-modal-id').value = id;
-        document.getElementById('pickup-modal-user-id').value = userId;
-        document.getElementById('pickup-modal-email').value = email;
-        document.getElementById('pickup-modal-ticket').value = ticket;
-        document.getElementById('pickup-modal-quantity').value = quantity;
-        document.getElementById('pickup-modal-pricing').value = pricing;
-        document.getElementById('pickup-modal-subtotal').value = subtotal;
-        document.getElementById('pickup-modal-address').value = address;
-        
-        // Populate modal fields
-        document.getElementById('pickup-modal-ticket').textContent = ticket;
-        document.getElementById('pickup-modal-name').textContent = name;
-        document.getElementById('pickup-modal-design').src = '../user/' + design;
-        document.getElementById('pickup-modal-print-type').textContent = printType;
-        document.getElementById('pickup-modal-quantity').textContent = quantity;
-        document.getElementById('pickup-modal-date').textContent = date;
-        document.getElementById('pickup-modal-status').textContent = status;
-        document.getElementById('pickup-modal-note').textContent = note || 'N/A';
-        document.getElementById('pickup-modal-address').textContent = address || 'N/A';
-        document.getElementById('pickup-modal-mobile').textContent = mobile || 'N/A';
-        document.getElementById('pickup-modal-pricing').textContent = '₱' + parseFloat(pricing).toFixed(2);
-        document.getElementById('pickup-modal-subtotal').textContent = '₱' + parseFloat(subtotal).toFixed(2);
-        
-        // Show modal
-        pickupModal.style.display = 'block';
+// View button click handler for on-pickup orders
+function handleOnPickupViewButtonClick() {
+    const id = this.getAttribute('data-id');
+    const userId = this.getAttribute('data-user-id');
+    const ticket = this.getAttribute('data-ticket');
+    const name = this.getAttribute('data-name');
+    const mobile = this.getAttribute('data-mobile');
+    const address = this.getAttribute('data-address');
+    const email = this.getAttribute('data-email');
+    const attempt = this.closest('tr').querySelector('td:nth-child(6)').textContent.trim();
+    
+    // Store data in modal
+    onPickupModal.setAttribute('data-current-id', id);
+    document.getElementById('onpickup-modal-id').value = id;
+    document.getElementById('onpickup-modal-user-id').value = userId;
+    document.getElementById('onpickup-modal-email').value = email;
+    document.getElementById('onpickup-modal-ticket').value = ticket;
+    document.getElementById('onpickup-modal-attempt').value = attempt;
+    
+    // Populate modal fields
+    document.getElementById('onpickup-modal-ticket').textContent = ticket;
+    document.getElementById('onpickup-modal-attempt').textContent = attempt;
+    document.getElementById('onpickup-modal-name').textContent = name;
+    document.getElementById('onpickup-modal-mobile').textContent = mobile || 'N/A';
+    document.getElementById('onpickup-modal-address').textContent = address || 'N/A';
+    document.getElementById('onpickup-modal-last-attempt').textContent = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Show modal
+    onPickupModal.style.display = 'block';
+}
+
+// Handle reattempt
+function handleReattempt() {
+    const id = onPickupModal.getAttribute('data-current-id');
+    const userId = document.getElementById('onpickup-modal-user-id').value;
+    const email = document.getElementById('onpickup-modal-email').value;
+    const ticket = document.getElementById('onpickup-modal-ticket').value;
+    const attempt = document.getElementById('onpickup-modal-attempt').value;
+
+    // Show loading state
+    const originalText = reattemptBtn.textContent;
+    reattemptBtn.disabled = true;
+    reattemptBtn.textContent = 'Processing...';
+
+    fetch('functions/onpickup_action.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'reattempt',
+            id: id,
+            user_id: userId,
+            email: email,
+            ticket: ticket,
+            attempt: attempt
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Success', data.message, 'success');
+            onPickupModal.style.display = 'none';
+            refreshPickupTable();
+        } else {
+            showToast('Error', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error', 'An error occurred', 'error');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        reattemptBtn.disabled = false;
+        reattemptBtn.textContent = originalText;
+    });
+}
+
+// Handle failed
+function handleFailed() {
+    const id = onPickupModal.getAttribute('data-current-id');
+    const userId = document.getElementById('onpickup-modal-user-id').value;
+    const email = document.getElementById('onpickup-modal-email').value;
+    const ticket = document.getElementById('onpickup-modal-ticket').value;
+    const attempt = document.getElementById('onpickup-modal-attempt').value;
+
+    // Show loading state
+    const originalText = failedBtn.textContent;
+    failedBtn.disabled = true;
+    failedBtn.textContent = 'Processing...';
+
+    fetch('functions/onpickup_action.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'failed',
+            id: id,
+            user_id: userId,
+            email: email,
+            ticket: ticket,
+            attempt: attempt
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Success', data.message, 'success');
+            onPickupModal.style.display = 'none';
+            refreshPickupTable();
+        } else {
+            showToast('Error', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error', 'An error occurred', 'error');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        failedBtn.disabled = false;
+        failedBtn.textContent = originalText;
+    });
+}
+
+// Handle reject
+function handleReject() {
+    if (!confirm('Are you sure you want to reject this order? This action cannot be undone.')) {
+        return;
     }
 
-    // Confirm pickup handler
-    function handleConfirmPickup() {
-        const id = pickupModal.getAttribute('data-current-id');
-        const userId = document.getElementById('pickup-modal-user-id').value;
-        const email = document.getElementById('pickup-modal-email').value;
-        const ticket = document.getElementById('pickup-modal-ticket').value;
-        const quantity = document.getElementById('pickup-modal-quantity').value;
-        const pricing = document.getElementById('pickup-modal-pricing').value;
-        const subtotal = document.getElementById('pickup-modal-subtotal').value;
-        const address = document.getElementById('pickup-modal-address').value;
+    const id = onPickupModal.getAttribute('data-current-id');
+    const userId = document.getElementById('onpickup-modal-user-id').value;
+    const email = document.getElementById('onpickup-modal-email').value;
+    const ticket = document.getElementById('onpickup-modal-ticket').value;
+    const attempt = document.getElementById('onpickup-modal-attempt').value;
 
-        // Show loading state
-        const originalText = confirmPickupBtn.textContent;
-        confirmPickupBtn.disabled = true;
-        confirmPickupBtn.textContent = 'Processing...';
+    // Show loading state
+    const originalText = rejectBtn.textContent;
+    rejectBtn.disabled = true;
+    rejectBtn.textContent = 'Processing...';
 
-        fetch('functions/confirm_pickup.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: id,
-                user_id: userId,
-                email: email,
-                ticket: ticket,
-                quantity: quantity,
-                pricing: pricing,
-                subtotal: subtotal,
-                address: address
-            })
+    fetch('functions/onpickup_action.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'reject',
+            id: id,
+            user_id: userId,
+            email: email,
+            ticket: ticket,
+            attempt: attempt
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Success', data.message, 'success');
-                pickupModal.style.display = 'none';
-                refreshPickupTable(); // Refresh table after successful confirmation
-            } else {
-                showToast('Error', data.message, 'error');
-            }
-        })
-        .catch(error => {
-            showToast('Error', 'An error occurred while confirming pickup', 'error');
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            confirmPickupBtn.disabled = false;
-            confirmPickupBtn.textContent = originalText;
-        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Success', data.message, 'success');
+            onPickupModal.style.display = 'none';
+            refreshPickupTable();
+        } else {
+            showToast('Error', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error', 'An error occurred', 'error');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        rejectBtn.disabled = false;
+        rejectBtn.textContent = originalText;
+    });
+}
+
+// Modal close handlers
+function closeOnPickupModal() {
+    onPickupModal.style.display = 'none';
+}
+
+function handleWindowClick(event) {
+    if (event.target === onPickupModal) {
+        closeOnPickupModal();
     }
+}
 
-    // Modal close handlers
-    function closePickupModal() {
-        pickupModal.style.display = 'none';
-    }
+// Attach all event listeners
+function attachOnPickupEventListeners() {
+    // View buttons
+    document.querySelectorAll('.view-on-pickup-modal').forEach(button => {
+        button.addEventListener('click', handleOnPickupViewButtonClick);
+    });
+    
+    // Modal close
+    onPickupModalClose.addEventListener('click', closeOnPickupModal);
+    closeOnPickupBtn.addEventListener('click', closeOnPickupModal);
+    window.addEventListener('click', handleWindowClick);
+    
+    // Action buttons
+    reattemptBtn.addEventListener('click', handleReattempt);
+    failedBtn.addEventListener('click', handleFailed);
+    rejectBtn.addEventListener('click', handleReject);
+}
 
-    function handleWindowClick(event) {
-        if (event.target === pickupModal) {
-            closePickupModal();
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    attachOnPickupEventListeners();
+    
+    // Use existing refresh function from to-pick-up-confirm.js
+    if (typeof refreshPickupTable !== 'function') {
+        function refreshPickupTable() {
+            location.reload(); // Fallback if not defined
         }
     }
-
-    // Table refresh functionality
-    function refreshPickupTable() {
-        fetch('functions/get_pickup_orders.php')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('pickup-table-body').innerHTML = data;
-                attachEventListeners(); // Reattach event listeners after refresh
-            })
-            .catch(error => console.error('Error refreshing table:', error));
-    }
-
-    // Attach all event listeners
-    function attachEventListeners() {
-        // View buttons
-        document.querySelectorAll('.view-pickup-modal').forEach(button => {
-            button.addEventListener('click', handlePickupViewButtonClick);
-        });
-        
-        // Modal close
-        pickupModalClose.addEventListener('click', closePickupModal);
-        closePickupBtn.addEventListener('click', closePickupModal);
-        window.addEventListener('click', handleWindowClick);
-        
-        // Confirm button
-        confirmPickupBtn.addEventListener('click', handleConfirmPickup);
-    }
-
-    // Initialize
-    function init() {
-        attachEventListeners();
-        refreshPickupTable();
-        
-        // Set up periodic refresh (every 5 seconds)
-        setInterval(refreshPickupTable, 5000);
-    }
-
-    // Start the application
-    document.addEventListener('DOMContentLoaded', init);
-
-    // Toast function
-    function showToast(title, message, type = 'info') {
-        const toastContainer = document.getElementById('toastContainer');
-        
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        
-        toast.innerHTML = `
-            <div class="toast-icon">
-                <i class="fas ${type === 'success' ? 'fa-check' : 
-                                  type === 'error' ? 'fa-times' : 
-                                  type === 'warning' ? 'fa-exclamation' : 
-                                  'fa-info'}"></i>
-            </div>
-            <div class="toast-content">
-                <h4 class="toast-title">${title}</h4>
-                <p class="toast-message">${message}</p>
-            </div>
-            <button class="toast-close">&times;</button>
-        `;
-        
-        toastContainer.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }, 5000);
-        
-        const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.addEventListener('click', () => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        });
-    }
+});
     </script>
+
 </body>
 </html>

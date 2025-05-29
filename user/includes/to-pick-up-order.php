@@ -63,7 +63,8 @@ if ($user_id) {
                         data-ready-date="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
                         data-is-for-pickup="<?= htmlspecialchars($order['is_for_pickup'], ENT_QUOTES, 'UTF-8') ?>"
                         data-pickup-date="<?= htmlspecialchars($order['pickup_date'], ENT_QUOTES, 'UTF-8') ?>"
-                    >
+                        data-pickup-attempt="<?= htmlspecialchars($order['pickup_attempt'], ENT_QUOTES, 'UTF-8') ?>"
+                        >
                         <i class="fas fa-eye"></i> View
                     </button>
                     <span class="quote-date"><?= $createdAt ?></span>
@@ -102,6 +103,7 @@ if ($user_id) {
                             <p id="toPickUpUnitPrice">Unit Price: $10.00</p>
                             <p id="toPickUpQuantity">Quantity: 5</p>
                             <p id="toPickUpSubtotal" class="order-subtotal">Subtotal: $50.00</p>
+                            
                         </div>
                     </div>
                     <div id="toPickUpAdminApprovedDate" class="order-step-date">Jan 16, 2023</div>
@@ -115,6 +117,7 @@ if ($user_id) {
                 <div class="order-step-content">
                     <div id="toPickUpProcessingTitle" class="order-step-title">To Pick Up</div>
                     <div id="toPickUpProcessingDesc" class="order-step-description">An email will be sent to you once your items will be picked up by our logistics</div>
+                    <p id="toPickUpPickupAttempt" style="display:none;">Pickup Attempt: <span id="toPickUpPickupAttemptValue"></span></p>
                     <div id="toPickUpProcessingDate" class="order-step-date">Pending</div>
                 </div>
             </div>
@@ -159,6 +162,7 @@ function openToPickUpOrderModal(event) {
     const readyDate = button.getAttribute('data-ready-date');
     const isForPickup = button.getAttribute('data-is-for-pickup');
     const pickupDate = button.getAttribute('data-pickup-date');
+    const pickupAttempt = button.getAttribute('data-pickup-attempt'); // <-- Add this line
 
     // Format the dates
     const date = new Date(createdAt);
@@ -187,6 +191,17 @@ function openToPickUpOrderModal(event) {
     document.getElementById('toPickUpQuantity').textContent = `Quantity: ${quantity}`;
     document.getElementById('toPickUpSubtotal').textContent = `Subtotal: ₱${parseFloat(subtotal).toFixed(2)}`;
     document.getElementById('toPickUpAdminApprovedDate').textContent = formattedUserApprovedDate;
+
+    // Show Pickup Attempt if isForPickup is 'yes'
+    const pickupAttemptElem = document.getElementById('toPickUpPickupAttempt');
+    const pickupAttemptValueElem = document.getElementById('toPickUpPickupAttemptValue');
+    if (isForPickup && isForPickup.trim().toLowerCase() === 'yes') {
+        pickupAttemptElem.style.display = '';
+        pickupAttemptValueElem.textContent = pickupAttempt && pickupAttempt !== 'null' ? pickupAttempt : 'N/A';
+    } else {
+        pickupAttemptElem.style.display = 'none';
+        pickupAttemptValueElem.textContent = '';
+    }
 
     // All future steps show as Pending
     document.getElementById('toPickUpProcessingDate').textContent = 'Pending';
