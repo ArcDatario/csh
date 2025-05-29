@@ -61,6 +61,8 @@ if ($user_id) {
                         data-admin-approved-date="<?= htmlspecialchars($order['admin_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
                         data-user-approved-date="<?= htmlspecialchars($order['user_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
                         data-ready-date="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-is-for-pickup="<?= htmlspecialchars($order['is_for_pickup'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-pickup-date="<?= htmlspecialchars($order['pickup_date'], ENT_QUOTES, 'UTF-8') ?>"
                     >
                         <i class="fas fa-eye"></i> View
                     </button>
@@ -107,9 +109,9 @@ if ($user_id) {
             </div>
             
             <!-- To Pick Up Step -->
-            <div class="order-step order-step-current">
+            <div class="order-step order-step-completed">
                 <div class="order-step-number">3</div>
-                <div class="order-step-connector-pending"></div>
+                <div class="order-step-connector-current"></div>
                 <div class="order-step-content">
                     <div id="toPickUpProcessingTitle" class="order-step-title">To Pick Up</div>
                     <div id="toPickUpProcessingDesc" class="order-step-description">An email will be sent to you once your items will be picked up by our logistics</div>
@@ -120,7 +122,7 @@ if ($user_id) {
             <!-- Processing Step -->
             <div class="order-step">
                 <div class="order-step-number">4</div>
-                <div class="order-step-connector"></div>
+                <div class="order-step-connector-pending"></div>
                 <div class="order-step-content">
                     <div id="toPickUpReadyTitle" class="order-step-title">Processing</div>
                     <div id="toPickUpReadyDesc" class="order-step-description">Items are being prepared for pickup</div>
@@ -129,15 +131,17 @@ if ($user_id) {
             </div>
             
             <!-- Completed Step -->
+            <!--
             <div class="order-step">
                 <div class="order-step-number">5</div>
-                <div class="order-step-connector"></div>
+                <div class="order-step-connector-pending"></div>
                 <div class="order-step-content">
                     <div id="toPickUpCompletedTitle" class="order-step-title">Completed</div>
                     <div id="toPickUpCompletedDesc" class="order-step-description">Order will be marked completed after pickup</div>
                     <div id="toPickUpCompletedDate" class="order-step-date">Pending</div>
                 </div>
             </div>
+            -->
         </div>
     </div>
 </div>
@@ -153,6 +157,8 @@ function openToPickUpOrderModal(event) {
     const adminApprovedDate = button.getAttribute('data-admin-approved-date');
     const userApprovedDate = button.getAttribute('data-user-approved-date');
     const readyDate = button.getAttribute('data-ready-date');
+    const isForPickup = button.getAttribute('data-is-for-pickup');
+    const pickupDate = button.getAttribute('data-pickup-date');
 
     // Format the dates
     const date = new Date(createdAt);
@@ -180,12 +186,39 @@ function openToPickUpOrderModal(event) {
     document.getElementById('toPickUpUnitPrice').textContent = `Unit Price: ₱${parseFloat(pricing).toFixed(2)}`;
     document.getElementById('toPickUpQuantity').textContent = `Quantity: ${quantity}`;
     document.getElementById('toPickUpSubtotal').textContent = `Subtotal: ₱${parseFloat(subtotal).toFixed(2)}`;
-    document.getElementById('toPickUpAdminApprovedDate').textContent = formattedUserApprovedDate; // Changed to user approved date
-    
+    document.getElementById('toPickUpAdminApprovedDate').textContent = formattedUserApprovedDate;
+
     // All future steps show as Pending
     document.getElementById('toPickUpProcessingDate').textContent = 'Pending';
+    document.getElementById('toPickUpReadyDesc').textContent = 'Items are being prepared for pickup';
     document.getElementById('toPickUpReadyDate').textContent = 'Pending';
-    document.getElementById('toPickUpCompletedDate').textContent = 'Pending';
+
+    // --- TO PICK UP STEP LOGIC (Step 3) ---
+    if (isForPickup && isForPickup.trim().toLowerCase() === 'yes') {
+        document.getElementById('toPickUpProcessingDesc').textContent = 'Our Logistics will be pick up the items on your location';
+        // Format pickup date if available
+        let formattedPickupDate = 'Pending';
+        if (pickupDate && pickupDate !== 'null' && pickupDate !== '') {
+            const pickupDateObj = new Date(pickupDate);
+            if (!isNaN(pickupDateObj.getTime())) {
+                formattedPickupDate = pickupDateObj.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+        }
+        document.getElementById('toPickUpProcessingDate').textContent = formattedPickupDate;
+    } else {
+        document.getElementById('toPickUpProcessingDesc').textContent = 'An email will be sent to you once your items will be picked up by our logistics';
+        document.getElementById('toPickUpProcessingDate').textContent = 'Pending';
+    }
+
+    // Only set Completed step if it exists
+    const completedDateElem = document.getElementById('toPickUpCompletedDate');
+    if (completedDateElem) {
+        completedDateElem.textContent = 'Pending';
+    }
 
     document.getElementById('toPickUpProcessModal').setAttribute('data-ticket', ticket);
     document.getElementById('toPickUpProcessModal').style.display = 'flex';
