@@ -299,7 +299,6 @@ if (isset($_SESSION['admin_role'])) {
     <div class="toast-container" id="toastContainer"></div>
 
    
-
 <script src="assets/js/script.js"></script>
 <script src="assets/js/charts.js"></script>
 <script>

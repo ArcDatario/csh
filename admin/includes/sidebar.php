@@ -129,8 +129,4 @@
   </div>
 </div>
 
-<style>
-
-</style>
-
 <script src="assets/js/logout.js"></script>

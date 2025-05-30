@@ -24,26 +24,6 @@
 </div>
 
 <style>
-  :root {
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary: #f43f5e;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --dark: #1e293b;
-    --light: #f8fafc;
-    --gray: #94a3b8;
-    --gray-dark: #64748b;
-    --bg: #ffffff;
-    --bg-secondary: #f1f5f9;
-    --text: #0f172a;
-    --text-secondary: #334155;
-    --card-bg: #ffffff;
-    --card-shadow: rgba(0, 0, 0, 0.1);
-    --border: #e2e8f0;
-  }
-
   .profile-dropdown {
     position: relative;
     display: inline-block;
