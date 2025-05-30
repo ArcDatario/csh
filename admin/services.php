@@ -111,7 +111,7 @@ if (!isLoggedIn()) {
 
     </div>
                     
-                    <div class="user-avatar">Csh</div>
+                   <?php include "includes/profile.php";?>
                 </div>
             </header>
             

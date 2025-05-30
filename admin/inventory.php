@@ -49,7 +49,7 @@ if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']
 
     </div>
                     
-                    <div class="user-avatar">Csh</div>
+                   <?php include "includes/profile.php";?>
                 </div>
             </header>
             

@@ -124,7 +124,7 @@ if (isset($_SESSION['admin_role'])) {
 
     </div>
                     
-                    <div class="user-avatar">Csh</div>
+                   <?php include "includes/profile.php";?>
                 </div>
             </header>
             
