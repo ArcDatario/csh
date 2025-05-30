@@ -20,6 +20,7 @@ if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']
     <link rel="icon" href="assets/images/inventory.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
+   <link rel="stylesheet" href="assets/css/logout-modal.css">
     <link rel="stylesheet" href="assets/css/inventory.css">
 </head>
 
