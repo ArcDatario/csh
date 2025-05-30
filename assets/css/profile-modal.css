@@ -93,6 +93,7 @@
 }
 
 .image-preview {
+    margin-left: 40%;
     width: 80px;
     height: 80px;
     border-radius: 50%;
