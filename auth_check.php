@@ -13,8 +13,8 @@ function isLoggedIn() {
         
         $token = $_COOKIE['remember_token'];
         
-        // Use a prepared statement to prevent SQL injection
-        $query = "SELECT id, address FROM users WHERE remember_token = ? AND remember_expiry > NOW()";
+        // Now also select the image column
+        $query = "SELECT id, address, image FROM users WHERE remember_token = ? AND remember_expiry > NOW()";
         $stmt = $conn->prepare($query);
         if (!$stmt) {
             error_log("Database error: " . $conn->error);
@@ -31,9 +31,10 @@ function isLoggedIn() {
             // Regenerate session ID for security
             session_regenerate_id(true);
             
-            // Set session variables
+            // Set session variables, now including image
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['address'] = $user['address'];
+            $_SESSION['image'] = $user['image']; // Add image to session
             
             return true;
         }

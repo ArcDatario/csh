@@ -1,5 +1,38 @@
-<?php 
-require '../auth_check.php';
+<?php
+session_start();
+
+function redirectIfNotLoggedIn() {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../login');
+        exit();
+    }
+    
+    // Require database connection
+    require '../db_connection.php';
+    
+    // Fetch user data (both address and image)
+    $user_id = $_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT address, image FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        
+        // Store both address and image in session
+        $_SESSION['address'] = $user['address'] ?? '';
+        $_SESSION['image'] = $user['image'] ?? '';
+    } else {
+        $_SESSION['address'] = '';
+        $_SESSION['image'] = '';
+    }
+    
+    $stmt->close();
+    $conn->close();
+}
+
+// Call the function immediately
 redirectIfNotLoggedIn();
 ?>
 
@@ -12,6 +45,7 @@ redirectIfNotLoggedIn();
    <link rel="icon" href="../assets/images/tshirt.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
  <link rel="stylesheet" href="../assets/css/style.css">
+ <link rel="stylesheet" href="../assets/css/profile-modal.css">
 </head>
 <body>
     <!-- Loader -->

@@ -45,6 +45,7 @@ $full_address = trim($address);
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/quote.css">
     <link rel="stylesheet" href="../assets/css/order-process-modal.css">
+    <link rel="stylesheet" href="../assets/css/profile-modal.css">
 
     <style>
         
@@ -102,6 +103,7 @@ $full_address = trim($address);
 }
 
         /* style for */
+
     </style>
 </head>
 <body>
