@@ -102,7 +102,6 @@
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
         </a>
-        
     </div>
 </aside>
 <!-- Confirmation Modal -->
@@ -112,7 +111,6 @@
       <h3>Confirm Logout</h3>
     </div>
     <div class="confirmation-modal-body">
-    
       <p>Are you sure you want to logout?</p>
     </div>
     <div class="confirmation-modal-footer">

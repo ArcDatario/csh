@@ -24,14 +24,10 @@ if (isset($_SESSION['admin_role'])) {
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSH Dashboard</title>
-    <link rel="icon" href="assets/images/analysis.png" type="image/png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-   <link rel="stylesheet" href="assets/css/logout-modal.css">
+   
+
+    <?php include "includes/link-css.php";?>
+
     <link rel="stylesheet" href="assets/css/quote-modal.css">
 
    
@@ -389,7 +385,7 @@ if (isset($_SESSION['admin_role'])) {
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="assets/js/script.js"></script>
+
     <script src="assets/js/to-pick-up-table-switching.js"></script>
     <script src="assets/js/to-pick-up-image-viewer.js"></script>
     <script src="assets/js/to-pick-up-confirm.js"></script>
@@ -674,5 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
     </script>
 
+
+<?php include "includes/script-src.php";?>
 </body>
 </html>

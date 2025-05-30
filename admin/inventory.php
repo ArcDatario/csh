@@ -19,8 +19,9 @@ if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']
     <title>Inventory Dashboard</title>
     <link rel="icon" href="assets/images/inventory.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-   <link rel="stylesheet" href="assets/css/logout-modal.css">
+   
+    <?php include "includes/link-css.php";?>
+
     <link rel="stylesheet" href="assets/css/inventory.css">
 </head>
 
@@ -138,7 +139,7 @@ if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']
         </div>
     </div>
 
-    <script src="assets/js/script.js"></script>
+
     <script src="assets/js/toast.js"></script>
     
     <script>
@@ -339,5 +340,7 @@ if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']
             loadItems();
         });
     </script>
+
+    <?php include "includes/script-src.php";?>
 </body>
 </html>
