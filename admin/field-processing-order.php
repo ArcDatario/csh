@@ -27,6 +27,70 @@ if (isset($_SESSION['admin_role'])) {
 <head>
     <?php include "includes/link-css.php";?>
     <link rel="stylesheet" href="assets/css/admintoapprove.css">
+
+    <style>
+        .table-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+}
+
+.tab-btn.active {
+    color: #333;
+    border-bottom-color: #4CAF50;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+/* On Pickup Modal Specific Styles */
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.quote-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.address-value {
+    display: inline-block;
+    max-width: 100%;
+    word-break: break-word;
+}
+    </style>
 </head>
 
 <body>
@@ -42,7 +106,7 @@ if (isset($_SESSION['admin_role'])) {
         <!-- Main Content -->
         <main class="main">
             <header class="header">
-                <h1 class="header-dashboard">Dashboard</h1>
+                <h1 class="header-dashboard">Orders</h1>
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle" style="display:none;">
@@ -60,18 +124,16 @@ if (isset($_SESSION['admin_role'])) {
             
             <!-- Table -->
             <section class="table-card fade-in">
-                <div class="table-header">
-        <h3 class="table-title">Orders for Processing</h3>
-        <div class="table-actions">
-            <button class="btn btn-outline">
-                <i class="fas fa-filter"></i>
-                <span>Filter</span>
-            </button>
+    <div class="table-header">
+        <div class="table-tabs">
+            <button class="tab-btn active" data-tab="processing">Processing</button>
+            <button class="tab-btn" data-tab="on-process">On Process</button>
         </div>
     </div>
-                
-                <div class="table-responsive">
-                <table id="admins-table" class="">
+    
+    <!-- Processing Table (wrapped in tab-content) -->
+    <div id="processing-table" class="table-responsive tab-content active">
+        <table>
     <thead>
         <tr>
             <th>Ticket #</th>
@@ -133,6 +195,8 @@ if (isset($_SESSION['admin_role'])) {
     </tbody>
 </table>
                 </div>
+
+                <?php include "includes/tables/onprocess-table.php"; ?>
             </section>
         </main>
 </div>
@@ -177,8 +241,118 @@ if (isset($_SESSION['admin_role'])) {
       <input type="hidden" id="processing-modal-ticket-input" name="ticket">
     </div>
     <div class="quote-modal-footer">
-      <button id="processing-modal-confirm" class="quote-modal-btn btn-process">Mark as Processing</button>
+      <button id="processing-modal-confirm" class="quote-modal-btn btn-process">Mark as On Process</button>
       <button id="processing-modal-close" class="quote-modal-btn btn-close">Close</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- On Process Modal -->
+<div id="onProcessModal" class="quote-modal">
+  <div class="quote-modal-content">
+    <span class="quote-modal-close">&times;</span>
+    <h2>Order Details</h2>
+    <div class="quote-modal-body">
+      <!-- Ticket -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Ticket #:</span>
+        <span id="onprocess-modal-ticket" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Customer Info -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Customer:</span>
+        <span id="onprocess-modal-name" class="quote-modal-value"></span>
+      </div>
+      
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Email:</span>
+        <span id="onprocess-modal-email" class="quote-modal-value"></span>
+      </div>
+      
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Mobile:</span>
+        <span id="onprocess-modal-mobile" class="quote-modal-value"></span>
+      </div>
+      
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Address:</span>
+        <span id="onprocess-modal-address" class="quote-modal-value address-value"></span>
+      </div>
+      
+      <!-- Design with buttons -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Design:</span>
+        <div class="design-image-container">
+          <img id="onprocess-modal-design" src="" alt="Design" class="design-image">
+          <div class="design-buttons">
+            <button class="view-design-btn">View</button>
+            <button class="download-design-btn">Download</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Print Type -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Print Type:</span>
+        <span id="onprocess-modal-print-type" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Quantity -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Quantity:</span>
+        <span id="onprocess-modal-quantity" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Pricing -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Unit Price:</span>
+        <span id="onprocess-modal-pricing" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Subtotal -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Subtotal:</span>
+        <span id="onprocess-modal-subtotal" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Notes -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Notes:</span>
+        <span id="onprocess-modal-note" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Processing Date -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Processing Date:</span>
+        <span id="onprocess-modal-process-date" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Hidden fields -->
+      <input type="hidden" id="onprocess-modal-id" name="id">
+      <input type="hidden" id="onprocess-modal-user-id" name="user_id">
+      <input type="hidden" id="onprocess-modal-ticket-input" name="ticket">
+    </div>
+    <div class="quote-modal-footer">
+      <button id="onprocess-modal-ship" class="quote-modal-btn btn-process">Mark as To Ship</button>
+      <button id="onprocess-modal-close" class="quote-modal-btn btn-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmShipModal" class="quote-modal">
+  <div class="quote-modal-content" style="max-width: 500px;">
+    <h2>Confirm Shipment</h2>
+    <div class="quote-modal-body">
+      <p>Are you sure you want to mark this order as "To Ship"?</p>
+      <p>This will notify the customer and the management team.</p>
+    </div>
+    <div class="quote-modal-footer">
+      <button id="confirm-ship-yes" class="quote-modal-btn btn-process">Yes, Ship It</button>
+      <button id="confirm-ship-no" class="quote-modal-btn btn-close">Cancel</button>
     </div>
   </div>
 </div>
@@ -413,6 +587,70 @@ function showToast(title, message, type = 'info') {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    
+    // Function to switch tabs
+    function switchTab(tabId) {
+        // Remove active class from all buttons
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        });
+        
+        // Add active class to clicked button
+        const activeButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+        
+        // Show corresponding content
+        const activeContent = document.getElementById(`${tabId}-table`);
+        if (activeContent) {
+            activeContent.classList.add('active');
+            activeContent.style.display = 'block';
+            
+            // Refresh the table if needed
+            if (tabId === 'processing') {
+                refreshOrdersTable(); // Use your existing refresh function
+            } else if (tabId === 'on-process') {
+                updateOnProcessTable(); // Use the function from onprocess-table.php
+            }
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('activeTab', tabId);
+    }
+    
+    // Set up click handlers
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            switchTab(tabId);
+        });
+    });
+    
+    // Check for saved tab or default to 'processing'
+    const savedTab = localStorage.getItem('activeTab');
+    if (savedTab && (savedTab === 'processing' || savedTab === 'on-process')) {
+        switchTab(savedTab);
+    } else {
+        switchTab('processing');
+    }
+    
+    // Initialize the active tab content
+    const activeTab = localStorage.getItem('activeTab') || 'processing';
+    const activeContent = document.getElementById(`${activeTab}-table`);
+    if (activeContent) {
+        activeContent.style.display = 'block';
+    }
+});
+</script>
 <?php include "includes/script-src.php";?>
 </body>
 </html>
