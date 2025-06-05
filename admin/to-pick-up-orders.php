@@ -219,7 +219,7 @@ if (isset($_SESSION['admin_role'])) {
 <!-- On Pickup Table -->
 <?php include "includes/tables/onpickup-table.php"; ?>
 <?php include "includes/tables/to-ship-table.php"; ?>
-
+<?php include "includes/tables/completed-table.php"; ?>
             </section>
         </main>
     </div>
