@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'pickup-orders-container': '.topickup-search',
         'ship-orders-container': '.toship-search',
         'completed-orders-container': '.completed-search',
-        'processing-orders-container': '.processing-search' // <-- Added this line
+        'processing-orders-container': '.processing-search'
     };
 
     // Function to activate a tab and show the correct search input
@@ -86,11 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedTab = localStorage.getItem('activeTab');
     if (savedTab) {
         activateTab(savedTab);
-    } else if (tabButtons.length > 0) {
-        // Activate the first tab by default if none is saved
-        const firstTabId = tabButtons[0].getAttribute('data-tab');
-        if (firstTabId) {
-            activateTab(firstTabId);
-        }
+    } else {
+        // Always activate the pending tab by default if none is saved
+        activateTab('pending-orders-container');
     }
 });
