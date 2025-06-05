@@ -25,10 +25,7 @@ if (isset($_SESSION['admin_role'])) {
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    
-
     <?php include "includes/link-css.php";?>
-
     <link rel="stylesheet" href="assets/css/admintoapprove.css">
 </head>
 
@@ -61,13 +58,10 @@ if (isset($_SESSION['admin_role'])) {
                 </div>
             </header>
             
-            <!-- Cards Grid -->
-           
-            
             <!-- Table -->
             <section class="table-card fade-in">
                 <div class="table-header">
-        <h3 class="table-title">Users</h3>
+        <h3 class="table-title">Orders for Processing</h3>
         <div class="table-actions">
             <button class="btn btn-outline">
                 <i class="fas fa-filter"></i>
@@ -90,20 +84,13 @@ if (isset($_SESSION['admin_role'])) {
         </tr>
     </thead>
     <?php
-    require_once 'auth_check.php';
     require_once '../db_connection.php';
 
-    if (!isLoggedIn()) {
-        header('Location: login.php');
-        exit();
-    }
-
-    // Fetch orders with user names from the database
-   
-    $sql = "SELECT orders.*, users.name, users.phone_number 
+    // Fetch only orders with status 'processing'
+    $sql = "SELECT orders.*, users.name 
             FROM orders 
             INNER JOIN users ON orders.user_id = users.id 
-            WHERE orders.status = 'pending' 
+            WHERE orders.status = 'processing' AND orders.is_for_processing ='no'
             ORDER BY orders.created_at DESC";
     $result = $conn->query($sql);
     ?>
@@ -127,31 +114,20 @@ if (isset($_SESSION['admin_role'])) {
                         </span>
                     </td>
                     <td>
-                     
-<button class="btn btn-outline view-quote-modal" 
-        data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
-        data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>">
-    View
-</button>
-
+                        <button class="btn btn-outline view-quote-modal" 
+                                data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>">
+                            Process
+                        </button>
                     </td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
             <tr>
-                <td colspan="7">No orders found</td>
+                <td colspan="7">No orders currently for processing</td>
             </tr>
         <?php endif; ?>
     </tbody>
@@ -161,103 +137,48 @@ if (isset($_SESSION['admin_role'])) {
         </main>
 </div>
   
-<div id="quoteModal" class="quote-modal">
+<div id="processingModal" class="quote-modal">
   <div class="quote-modal-content">
     <span class="quote-modal-close">&times;</span>
-    <h2>Order Details</h2>
+    <h2>Order Processing</h2>
     <div class="quote-modal-body">
-      <!-- Group 1: Ticket and Customer in one row -->
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Ticket #:</span>
-          <span id="quote-modal-ticket" class="quote-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Customer:</span>
-          <span id="quote-modal-name" class="quote-modal-value"></span>
-        </div>
-      </div>
-      
-      <!-- Group 2: Image with buttons and details -->
-      <div class="quote-modal-row grouped-row-2">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Design:</span>
-          <div class="design-image-container">
-            <img id="quote-modal-design" src="" alt="Design" class="design-image">
-            <div class="design-buttons">
-              <button class="view-design-btn">View</button>
-              <button class="download-design-btn">Download</button>
-            </div>
-          </div>
-        </div>
-        <div class="grouped-item details-column">
-          <div class="detail-row">
-            <span class="quote-modal-label">Print Type:</span>
-            <span id="quote-modal-print-type" class="quote-modal-value"></span>
-          </div>
-          <div class="detail-row">
-            <span class="quote-modal-label">Quantity:</span>
-            <span id="quote-modal-quantity" class="quote-modal-value"></span>
-          </div>
-          <div class="detail-row">
-            <span class="quote-modal-label">Mobile #:</span>
-            <span id="quote-modal-mobile" class="quote-modal-value"></span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Note -->
+      <!-- Ticket -->
       <div class="quote-modal-row">
-        <span class="quote-modal-label">Note:</span>
-        <span id="quote-modal-note" class="quote-modal-value note-value"></span>
+        <span class="quote-modal-label">Ticket #:</span>
+        <span id="processing-modal-ticket" class="quote-modal-value"></span>
       </div>
       
-      <!-- Group 3: Date and Status -->
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Date:</span>
-          <span id="quote-modal-date" class="quote-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Status:</span>
-          <span id="quote-modal-status" class="quote-modal-value"></span>
-        </div>
-      </div>
-      
-      <!-- Address -->
+      <!-- Design with buttons -->
       <div class="quote-modal-row">
-        <span class="quote-modal-label">Address:</span>
-        <span id="quote-modal-address" class="quote-modal-value address-value"></span>
-      </div>
-
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Price per pcs:</span>
-          <span id="quote-modal-price" class="quote-modal-price-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Subtotal:</span>
-          <span id="quote-modal-subtotal" class="quote-modal-subtotal-value"></span>
+        <span class="quote-modal-label">Design:</span>
+        <div class="design-image-container">
+          <img id="processing-modal-design" src="" alt="Design" class="design-image">
+          <div class="design-buttons">
+            <button class="view-design-btn">View</button>
+            <button class="download-design-btn">Download</button>
+          </div>
         </div>
       </div>
       
-      <!-- Subtotal -->
+      <!-- Print Type -->
       <div class="quote-modal-row">
-      <input type="number" id="subtotal-value" class="subtotal-value" name="subtotal" hidden>
-      <input type="number" id="pricing-value" class="pricing-value" name="pricing" hidden>
-
-      <input type="number" id="user_id" class="user_id" name="user_id" hidden>
-
-      <input type="number" id="ticket-value-input" class="ticket-value-input" name="ticket-value-input" hidden>
-
-      
-        <span id="subtotal-text" class="subtotal-text">Updated: ₱</span>
+        <span class="quote-modal-label">Print Type:</span>
+        <span id="processing-modal-print-type" class="quote-modal-value"></span>
       </div>
+      
+      <!-- Quantity -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Quantity:</span>
+        <span id="processing-modal-quantity" class="quote-modal-value"></span>
+      </div>
+      
+      <!-- Hidden fields -->
+      <input type="hidden" id="processing-modal-id" name="id">
+      <input type="hidden" id="processing-modal-ticket-input" name="ticket">
     </div>
     <div class="quote-modal-footer">
-      <input type="number" id="quote-modal-input" placeholder="Update Price per pcs" name="price">
-
-      <button id="quote-modal-save" class="quote-modal-btn">Approved</button>
+      <button id="processing-modal-confirm" class="quote-modal-btn btn-process">Mark as Processing</button>
+      <button id="processing-modal-close" class="quote-modal-btn btn-close">Close</button>
     </div>
   </div>
 </div>
@@ -269,159 +190,90 @@ if (isset($_SESSION['admin_role'])) {
   <div id="viewerLoading" class="viewer-loading">Loading...</div>
 </div>
     
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-   
-
-
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
 // Get DOM elements
-const quoteModal = document.getElementById('quoteModal');
-const quoteModalClose = document.querySelector('.quote-modal-close');
-const priceInput = document.getElementById('quote-modal-input');
-const quantitySpan = document.getElementById('quote-modal-quantity');
-const subtotalInput = document.getElementById('subtotal-value');
-const subtotalText = document.getElementById('subtotal-text');
-const saveBtn = document.getElementById('quote-modal-save');
+const processingModal = document.getElementById('processingModal');
+const processingModalClose = document.querySelector('.quote-modal-close');
+const confirmBtn = document.getElementById('processing-modal-confirm');
+const closeBtn = document.getElementById('processing-modal-close');
 
-// Price calculation handler
-function handlePriceCalculation() {
-    const pricePerPiece = parseFloat(priceInput.value.trim());
-    const quantity = parseInt(quantitySpan.textContent.trim());
-
-    if (!isNaN(pricePerPiece) && pricePerPiece >= 0 && !isNaN(quantity) && quantity > 0) {
-        const subtotal = pricePerPiece * quantity;
-        subtotalInput.value = subtotal.toFixed(2);
-        subtotalText.textContent = `Updated: ₱${subtotal.toFixed(2)}`;
-    } else {
-        subtotalInput.value = '';
-        subtotalText.textContent = 'Updated: ₱0.00';
-    }
-}
-
-// ...existing code...
-
+// Handle view button click
 function handleViewButtonClick() {
     const id = this.getAttribute('data-id');
-    const userId = this.getAttribute('data-user-id');
     const ticket = this.getAttribute('data-ticket');
     const design = this.getAttribute('data-design');
-    const mobile = this.getAttribute('data-mobile');
-    const name = this.getAttribute('data-name');
     const printType = this.getAttribute('data-print-type');
     const quantity = this.getAttribute('data-quantity');
-    const date = this.getAttribute('data-date');
-    const status = this.getAttribute('data-status');
-    const note = this.getAttribute('data-note');
-    const address = this.getAttribute('data-address');
-    const pricing = this.getAttribute('data-pricing'); // Get pricing value
-    const subtotal = this.getAttribute('data-subtotal'); // Get subtotal value
 
     // Store data in modal
-    quoteModal.setAttribute('data-current-id', id);
+    processingModal.setAttribute('data-current-id', id);
 
     // Populate modal fields
-    document.getElementById('quote-modal-ticket').textContent = ticket;
-    document.getElementById('quote-modal-name').textContent = name;
-    document.getElementById('quote-modal-design').src = '../user/' + design;
-    document.getElementById('quote-modal-print-type').textContent = printType;
-    document.getElementById('quote-modal-quantity').textContent = quantity;
-    document.getElementById('quote-modal-date').textContent = date;
-    document.getElementById('quote-modal-status').textContent = status;
-    document.getElementById('quote-modal-note').textContent = note || 'N/A';
-    document.getElementById('quote-modal-address').textContent = address || 'N/A';
-    document.getElementById('quote-modal-mobile').textContent = mobile || 'N/A';
-    document.getElementById('user_id').value = userId;
-    document.getElementById('ticket-value-input').value = ticket;
-
-    // Populate pricing and subtotal fields
-    document.getElementById('quote-modal-price').textContent = pricing ? `₱${parseFloat(pricing).toFixed(2)}` : 'N/A';
-    document.getElementById('quote-modal-subtotal').textContent = subtotal ? `₱${parseFloat(subtotal).toFixed(2)}` : 'N/A';
-
-    // Set the values for the input fields as requested
-    document.getElementById('pricing-value').value = pricing ? parseFloat(pricing) : '';
-    document.getElementById('subtotal-value').value = subtotal ? parseFloat(subtotal) : '';
-
-    // Reset input fields for manual update
-    priceInput.value = '';
-    subtotalText.textContent = 'Updated: ₱0.00';
+    document.getElementById('processing-modal-ticket').textContent = ticket;
+    document.getElementById('processing-modal-design').src = '../user/' + design;
+    document.getElementById('processing-modal-print-type').textContent = printType;
+    document.getElementById('processing-modal-quantity').textContent = quantity;
+    document.getElementById('processing-modal-id').value = id;
+    document.getElementById('processing-modal-ticket-input').value = ticket;
 
     // Show modal
-    quoteModal.style.display = 'block';
+    processingModal.style.display = 'block';
 }
 
-// ...existing code...
-
-// Save quote handler
-function handleSaveQuote() {
-    const quoteAmount = priceInput.value;
-    const subtotalAmount = subtotalInput.value;
-    const id = quoteModal.getAttribute('data-current-id');
-    const userId = document.getElementById('user_id').value;
-    const ticket = document.getElementById('ticket-value-input').value;
-    const quantity = document.getElementById('quote-modal-quantity').textContent.trim();
-    const pricingValue = document.getElementById('pricing-value').value; // <-- get the hidden pricing value
-
-    // Only validate quoteAmount if it's not empty (allow empty if pricingValue exists)
-    if (quoteAmount && isNaN(quoteAmount)) {
-        showToast('Error', 'Please enter a valid quote amount', 'error');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('price', quoteAmount); // can be empty if not entered
-    formData.append('subtotal', subtotalAmount);
-    formData.append('user_id', userId);
-    formData.append('ticket', ticket);
-    formData.append('quantity', quantity);
-    formData.append('pricing', pricingValue); // <-- always send this
+// Handle confirm processing
+function handleConfirmProcessing() {
+    const id = document.getElementById('processing-modal-id').value;
+    const ticket = document.getElementById('processing-modal-ticket-input').value;
 
     // Show loading state
-    const originalText = saveBtn.textContent;
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving...';
+    const originalText = confirmBtn.textContent;
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Processing...';
 
-    fetch('functions/approved_pricing.php', {
+    fetch('functions/update_processing.php', {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `id=${id}&ticket=${ticket}`
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             showToast('Success', data.message, 'success');
-            quoteModal.style.display = 'none';
-            refreshDesignersTable(); // Refresh table after successful save
+            processingModal.style.display = 'none';
+            refreshOrdersTable(); // Refresh table after successful update
         } else {
             showToast('Error', data.message, 'error');
         }
     })
     .catch(error => {
-        showToast('Error', 'An error occurred while updating pricing', 'error');
+        showToast('Error', 'An error occurred while updating order', 'error');
         console.error('Error:', error);
     })
     .finally(() => {
-        saveBtn.disabled = false;
-        saveBtn.textContent = originalText;
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = originalText;
     });
 }
 
 // Modal close handlers
 function closeModal() {
-    quoteModal.style.display = 'none';
+    processingModal.style.display = 'none';
 }
 
 function handleWindowClick(event) {
-    if (event.target === quoteModal) {
+    if (event.target === processingModal) {
         closeModal();
     }
 }
 
 // Table refresh functionality
-function refreshDesignersTable() {
-    fetch('functions/get_admin_orders.php')
+function refreshOrdersTable() {
+    fetch('functions/get_processing_orders.php')
         .then(response => response.text())
         .then(data => {
             document.getElementById('admins-table-body').innerHTML = data;
@@ -430,37 +282,91 @@ function refreshDesignersTable() {
         .catch(error => console.error('Error refreshing table:', error));
 }
 
+// Image Viewer functionality
+function setupImageViewer() {
+    const imageViewerModal = document.getElementById('imageViewerModal');
+    const closeViewer = document.querySelector('.close-viewer');
+
+    // View button functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('view-design-btn')) {
+            const imgSrc = e.target.closest('.design-image-container').querySelector('img').src;
+            document.getElementById('expandedDesignImage').src = imgSrc;
+            imageViewerModal.style.display = 'block';
+        }
+    });
+
+    // Close button functionality
+    closeViewer.addEventListener('click', function() {
+        imageViewerModal.style.display = 'none';
+    });
+
+    // Close when clicking outside image
+    imageViewerModal.addEventListener('click', function(e) {
+        if (e.target === imageViewerModal) {
+            imageViewerModal.style.display = 'none';
+        }
+    });
+}
+
+// Download functionality
+function setupDownloadButtons() {
+    // Remove any previous event listener to avoid multiple downloads
+    const downloadBtn = document.querySelector('.download-design-btn');
+    if (downloadBtn) {
+        // Clone the button to remove previous listeners
+        const newBtn = downloadBtn.cloneNode(true);
+        downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+
+        newBtn.addEventListener('click', function() {
+            const container = newBtn.closest('.design-image-container');
+            const imgSrc = container.querySelector('img').src;
+            const ticket = document.getElementById('processing-modal-ticket').textContent;
+            const printType = document.getElementById('processing-modal-print-type').textContent;
+
+            // Extract filename from URL
+            const filename = imgSrc.split('/').pop();
+            const extension = filename.split('.').pop();
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = imgSrc;
+            link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+}
+
 // Attach all event listeners
 function attachEventListeners() {
-    // Price calculation
-    priceInput.addEventListener('input', handlePriceCalculation);
-    
     // View buttons
     document.querySelectorAll('.view-quote-modal').forEach(button => {
         button.addEventListener('click', handleViewButtonClick);
     });
     
-    // Modal close
-    quoteModalClose.addEventListener('click', closeModal);
+    // Modal buttons
+    confirmBtn.addEventListener('click', handleConfirmProcessing);
+    closeBtn.addEventListener('click', closeModal);
+    processingModalClose.addEventListener('click', closeModal);
     window.addEventListener('click', handleWindowClick);
     
-    // Save button
-    saveBtn.addEventListener('click', handleSaveQuote);
+    // Image viewer and download
+    setupImageViewer();
+    setupDownloadButtons();
 }
 
 // Initialize
 function init() {
     attachEventListeners();
-    refreshDesignersTable();
+    refreshOrdersTable();
     
     // Set up periodic refresh (every 5 seconds)
-    setInterval(refreshDesignersTable, 5000);
+    setInterval(refreshOrdersTable, 5000);
 }
 
-// Start the application
-document.addEventListener('DOMContentLoaded', init);
-
-// Your existing toast function exactly as provided
+// Toast notification function
 function showToast(title, message, type = 'info') {
     const toastContainer = document.getElementById('toastContainer');
     
@@ -502,78 +408,10 @@ function showToast(title, message, type = 'info') {
         }, 300);
     });
 }
+
+// Start the application
+document.addEventListener('DOMContentLoaded', init);
 </script>
-
-<script>
-    // Image Viewer Modal
-    const imageViewerModal = document.createElement('div');
-imageViewerModal.className = 'image-viewer-modal';
-imageViewerModal.innerHTML = `
-  <span class="close-viewer">&times;</span>
-  <img class="image-viewer-content" id="viewed-image">
-`;
-document.body.appendChild(imageViewerModal);
-
-// View button functionality
-document.addEventListener('click', function (e) {
-  if (e.target.classList.contains('view-design-btn')) {
-    const imgSrc = e.target.closest('.design-image-container').querySelector('img').src;
-    document.getElementById('viewed-image').src = imgSrc;
-    imageViewerModal.style.display = 'block';
-  }
-});
-
-// Close button functionality
-document.addEventListener('click', function (e) {
-  if (e.target.classList.contains('close-viewer')) {
-    imageViewerModal.style.display = 'none';
-  }
-});
-
-// Close viewer when clicking outside the image
-imageViewerModal.addEventListener('click', function (e) {
-  if (e.target === imageViewerModal) {
-    imageViewerModal.style.display = 'none';
-  }
-});
-
-// Download button functionality
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('download-design-btn')) {
-    const container = e.target.closest('.design-image-container');
-    const imgSrc = container.querySelector('img').src;
-    const ticket = document.getElementById('quote-modal-ticket').textContent;
-    const printType = document.getElementById('quote-modal-print-type').textContent;
-    
-    // Extract filename from URL
-    const filename = imgSrc.split('/').pop();
-    const extension = filename.split('.').pop();
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.href = imgSrc;
-    link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-});
-
-// Close image viewer
-document.querySelector('.close-viewer').onclick = function() {
-  imageViewerModal.style.display = 'none';
-}
-
-// Close when clicking outside image
-imageViewerModal.onclick = function(e) {
-  if (e.target === imageViewerModal) {
-    imageViewerModal.style.display = 'none';
-  }
-}
-</script>
-
-<script src="assets/js/orders.js"></script>
-
 
 <?php include "includes/script-src.php";?>
 </body>

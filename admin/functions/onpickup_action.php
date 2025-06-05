@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                 break;
                 
              case 'pickedup':
-        $statusUpdate = "UPDATE orders SET status = 'processing', pickup_date = NOW() WHERE id = ?";
+        $statusUpdate = "UPDATE orders SET status = 'processing', pickup_date = NOW(), is_for_processing = 'no' WHERE id = ?";
         $notificationContent = "Order #$ticket has been picked up and will be processed. Please prepare the materials needed for this order.";
         $emailSubject = "Order #$ticket Picked Up and Processing";
         $emailBody = "Dear Customer,<br><br>Order #$ticket has been picked up and will now be processed. Please ensure all required materials for this order are ready.<br><br>Thank you for your cooperation.";
