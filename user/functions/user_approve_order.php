@@ -20,12 +20,14 @@ if ($action === 'agree') {
     $isForPickup = 'no';    // Always set to 'no' on agree
     $content = "Quote #$ticketNumber has been agreed to the price";
     $successMessage = "Successful, the items will be picked up at your location";
+    $notificationStatus = 'approved'; // Set notification status to 'approved'
 } else if ($action === 'reject') {
     $isUserApproved = 'no';
     $status = 'rejected'; // New status for rejected orders
     $isForPickup = 'no';  // Always set to 'no' on reject as well
     $content = "Quote #$ticketNumber has been rejected by the user";
     $successMessage = "Successfully rejected the quote";
+    $notificationStatus = 'reject'; // Set notification status to 'reject'
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid action.']);
     exit();
@@ -48,9 +50,9 @@ if ($stmt->execute()) {
         $orderId = $order['id'];
         $userId = $order['user_id'];
 
-        $notificationSql = "INSERT INTO notification (order_id, user_id, content, notify_secretary, notify_owner, notify_manager) VALUES (?, ?, ?, 'yes', 'yes', 'yes')";
+        $notificationSql = "INSERT INTO notification (order_id, user_id, content, notify_secretary, notify_owner, notify_manager, status) VALUES (?, ?, ?, 'yes', 'yes', 'yes', ?)";
         $notificationStmt = $conn->prepare($notificationSql);
-        $notificationStmt->bind_param("iis", $orderId, $userId, $content);
+        $notificationStmt->bind_param("iiss", $orderId, $userId, $content, $notificationStatus);
 
         if ($notificationStmt->execute()) {
             echo json_encode(['success' => true, 'message' => $successMessage]);

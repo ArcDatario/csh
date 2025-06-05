@@ -13,11 +13,16 @@ document.addEventListener('DOMContentLoaded', function() {
             activeButton.classList.add('active');
         }
         
-        // Show corresponding content
+        // Show corresponding content and initialize appropriate table
         if (tabId === 'to-pickup') {
             document.getElementById('to-pickup-table').classList.add('active');
+            // Initialize to-pickup table if needed
         } else if (tabId === 'on-pickup') {
             document.getElementById('on-pickup-table').classList.add('active');
+            updateOnPickupTable();
+        } else if (tabId === 'to-ship') {
+            document.getElementById('to-ship-table').classList.add('active');
+            updateToShipTable();
         }
         
         // Save to localStorage
@@ -32,9 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Always default to 'to-pickup' if nothing saved
+    // Check saved tab or default to 'to-pickup'
     const savedTab = localStorage.getItem('activeTab');
-    if (savedTab && (savedTab === 'to-pickup' || savedTab === 'on-pickup')) {
+    if (savedTab && (savedTab === 'to-pickup' || savedTab === 'on-pickup' || savedTab === 'to-ship')) {
         switchTab(savedTab);
     } else {
         switchTab('to-pickup');

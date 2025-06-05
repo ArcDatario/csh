@@ -131,6 +131,7 @@ if (isset($_SESSION['admin_role'])) {
     <div class="table-tabs">
         <button class="tab-btn active" data-tab="to-pickup">To Pickup</button>
         <button class="tab-btn" data-tab="on-pickup">On Pickup</button>
+        <button class="tab-btn" data-tab="to-ship">To Ship</button>
     </div>
     <div class="table-actions">
         <button class="btn btn-outline">
@@ -216,7 +217,7 @@ if (isset($_SESSION['admin_role'])) {
 
 <!-- On Pickup Table -->
 <?php include "includes/tables/onpickup-table.php"; ?>
-
+<?php include "includes/tables/to-ship-table.php"; ?>
 
             </section>
         </main>
@@ -374,6 +375,9 @@ if (isset($_SESSION['admin_role'])) {
             </div>
         </div>
     </div>
+
+
+    
 
     <!-- Image Viewer Modal -->
     <div id="imageViewerModal" class="image-viewer-modal">
