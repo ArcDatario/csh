@@ -106,10 +106,20 @@
                     <div id="processingAdminApprovedDate" class="order-step-date">Jan 16, 2023</div>
                 </div>
             </div>
+            <!-- Ready for Pickup Step -->
+            <div class="order-step order-step-completed">
+                <div class="order-step-number">3</div>
+                <div class="order-step-connector-completed"></div>
+                <div class="order-step-content">
+                    <div id="processingReadyTitle" class="order-step-title">Item Has Been Picked Up</div>
+                    <div id="processingReadyDesc" class="order-step-description">Items is on process</div>
+                    <div id="processingReadyDate" class="order-step-date">Pending</div>
+                </div>
+            </div>
             
             <!-- Processing Step -->
-            <div class="order-step order-step-current">
-                <div class="order-step-number">3</div>
+            <div class="order-step order-step-completed">
+                <div class="order-step-number">4</div>
                 <div class="order-step-connector-current"></div>
                 <div class="order-step-content">
                     <div id="processingProcessingTitle" class="order-step-title">Processing</div>
@@ -118,27 +128,27 @@
                 </div>
             </div>
             
-            <!-- Ready for Pickup Step -->
-            <div class="order-step">
-                <div class="order-step-number">4</div>
-                <div class="order-step-connector-pending"></div>
-                <div class="order-step-content">
-                    <div id="processingReadyTitle" class="order-step-title">Ready for Pickup</div>
-                    <div id="processingReadyDesc" class="order-step-description">Items will be ready for pickup soon</div>
-                    <div id="processingReadyDate" class="order-step-date">Pending</div>
+            <!-- To Ship Step -->
+                <div class="order-step">
+                    <div class="order-step-number">5</div>
+                    <div class="order-step-connector-pending"></div>
+                    <div class="order-step-content">
+                        <div id="processingCompletedTitle" class="order-step-title">To Ship</div>
+                        <div id="processingCompletedDesc" class="order-step-description">Items will be ship soon</div>
+                        <div id="processingCompletedDate" class="order-step-date">Pending</div>
+                    </div>
                 </div>
-            </div>
             
             <!-- Completed Step -->
-            <div class="order-step">
-                <div class="order-step-number">5</div>
+            <!-- <div class="order-step">
+                <div class="order-step-number">6</div>
                 <div class="order-step-connector-pending"></div>
                 <div class="order-step-content">
                     <div id="processingCompletedTitle" class="order-step-title">Completed</div>
                     <div id="processingCompletedDesc" class="order-step-description">Order will be marked completed after pickup</div>
                     <div id="processingCompletedDate" class="order-step-date">Pending</div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
