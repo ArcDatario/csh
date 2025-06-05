@@ -42,8 +42,8 @@ if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']
                 <h1 class="header-dashboard">Dashboard</h1>
                 
                 <div class="user-menu">
-                <div class="theme-toggle" id="themeToggle">
-                <span style="margin-right:8px;">Dark Mode</span>
+                <div class="theme-toggle" id="themeToggle" style="display:none;">
+                <span style="margin-right:8px;" style="display:none;">Dark Mode</span>
                 <i class="fas fa-moon"></i>
             </div>
                     
