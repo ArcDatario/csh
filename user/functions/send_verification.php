@@ -155,18 +155,18 @@ if ($method === 'email') {
 
         // Content
         $mail->isHTML(true);
-        $mail->Subject = 'Your Verification Code';
+        $mail->Subject = 'Your Update Verification Code';
 
         $emailBody = "
-            <h2>Email Verification</h2>
-            <p>Thank you for registering with us!</p>
+            <h2>Account Update Verification</h2>
+            <p>You requested to update your email address or mobile number on your CSH Enterprises account.</p>
             <p>Your verification code is: <strong>{$verificationCode}</strong></p>
             <p>This code will expire in 15 minutes.</p>
-            <p>If you didn't request this code, please ignore this email.</p>
+            <p>If you did not request this update, please ignore this email or contact support.</p>
         ";
 
         $mail->Body = $emailBody;
-        $mail->AltBody = "Your verification code is: {$verificationCode}. This code will expire in 15 minutes.";
+        $mail->AltBody = "You requested to update your email or mobile number. Your verification code is: {$verificationCode}. This code will expire in 15 minutes. If you did not request this, please ignore this email or contact support.";
 
         $mail->send();
 
@@ -178,7 +178,7 @@ if ($method === 'email') {
     }
 } elseif ($method === 'sms') {
     // Send via SMS using Semaphore
-    $smsMessage = "Your CSH verification code is: {$verificationCode}. This code will expire in 15 minutes.";
+    $smsMessage = "You requested to update your email or mobile number on your CSH Enterprises account. Your verification code is: {$verificationCode}. This code will expire in 15 minutes. If you did not request this, please ignore this message or contact support.";
     $smsError = null;
     
     if (sendSMS($phone, $smsMessage, $smsError)) {

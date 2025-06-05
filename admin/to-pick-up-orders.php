@@ -132,6 +132,7 @@ if (isset($_SESSION['admin_role'])) {
         <button class="tab-btn active" data-tab="to-pickup">To Pickup</button>
         <button class="tab-btn" data-tab="on-pickup">On Pickup</button>
         <button class="tab-btn" data-tab="to-ship">To Ship</button>
+         <button class="tab-btn" data-tab="completed">Completed</button>
     </div>
     <div class="table-actions">
         <button class="btn btn-outline">
