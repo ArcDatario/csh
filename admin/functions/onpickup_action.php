@@ -33,31 +33,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         switch ($action) {
             case 'reattempt':
                 $statusUpdate = "UPDATE orders SET pickup_attempt = pickup_attempt + 1, pickup_date = NOW() WHERE id = ?";
-                $notificationContent = "Your order #$ticket pickup is being reattempted. Our logistics team will try again to pick up your items.";
+                // $notificationContent = "Your order #$ticket pickup is being reattempted. Our logistics team will try again to pick up your items.";
                 $emailSubject = "Order #$ticket Pickup Reattempt";
                 $emailBody = "Dear Customer,<br><br>We are reattempting to pick up your order #$ticket today. Please ensure someone is available at the pickup location.<br><br>Thank you for your patience.";
                 break;
                 
             case 'failed':
                 $statusUpdate = "UPDATE orders SET pickup_date = NOW() WHERE id = ?";
-                $notificationContent = "The pickup attempt for your order #$ticket has failed. We will try again soon.";
+                // $notificationContent = "The pickup attempt for your order #$ticket has failed. We will try again soon.";
                 $emailSubject = "Order #$ticket Pickup Attempt Failed";
                 $emailBody = "Dear Customer,<br><br>The pickup attempt for your order #$ticket has failed. We will try again soon. Please ensure someone is available at the pickup location during business hours.<br><br>Thank you for your understanding.";
                 break;
                 
             case 'reject':
                 $statusUpdate = "UPDATE orders SET status = 'rejected', pickup_date = NOW() WHERE id = ?";
-                $notificationContent = "Your order #$ticket has been rejected due to multiple failed pickup attempts.";
+                // $notificationContent = "Your order #$ticket has been rejected due to multiple failed pickup attempts.";
                 $emailSubject = "Order #$ticket Rejected";
                 $emailBody = "Dear Customer,<br><br>We regret to inform you that your order #$ticket has been rejected due to multiple failed pickup attempts.<br><br>Thank you for your understanding.";
                 break;
                 
-            case 'pickedup':
-                $statusUpdate = "UPDATE orders SET status = 'processing', pickup_date = NOW() WHERE id = ?";
-                $notificationContent = "Your order #$ticket has been successfully picked up. Your items are now being processed.";
-                $emailSubject = "Order #$ticket Successfully Picked Up";
-                $emailBody = "Dear Customer,<br><br>We're pleased to inform you that your order #$ticket has been successfully picked up. Thank you for your cooperation!<br><br>Your items are now being processed. We will notify you again once your items are ready to be shipped.<br><br>Thank you for choosing our services!";
-                break;
+             case 'pickedup':
+        $statusUpdate = "UPDATE orders SET status = 'processing', pickup_date = NOW() WHERE id = ?";
+        $notificationContent = "Order #$ticket has been picked up and will be processed. Please prepare the materials needed for this order.";
+        $emailSubject = "Order #$ticket Picked Up and Processing";
+        $emailBody = "Dear Customer,<br><br>Order #$ticket has been picked up and will now be processed. Please ensure all required materials for this order are ready.<br><br>Thank you for your cooperation.";
+        break;
                 
             default:
                 echo json_encode(['success' => false, 'message' => 'Invalid action']);
