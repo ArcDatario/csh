@@ -165,7 +165,7 @@ function openProcessingOrderModal(event) {
     const userApprovedDate = button.getAttribute('data-user-approved-date');
     const processingDate = button.getAttribute('data-processing-date');
     const isForPickup = button.getAttribute('data-is-for-pickup');
-    const pickupDate = button.getAttribute('data-pickup-date');
+    const pickupDate = button.getAttribute('data-pickup-date'); // pickup_date is now passed here
 
     // Format the dates
     const formatDate = (dateString) => {
@@ -186,11 +186,10 @@ function openProcessingOrderModal(event) {
     document.getElementById('processingAdminApprovedDate').textContent = formatDate(userApprovedDate);
     document.getElementById('processingProcessingDate').textContent = formatDate(processingDate);
     
-    // Set processing step as current
-    document.getElementById('processingProcessingDesc').textContent = 'Your items are currently being prepared';
-    
+    // Set the pickup date value to the step
+    document.getElementById('processingReadyDate').textContent = formatDate(pickupDate);
+
     // Future steps
-    document.getElementById('processingReadyDate').textContent = 'Pending';
     document.getElementById('processingCompletedDate').textContent = 'Pending';
 
     document.getElementById('processingProcessModal').setAttribute('data-ticket', ticket);
