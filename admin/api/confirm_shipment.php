@@ -42,10 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
         // Admin notification: "Order #TICKET has been marked as ready to ship and will be delivered to: ADDRESS"
         $admin_content = "Order #{$ticket} has been marked as ready to ship and will be delivered to: {$address}";
-        $notification_status = "to_ship"; // Identify this notification as related to shipping
-
-        $admin_notify = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_manager, notify_owner, notify_secretary, status) VALUES (?, ?, ?, 'yes', 'yes', 'yes', ?)");
-        $admin_notify->bind_param("iiss", $user_id, $id, $admin_content, $notification_status);
+        $admin_notify = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_manager, notify_owner, notify_secretary) VALUES (?, ?, ?, 'yes', 'yes', 'yes')");
+        $admin_notify->bind_param("iis", $user_id, $id, $admin_content);
         if (!$admin_notify->execute()) {
             throw new Exception("Failed to insert admin notification");
         }

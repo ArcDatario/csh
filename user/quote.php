@@ -276,6 +276,7 @@ if ($user_id) {
         <?php include "includes/approved-order.php";?>
          <?php include "includes/to-pick-up-order.php";?>
          <?php include "includes/processing-order.php";?>
+          <?php include "includes/to-ship-order.php";?>
     </main>
 
 
