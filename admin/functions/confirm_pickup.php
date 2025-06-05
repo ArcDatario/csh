@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         if ($stmt->execute()) {
             // Insert notification with order_id
             $content = "Your order with ticket #{$ticket} is ready for pickup. Our logistics team will pick up the items at your address: {$address}";
-            $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_user) VALUES (?, ?, ?, 'yes')");
+            $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_user, status) VALUES (?, ?, ?, 'yes', 'info')");
             $notify_stmt->bind_param("iis", $user_id, $id, $content);
             
             if ($notify_stmt->execute()) {

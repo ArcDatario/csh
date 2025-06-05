@@ -68,16 +68,29 @@ if ($notificationField) {
                 if ($result->num_rows > 0) {
                     while ($notification = $result->fetch_assoc()) {
                         $isUnread = empty($notification[$viewedField]) || $notification[$viewedField] == 'no';
-                        $iconClass = 'info';
-                        $icon = 'fa-info-circle';
+                        $iconClass = 'info'; // Default class
+                        $icon = 'fa-info-circle'; // Default icon
                         
-                        // Determine icon based on content
-                        if (strpos($notification['content'], 'approved') !== false) {
-                            $iconClass = 'success';
-                            $icon = 'fa-check-circle';
-                        } elseif (strpos($notification['content'], 'alert') !== false) {
-                            $iconClass = 'warning';
-                            $icon = 'fa-exclamation-circle';
+                        // Determine icon based on status column
+                        if (!empty($notification['status'])) {
+                            switch(strtolower($notification['status'])) {
+                                case 'approved':
+                                    $iconClass = 'success';
+                                    $icon = 'fa-check-circle';
+                                    break;
+                                case 'alert':
+                                    $iconClass = 'warning';
+                                    $icon = 'fa-exclamation-circle';
+                                    break;
+                                // Add more cases if needed
+                            }
+                        }
+                        
+                        // Format date as "Month Day - Time"
+                        $formattedDate = '';
+                        if (!empty($notification['created_at'])) {
+                            $date = new DateTime($notification['created_at']);
+                            $formattedDate = $date->format('F d - g:i A'); // e.g. "June 06 - 4:18 PM"
                         }
                         ?>
                         <div class="notification-item <?php echo $isUnread ? 'unread' : ''; ?>" data-id="<?php echo $notification['id']; ?>">
@@ -86,20 +99,7 @@ if ($notificationField) {
                             </div>
                             <div class="notification-content">
                                 <p class="notification-message"><?php echo htmlspecialchars($notification['content']); ?></p>
-                                <span class="notification-time">
-                                    <?php 
-                                    $created = new DateTime($notification['created_at']);
-                                    $now = new DateTime();
-                                    $interval = $created->diff($now);
-                                    
-                                    if ($interval->y > 0) echo $interval->y . ' year' . ($interval->y > 1 ? 's' : '') . ' ago';
-                                    elseif ($interval->m > 0) echo $interval->m . ' month' . ($interval->m > 1 ? 's' : '') . ' ago';
-                                    elseif ($interval->d > 0) echo $interval->d . ' day' . ($interval->d > 1 ? 's' : '') . ' ago';
-                                    elseif ($interval->h > 0) echo $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
-                                    elseif ($interval->i > 0) echo $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
-                                    else echo 'Just now';
-                                    ?>
-                                </span>
+                                <span class="notification-time"><?php echo $formattedDate; ?></span>
                             </div>
                         </div>
                         <?php

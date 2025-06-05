@@ -40,14 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         }
         $stmt->close();
 
-        // Notify the customer only, with notify_field = 'yes'
-        $customer_content = "Your order with ticket #{$ticket} is ready to be shipped. It will be delivered to: {$address}";
-        $customer_notify = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_manager,notify_owner, notify_secretary) VALUES (?, ?, ?, 'yes', 'yes', 'yes')");
-        $customer_notify->bind_param("iis", $user_id, $id, $customer_content);
-        if (!$customer_notify->execute()) {
-            throw new Exception("Failed to insert customer notification");
+        // Admin notification: "Order #TICKET has been marked as ready to ship and will be delivered to: ADDRESS"
+        $admin_content = "Order #{$ticket} has been marked as ready to ship and will be delivered to: {$address}";
+        $notification_status = "to_ship"; // Identify this notification as related to shipping
+
+        $admin_notify = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_manager, notify_owner, notify_secretary, status) VALUES (?, ?, ?, 'yes', 'yes', 'yes', ?)");
+        $admin_notify->bind_param("iiss", $user_id, $id, $admin_content, $notification_status);
+        if (!$admin_notify->execute()) {
+            throw new Exception("Failed to insert admin notification");
         }
-        $customer_notify->close();
+        $admin_notify->close();
 
         // Send email notification to customer
         $mail = new PHPMailer(true);

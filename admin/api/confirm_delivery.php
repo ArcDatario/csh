@@ -37,10 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         }
         $stmt->close();
 
-        // Notify the customer
+        // Notify the customer (with status = 'approved')
         $customer_content = "Order with ticket #{$ticket} has been successfully delivered!";
-        $customer_notify = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_manager, notify_owner, notify_secretary) VALUES (?, ?, ?, 'yes', 'yes', 'yes')");
-        $customer_notify->bind_param("iis", $user_id, $id, $customer_content);
+        $notification_status = "approved";
+        $customer_notify = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_manager, notify_owner, notify_secretary, status) VALUES (?, ?, ?, 'yes', 'yes', 'yes', ?)");
+        $customer_notify->bind_param("iiss", $user_id, $id, $customer_content, $notification_status);
         if (!$customer_notify->execute()) {
             throw new Exception("Failed to insert customer notification");
         }
