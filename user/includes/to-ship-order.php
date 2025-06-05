@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Search functionality for to_ship orders
     const toShipSearchInput = document.getElementById('ToShipSearchInput');
-    const toShipOrdersContainer = document.getElementById('to-ship-orders-container');
+    const toShipOrdersContainer = document.getElementById('ship-orders-container'); // <-- FIXED ID
     if (toShipSearchInput && toShipOrdersContainer) {
         toShipSearchInput.addEventListener('input', function() {
             const query = this.value.trim().toLowerCase();
