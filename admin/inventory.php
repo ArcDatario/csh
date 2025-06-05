@@ -5,10 +5,11 @@ if (!isLoggedIn()) {
     header('Location: login.php');
     exit();
 }
-
+$current_page = basename($_SERVER['PHP_SELF']);
 // Redirect Field Managers to inventory
-if ($_SESSION['admin_role'] === "Field Manager" && basename($_SERVER['PHP_SELF']) != 'inventory.php') {
-    header('Location: inventory.php');
+if ($_SESSION['admin_role'] === "Field Manager" && 
+    !in_array($current_page, ['inventory.php', 'field-processing-order.php'])) {
+    header('Location: field-processing-order.php');
     exit();
 }?>
 <!DOCTYPE html>

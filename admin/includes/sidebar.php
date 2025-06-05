@@ -16,8 +16,8 @@
     $ordersLink = "orders";
     $ordersPage = "orders";
     if ($_SESSION['admin_role'] === 'Field Manager') {
-        $ordersLink = "orders";
-        $ordersPage = "orders";
+        $ordersLink = "field-processing-order";
+        $ordersPage = "field-processing-order";
     } elseif ($_SESSION['admin_role'] === 'General Manager' || $_SESSION['admin_role'] === 'Owner') {
         $ordersLink = "admintoapprove";
         $ordersPage = "admintoapprove";
@@ -61,11 +61,15 @@
             </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Field Manager'): ?>
-            <!-- Field Manager Menu (only Inventory) -->
-            <a href="inventory" class="nav-link" data-page="inventory">
-                <i class="fas fa-box"></i>
-                <span>Inventory</span>
-            </a>
+    <!-- Field Manager Menu (Orders and Inventory) -->
+    <a href="field-processing-order" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'field-processing-order') ? ' active' : ''; ?>" data-page="field-processing-order">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Orders</span>
+    </a>
+    <a href="inventory" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'inventory') ? ' active' : ''; ?>" data-page="inventory">
+        <i class="fas fa-box"></i>
+        <span>Inventory</span>
+    </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Designer'): ?>
             <!-- Designer Menu (only Orders) -->

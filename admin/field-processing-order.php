@@ -10,8 +10,9 @@ if (!isLoggedIn()) {
 if (isset($_SESSION['admin_role'])) {
     $current_page = basename($_SERVER['PHP_SELF']);
     
-    if ($_SESSION['admin_role'] === "Field Manager" && $current_page != 'inventory.php') {
-        header('Location: inventory.php');
+     if ($_SESSION['admin_role'] === "Field Manager" && 
+        !in_array($current_page, ['inventory.php', 'field-processing-order.php'])) {
+        header('Location: field-processing-order.php');
         exit();
     }
     
