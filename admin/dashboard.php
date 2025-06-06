@@ -100,10 +100,7 @@ if (isset($_SESSION['admin_role'])) {
                         </div>
                     </div>
                     <div class="card-value">56</div>
-                    <div class="card-footer negative">
-                        <i class="fas fa-arrow-down"></i>
-                        <span>2.1% from last month</span>
-                    </div>
+                   
                 </div>
                 
                 <div class="card slide-in" style="animation-delay: 0.4s;">
@@ -151,104 +148,6 @@ if (isset($_SESSION['admin_role'])) {
                 </div>
             </section>
             
-            
-            <!-- <section class="table-card fade-in">
-                <div class="table-header">
-                    <h3 class="table-title">Recent Orders</h3>
-                    <div class="table-actions">
-                        <button class="btn btn-outline">
-                            <i class="fas fa-filter"></i>
-                            <span>Filter</span>
-                        </button>
-                        <button class="btn btn-primary" id="addOrderBtn">
-                            <i class="fas fa-plus"></i>
-                            <span>Add Order</span>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="table-responsive">
-                <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>#ORD-0001</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar-sm">JD</div>
-                                        <span>Juan Dela Cruz</span>
-                                    </div>
-                                </td>
-                                <td>May 15, 2023</td>
-                                <td>₱12,245.00</td>
-                                <td><span class="status status-success">Completed</span></td>
-                                <td><button class="btn btn-outline">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-0002</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar-sm">MS</div>
-                                        <span>Maria Santos</span>
-                                    </div>
-                                </td>
-                                <td>May 14, 2023</td>
-                                <td>₱9,189.50</td>
-                                <td><span class="status status-success">Completed</span></td>
-                                <td><button class="btn btn-outline">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-0003</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar-sm">RJ</div>
-                                        <span>Reyes Javier</span>
-                                    </div>
-                                </td>
-                                <td>May 14, 2023</td>
-                                <td>₱16,320.75</td>
-                                <td><span class="status status-warning">Processing</span></td>
-                                <td><button class="btn btn-outline">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-0004</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar-sm">AB</div>
-                                        <span>Andrea Bautista</span>
-                                    </div>
-                                </td>
-                                <td>May 13, 2023</td>
-                                <td>₱7,145.99</td>
-                                <td><span class="status status-danger">Cancelled</span></td>
-                                <td><button class="btn btn-outline">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-0005</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar-sm">LM</div>
-                                        <span>Luis Manalo</span>
-                                    </div>
-                                </td>
-                                <td>May 12, 2023</td>
-                                <td>₱13,775.25</td>
-                                <td><span class="status status-success">Completed</span></td>
-                                <td><button class="btn btn-outline">View</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section> -->
         </main>
     </div>
     
@@ -297,109 +196,7 @@ if (isset($_SESSION['admin_role'])) {
    
 
 <script src="assets/js/charts.js"></script>
-<script>
-    // Modal
-     // Modal
-     const orderModal = document.getElementById('orderModal');
-         const addOrderBtn = document.getElementById('addOrderBtn');
-         const closeModal = document.getElementById('closeModal');
-         const cancelOrder = document.getElementById('cancelOrder');
-         
-         addOrderBtn.addEventListener('click', () => {
-             orderModal.classList.add('active');
-         });
-         
-         closeModal.addEventListener('click', () => {
-             orderModal.classList.remove('active');
-         });
-         
-         cancelOrder.addEventListener('click', () => {
-             orderModal.classList.remove('active');
-         });
-         
-         // Close modal when clicking outside
-         orderModal.addEventListener('click', (e) => {
-             if (e.target === orderModal) {
-                 orderModal.classList.remove('active');
-             }
-         });
-         
-         // Save order
-         const saveOrder = document.getElementById('saveOrder');
-         const orderForm = document.getElementById('orderForm');
-         
-         saveOrder.addEventListener('click', (e) => {
-             e.preventDefault();
-             
-             if (orderForm.checkValidity()) {
-                 // In a real app, you would save the order here
-                 // For demo purposes, we'll just show a toast
-                 showToast('Order Added', 'The new order has been added successfully', 'success');
-                 
-                 // Close modal
-                 orderModal.classList.remove('active');
-                 
-                 // Reset form
-                 orderForm.reset();
-             } else {
-                 orderForm.reportValidity();
-             }
-         });
-         
-         // Toast Function
-         function showToast(title, message, type = 'info') {
-             const toastContainer = document.getElementById('toastContainer');
-             
-             // Create toast
-             const toast = document.createElement('div');
-             toast.className = `toast toast-${type}`;
-             
-             // Set toast content
-             toast.innerHTML = `
-                 <div class="toast-icon">
-                     <i class="fas ${type === 'success' ? 'fa-check' : 
-                                       type === 'error' ? 'fa-times' : 
-                                       type === 'warning' ? 'fa-exclamation' : 
-                                       'fa-info'}"></i>
-                 </div>
-                 <div class="toast-content">
-                     <h4 class="toast-title">${title}</h4>
-                     <p class="toast-message">${message}</p>
-                 </div>
-                 <button class="toast-close">&times;</button>
-             `;
-             
-             // Add toast to container
-             toastContainer.appendChild(toast);
-             
-             // Show toast
-             setTimeout(() => {
-                 toast.classList.add('show');
-             }, 100);
-             
-             // Auto remove toast after 5 seconds
-             setTimeout(() => {
-                 toast.classList.remove('show');
-                 setTimeout(() => {
-                     toast.remove();
-                 }, 300);
-             }, 5000);
-             
-             // Close button
-             const closeBtn = toast.querySelector('.toast-close');
-             closeBtn.addEventListener('click', () => {
-                 toast.classList.remove('show');
-                 setTimeout(() => {
-                     toast.remove();
-                 }, 300);
-             });
-         }
-         
-         // Demo toasts on page load
-         setTimeout(() => {
-             showToast('Welcome Back!', 'You have 3 new notifications', 'info');
-         }, 1000);
-</script>
+
 
 
 <?php include "includes/script-src.php";?>
