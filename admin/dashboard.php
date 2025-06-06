@@ -77,6 +77,16 @@ if (isset($_SESSION['admin_role'])) {
                         <span>12.5% from last month</span>
                     </div>
                 </div>
+                <div class="card slide-in" style="animation-delay: 0.4s;">
+                    <div class="card-header">
+                        <span class="card-title">Expected Revenue</span>
+                        <div class="card-icon danger">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">24.8%</div>
+                    
+                </div>
                 
                 <div class="card slide-in" style="animation-delay: 0.2s;">
                     <div class="card-header">
@@ -103,19 +113,7 @@ if (isset($_SESSION['admin_role'])) {
                    
                 </div>
                 
-                <div class="card slide-in" style="animation-delay: 0.4s;">
-                    <div class="card-header">
-                        <span class="card-title">Bounce Rate</span>
-                        <div class="card-icon danger">
-                            <i class="fas fa-chart-pie"></i>
-                        </div>
-                    </div>
-                    <div class="card-value">24.8%</div>
-                    <div class="card-footer positive">
-                        <i class="fas fa-arrow-down"></i>
-                        <span>3.7% from last month</span>
-                    </div>
-                </div>
+                
             </section>
             
             <!-- Charts -->

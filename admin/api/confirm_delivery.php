@@ -27,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     try {
         $conn->begin_transaction();
 
-        // Update order status to completed
-        $query = "UPDATE orders SET status = 'completed', completion_date = NOW() WHERE id = ?";
+        // Update order status to completed and set total
+        $query = "UPDATE orders SET status = 'completed', completion_date = NOW(), total = ? WHERE id = ?";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("di", $subtotal, $id);
 
         if (!$stmt->execute()) {
             throw new Exception("Failed to update order status");
