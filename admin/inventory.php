@@ -65,6 +65,12 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                             <i class="fas fa-filter"></i>
                             <span>Filter</span>
                         </button>
+                        <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
+                        <button class="btn btn-primary" id="requestStocksBtn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Request Selected Stocks</span>
+                        </button>
+                        <?php endif; ?>
                         <button class="btn btn-primary" id="addItemBtn">
                             <i class="fas fa-plus"></i>
                             <span>Add Item</span>
@@ -76,6 +82,9 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                     <table>
                         <thead>
                             <tr>
+                                <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
+                                <th width="50px"><input type="checkbox" id="selectAllCheckbox"></th>
+                                <?php endif; ?>
                                 <th>Item Name</th>
                                 <th>Quantity</th>
                                 <th>Action</th>
@@ -85,7 +94,6 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                             <!-- Items will be loaded here via JavaScript -->
                         </tbody>
                     </table>
-                    
                 </div>
                 
             </section>
@@ -140,18 +148,46 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
         </div>
     </div>
 
+    <!-- Request Stocks Modal -->
+    <div class="modal" id="requestStocksModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Request Stocks</h3>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="requestStocksForm">
+                    <div id="requestItemsContainer">
+                        <!-- Request items will be added here -->
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline btn-danger modal-close">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="assets/js/toast.js"></script>
     
     <script>
         // DOM Elements
         const addItemBtn = document.getElementById('addItemBtn');
+        const requestStocksBtn = document.getElementById('requestStocksBtn');
         const itemModal = document.getElementById('itemModal');
         const deleteModal = document.getElementById('deleteModal');
+        const requestStocksModal = document.getElementById('requestStocksModal');
         const itemForm = document.getElementById('itemForm');
+        const requestStocksForm = document.getElementById('requestStocksForm');
         const confirmDeleteBtn = document.getElementById('confirmDelete');
         const modalCloses = document.querySelectorAll('.modal-close');
         const inventoryTableBody = document.getElementById('inventoryTableBody');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const requestItemsContainer = document.getElementById('requestItemsContainer');
+
+        // Selected items array
+        let selectedItems = [];
 
         // Modal Functions
         function openModal(modal) {
@@ -172,12 +208,65 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
             openModal(itemModal);
         });
 
+        if (requestStocksBtn) {
+            requestStocksBtn.addEventListener('click', () => {
+                // Clear previous items
+                requestItemsContainer.innerHTML = '';
+                
+                // Add form fields for each selected item
+                selectedItems.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'form-group';
+                    itemDiv.innerHTML = `
+                        <label>${item.name} (Current: ${item.quantity})</label>
+                        <input type="hidden" name="item_ids[]" value="${item.id}">
+                        <input type="number" name="quantities[]" min="1" required 
+                               placeholder="Enter quantity to request" class="request-quantity">
+                    `;
+                    requestItemsContainer.appendChild(itemDiv);
+                });
+                
+                openModal(requestStocksModal);
+            });
+        }
+
         modalCloses.forEach(btn => {
             btn.addEventListener('click', function() {
                 const modal = this.closest('.modal');
                 closeModal(modal);
             });
         });
+
+        // Select/Deselect all items
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.item-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedItems();
+            });
+        }
+
+        // Update selected items array
+        function updateSelectedItems() {
+            selectedItems = [];
+            const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+            
+            checkboxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                selectedItems.push({
+                    id: checkbox.value,
+                    name: row.cells[<?php echo ($_SESSION['admin_role'] === "Field Manager") ? 1 : 0; ?>].textContent,
+                    quantity: row.cells[<?php echo ($_SESSION['admin_role'] === "Field Manager") ? 2 : 1; ?>].textContent
+                });
+            });
+            
+            // Enable/disable request button based on selection
+            if (requestStocksBtn) {
+                requestStocksBtn.disabled = selectedItems.length === 0;
+            }
+        }
 
         // Load Items
         function loadItems() {
@@ -194,6 +283,9 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                         data.data.forEach(item => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
+                                <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
+                                <td><input type="checkbox" class="item-checkbox" value="${item.id}"></td>
+                                <?php endif; ?>
                                 <td>${item.name}</td>
                                 <td>${item.quantity}</td>
                                 <td class="actions">
@@ -208,7 +300,7 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                             inventoryTableBody.appendChild(row);
                         });
 
-                        // Add event listeners to edit and delete buttons
+                        // Add event listeners
                         document.querySelectorAll('.edit-item').forEach(btn => {
                             btn.addEventListener('click', function() {
                                 const itemId = this.getAttribute('data-id');
@@ -223,6 +315,13 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                                 openModal(deleteModal);
                             });
                         });
+
+                        // Add checkbox event listeners for Field Manager
+                        if (document.querySelectorAll('.item-checkbox')) {
+                            document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                                checkbox.addEventListener('change', updateSelectedItems);
+                            });
+                        }
                     } else {
                         showToast('Error', data.message || 'Failed to load items', 'error');
                     }
@@ -231,6 +330,54 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                     console.error('Error:', error);
                     showToast('Error', 'Failed to load items', 'error');
                 });
+        }
+
+        // Submit Stock Request
+        if (requestStocksForm) {
+            requestStocksForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData();
+                const itemIds = document.querySelectorAll('input[name="item_ids[]"]');
+                const quantities = document.querySelectorAll('input[name="quantities[]"]');
+                
+                // Add items to form data
+                itemIds.forEach((idInput, index) => {
+                    formData.append('item_ids[]', idInput.value);
+                    formData.append('quantities[]', quantities[index].value);
+                });
+                
+                // Add field manager ID
+                formData.append('field_manager_id', <?php echo $_SESSION['admin_id']; ?>);
+                
+                fetch('api/request_stocks.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('Success', 'Stock request submitted successfully', 'success');
+                        closeModal(requestStocksModal);
+                        // Uncheck all items
+                        document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        updateSelectedItems();
+                    } else {
+                        showToast('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'An error occurred', 'error');
+                });
+            });
         }
 
         // Edit Item
