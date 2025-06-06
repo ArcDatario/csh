@@ -1,6 +1,6 @@
 <?php
 require_once '../../db_connection.php';
-require_once '../../auth_check.php';
+require_once 'auth_check.php';
 
 if (!isLoggedIn()) {
     die(json_encode(['error' => 'Unauthorized access']));
