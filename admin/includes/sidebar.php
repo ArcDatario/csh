@@ -61,7 +61,7 @@
             </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Field Manager'): ?>
-    <!-- Field Manager Menu (Orders and Inventory) -->
+    <!-- Field Manager Menu (Orders, Inventory, and Stock Request) -->
     <a href="field-processing-order" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'field-processing-order') ? ' active' : ''; ?>" data-page="field-processing-order">
         <i class="fas fa-shopping-cart"></i>
         <span>Orders</span>
@@ -69,6 +69,10 @@
     <a href="inventory" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'inventory') ? ' active' : ''; ?>" data-page="inventory">
         <i class="fas fa-box"></i>
         <span>Inventory</span>
+    </a>
+    <a href="view-request" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'view-request') ? ' active' : ''; ?>" data-page="view-request">
+        <i class="fas fa-clipboard-list"></i>
+        <span>Stock Request</span>
     </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Designer'): ?>
@@ -79,7 +83,7 @@
             </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Secretary'): ?>
-            <!-- Secretary Menu (Dashboard, Orders, Inventory, Admin) -->
+            <!-- Secretary Menu (Dashboard, Orders, Inventory, Admin, and Stock Request) -->
             <a href="dashboard" class="nav-link" data-page="dashboard">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
@@ -91,6 +95,10 @@
             <a href="inventory" class="nav-link" data-page="inventory">
                 <i class="fas fa-box"></i>
                 <span>Inventory</span>
+            </a>
+            <a href="stock-request" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'stocks-request') ? ' active' : ''; ?>" data-page="stocks-request">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Stock Request</span>
             </a>
             <a href="admin" class="nav-link" data-page="admin">
                 <i class="fas fa-user-shield"></i>
@@ -132,3 +140,16 @@
 </div>
 
 <script src="assets/js/logout.js"></script>
+<script>
+// Redirection logic for Stock Request page
+document.addEventListener('DOMContentLoaded', function() {
+    const role = "<?php echo $_SESSION['admin_role']; ?>";
+    const currentPage = "<?php echo basename($_SERVER['PHP_SELF'], '.php'); ?>";
+    if (currentPage === 'stocks-request' && role === 'Field Manager') {
+        window.location.href = 'view-request';
+    }
+    if (currentPage === 'view-request' && role === 'Secretary') {
+        window.location.href = 'stocks-request';
+    }
+});
+</script>
