@@ -279,7 +279,7 @@ redirectToUserHomeIfLoggedIn();
 
     <!-- Ticket Modal (Popup) -->
     <div class="ticket-modal" id="ticketModal">
-        <div class="ticket-modal-content">
+        <div class="ticket-modal-content" id="ticketModalContent">
             <div class="ticket-modal-header">
                 <h2>Track Your Order</h2>
                 <p>Enter your ticket number to check your order status</p>
@@ -298,7 +298,7 @@ redirectToUserHomeIfLoggedIn();
 
     <!-- Order Results Modal -->
     <div class="order-results-modal" id="orderResultsModal">
-        <div class="order-results-content">
+        <div class="order-results-content" id="orderResultsContent">
             <div class="order-results-header">
                 <h3>Order Details</h3>
                 <button class="close-results-btn" id="closeResultsBtn">&times;</button>
@@ -601,6 +601,31 @@ else: ?>
                     orderResultsModal.style.display = 'none';
                 }
             });
+
+            // Enhanced: Close modal when clicking outside modal content (works for mobile and desktop)
+            document.getElementById('ticketModal').addEventListener('click', function(e) {
+                const modalContent = document.getElementById('ticketModalContent');
+                if (!modalContent.contains(e.target)) {
+                    this.classList.remove('show');
+                }
+            });
+
+            document.getElementById('orderResultsModal').addEventListener('click', function(e) {
+                const modalContent = document.getElementById('orderResultsContent');
+                if (!modalContent.contains(e.target)) {
+                    this.style.display = 'none';
+                }
+            });
+
+            // Show modal when clicking "Ticket" in nav
+            const openTicketModal = document.getElementById('openTicketModal');
+            if (openTicketModal) {
+                openTicketModal.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    ticketModal.classList.add('show');
+                    ticketNumberInput.focus();
+                });
+            }
         });
     </script>
     <script>
@@ -758,6 +783,21 @@ else: ?>
                 }
                 if (e.target === orderResultsModal) {
                     orderResultsModal.style.display = 'none';
+                }
+            });
+
+            // Enhanced: Close modal when clicking outside modal content (works for mobile and desktop)
+            document.getElementById('ticketModal').addEventListener('click', function(e) {
+                const modalContent = document.getElementById('ticketModalContent');
+                if (!modalContent.contains(e.target)) {
+                    this.classList.remove('show');
+                }
+            });
+
+            document.getElementById('orderResultsModal').addEventListener('click', function(e) {
+                const modalContent = document.getElementById('orderResultsContent');
+                if (!modalContent.contains(e.target)) {
+                    this.style.display = 'none';
                 }
             });
 
