@@ -4,6 +4,7 @@
     },
     "require": {
         "phpmailer/phpmailer": "^6.9",
-        "kickstartph/semaphore-client": "^0.5.0"
+        "kickstartph/semaphore-client": "^0.5.0",
+        "tecnickcom/tcpdf": "^6.10"
     }
 }

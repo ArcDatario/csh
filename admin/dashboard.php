@@ -169,7 +169,9 @@ $servicePercentages = array_map(function($count) use ($totalServices) {
                    <?php include "includes/profile.php";?>
                 </div>
             </header>
-            
+           
+            <?php include "report-generation.php";?>
+
             <!-- Cards Grid -->
             <section class="cards-grid">
                 <div class="card slide-in" style="animation-delay: 0.1s;">
