@@ -33,26 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --primary-hover: #4f46e5;
             --secondary: #10b981;
             --dark: #1e293b;
-            --light: #f8fafc;
-            --card: #ffffff;
-            --card-dark: #1e293b;
-            --border: #e2e8f0;
-            --border-dark: #334155;
+            --light: #f8            --border: #e2e8f0;
             --error: #ef4444;
             --success: #10b981;
             --text: #334155;
             --text-light: #64748b;
-            --text-dark: #f8fafc;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        [data-theme="dark"] {
-            --card: var(--card-dark);
-            --border: var(--border-dark);
-            --text: var(--text-dark);
-            --text-light: #94a3b8;
         }
 
         * {
@@ -359,10 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="login-container">
         <div class="login-header">
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div class="logo">
+                        <div class="logo">
                 <i class="fas fa-lock"></i>
             </div>
             <h1>Admin Portal</h1>
@@ -396,7 +381,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">Remember me</label>
                 </div>
-                <a href="#" class="forgot-password">Forgot password?</a>
+               <!-- <a href="#" class="forgot-password">Forgot password?</a>  -->
             </div>
             
             <button type="submit" class="btn btn-primary">
@@ -410,26 +395,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script>
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        
-        // Check for saved theme preference or use preferred color scheme
-        const savedTheme = localStorage.getItem('theme') || 
-                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        
-        // Apply the saved theme
-        html.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-        
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-            
+         
             // Add animation to theme toggle
             themeToggle.style.transform = 'scale(0.9)';
             setTimeout(() => {
