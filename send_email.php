@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Create PHPMailer instance
-    $mail = new PHPMailer(true);
+      $mail = new PHPMailer\PHPMailer\PHPMailer(true);
 
     try {
         // Server settings

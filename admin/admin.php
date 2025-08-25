@@ -116,7 +116,7 @@ if (!isLoggedIn()) {
     <div class="form-group">
         <label>Password</label>
         <div class="password-wrapper">
-            <input type="password" class="form-password" required placeholder="Create password">
+            <input type="password" class="form-password" placeholder="Create password">
             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                 <i class="fas fa-eye"></i>
             </button>
@@ -125,7 +125,7 @@ if (!isLoggedIn()) {
     <div class="form-group">
         <label>Confirm Password</label>
         <div class="password-wrapper">
-            <input type="password" class="form-confirm-password" required placeholder="Confirm password">
+            <input type="password" class="form-confirm-password" placeholder="Confirm password">
             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                 <i class="fas fa-eye"></i>
             </button>
@@ -201,8 +201,10 @@ if (!isLoggedIn()) {
             document.getElementById('modalTitle').textContent = 'Add Admin';
             adminForm.reset();
             document.getElementById('adminId').value = '';
-            document.getElementById('password').required = true;
-            document.getElementById('confirmPassword').required = true;
+            document.querySelector('.form-password').placeholder = 'Create password';
+            document.querySelector('.form-confirm-password').placeholder = 'Confirm password';
+            document.querySelector('.form-password').value = '';
+            document.querySelector('.form-confirm-password').value = '';
             openModal(adminModal);
         });
 
@@ -270,91 +272,80 @@ if (!isLoggedIn()) {
 
         // Edit Admin
         function editAdmin(id) {
-    fetch(`api/get_admin.php?id=${id}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                document.getElementById('modalTitle').textContent = 'Edit Admin';
-                document.getElementById('adminId').value = data.id;
-                document.querySelector('.form-username').value = data.username;
-                document.querySelector('.form-fullname').value = data.fullname;
-                document.querySelector('.form-role').value = data.role;
-                document.querySelector('.form-password').required = false;
-                document.querySelector('.form-confirm-password').required = false;
-                document.querySelector('.form-password').placeholder = 'Leave blank to keep current password';
-                document.querySelector('.form-confirm-password').placeholder = 'Leave blank to keep current password';
-                openModal(adminModal);
-            } else {
-                showToast('Error', data.message || 'Failed to load admin data', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Error', 'Failed to load admin data', 'error');
-        });
-}
+            fetch(`api/get_admin.php?id=${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('modalTitle').textContent = 'Edit Admin';
+                        document.getElementById('adminId').value = data.id;
+                        document.querySelector('.form-username').value = data.username;
+                        document.querySelector('.form-fullname').value = data.fullname;
+                        document.querySelector('.form-role').value = data.role;
+                        // Clear password fields when editing
+                        document.querySelector('.form-password').value = '';
+                        document.querySelector('.form-confirm-password').value = '';
+                        document.querySelector('.form-password').placeholder = 'Leave blank to keep current password';
+                        document.querySelector('.form-confirm-password').placeholder = 'Leave blank to keep current password';
+                        openModal(adminModal);
+                    } else {
+                        showToast('Error', data.message || 'Failed to load admin data', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'Failed to load admin data', 'error');
+                });
+        }
 
         // Save Admin (Add/Edit)
-       adminForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const id = document.getElementById('adminId').value;
-    const username = document.querySelector('.form-username').value;
-    const fullname = document.querySelector('.form-fullname').value;
-    const role = document.querySelector('.form-role').value;
-    const password = document.querySelector('.form-password').value;
-    const confirmPassword = document.querySelector('.form-confirm-password').value;
+        adminForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('adminId').value;
+            const username = document.querySelector('.form-username').value;
+            const fullname = document.querySelector('.form-fullname').value;
+            const role = document.querySelector('.form-role').value;
+            const password = document.querySelector('.form-password').value;
+            const confirmPassword = document.querySelector('.form-confirm-password').value;
 
-    if (password && password !== confirmPassword) {
-        showToast('Error', 'Passwords do not match', 'error');
-        return;
-    }
+            if (password && password !== confirmPassword) {
+                showToast('Error', 'Passwords do not match', 'error');
+                return;
+            }
 
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('username', username);
-    formData.append('fullname', fullname);
-    formData.append('role', role);
-    if (password) formData.append('password', password);
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('username', username);
+            formData.append('fullname', fullname);
+            formData.append('role', role);
+            if (password) formData.append('password', password);
 
-    const url = id ? 'api/update_admin.php' : 'api/add_admin.php';
+            const url = id ? 'api/update_admin.php' : 'api/add_admin.php';
 
-    fetch(url, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('Success', data.message, 'success');
-            closeModal(adminModal);
-            loadAdmins();
-        } else {
-            showToast('Error', data.message, 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Error', 'An error occurred', 'error');
-    });
-});
-
-// Update the add admin button event listener:
-addAdminBtn.addEventListener('click', () => {
-    document.getElementById('modalTitle').textContent = 'Add Admin';
-    adminForm.reset();
-    document.getElementById('adminId').value = '';
-    document.querySelector('.form-password').required = true;
-    document.querySelector('.form-confirm-password').required = true;
-    document.querySelector('.form-password').placeholder = 'Create password';
-    document.querySelector('.form-confirm-password').placeholder = 'Confirm password';
-    openModal(adminModal);
-});
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Success', data.message, 'success');
+                    closeModal(adminModal);
+                    loadAdmins();
+                } else {
+                    showToast('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error', 'An error occurred', 'error');
+            });
+        });
 
         // Delete Admin
         confirmDeleteBtn.addEventListener('click', function() {
