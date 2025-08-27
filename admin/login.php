@@ -394,24 +394,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
     </div>
 
-    <script>
-         
-            // Add animation to theme toggle
-            themeToggle.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                themeToggle.style.transform = '';
-            }, 200);
-        });
-        
-        function updateThemeIcon(theme) {
-            const icon = themeToggle.querySelector('i');
-            icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        }
-        
-        // Toggle password visibility
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        
+   <script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword && passwordInput) {
         togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
@@ -425,30 +413,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 togglePassword.style.transform = '';
             }, 200);
         });
-        
-        // Form submission with subtle feedback
-        const loginForm = document.getElementById('loginForm');
-        
+    }
+    
+    // Form submission with subtle feedback
+    const loginForm = document.getElementById('loginForm');
+    
+    if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             const submitButton = loginForm.querySelector('button[type="submit"]');
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating';
             submitButton.disabled = true;
-            
-            // In a real app, you would validate the form first
-            // If there's an error, the page will reload and show it
+        });
+    }
+    
+    // Add hover effect to form inputs
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            input.parentElement.style.transform = 'translateY(-2px)';
         });
         
-        // Add hover effect to form inputs
-        const inputs = document.querySelectorAll('.form-control');
-        inputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.style.transform = 'translateY(-2px)';
-            });
-            
-            input.addEventListener('blur', () => {
-                input.parentElement.style.transform = '';
-            });
+        input.addEventListener('blur', () => {
+            input.parentElement.style.transform = '';
         });
-    </script>
+    });
+</script>
 </body>
 </html>
