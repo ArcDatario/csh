@@ -28,7 +28,7 @@
   <div class="profile-modal-content">
     <span class="profile-close-modal">&times;</span>
     <h2>Profile Settings</h2>
-    <form id="profileForm" enctype="multipart/form-data">
+    <form id="profileForm" enctype="multipart/form-data" autocomplete="off">
       <input type="hidden" id="admin_id" name="admin_id" value="<?php echo $_SESSION['admin_id'] ?? ($_SESSION['user_id'] ?? ''); ?>">
       <div class="profile-form-group">
         <label for="profileImage">Profile Image</label>
@@ -44,15 +44,15 @@
       </div>
       <div class="profile-form-group">
         <label for="currentPassword">Current Password (leave blank to keep)</label>
-        <input type="password" id="currentPassword" name="currentPassword">
+        <input type="password" id="currentPassword" name="currentPassword" autocomplete="new-password">
       </div>
       <div class="profile-form-group">
         <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" name="newPassword">
+        <input type="password" id="newPassword" name="newPassword" autocomplete="new-password">
       </div>
       <div class="profile-form-group">
         <label for="confirmPassword">Confirm New Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword">
+        <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password">
       </div>
       <button type="submit" class="profile-save-btn">Save Changes</button>
       <div id="profileMessage" class="profile-message"></div>
