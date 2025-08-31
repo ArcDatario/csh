@@ -13,7 +13,7 @@ if (!isset($_SESSION['admin_id'])) {
 try {
     $admin_id = $_SESSION['admin_id'];
 
-    $stmt = $conn->prepare("SELECT username, image FROM admins WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, username, image FROM admins WHERE id = ?");
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -21,7 +21,7 @@ try {
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
         $response['success'] = true;
-        // Always use the username from the database
+        $response['admin_id'] = $admin['id']; // Add admin_id to response
         $response['username'] = $admin['username'];
         $response['image'] = $admin['image'];
     } else {

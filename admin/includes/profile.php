@@ -29,7 +29,7 @@
     <span class="profile-close-modal">&times;</span>
     <h2>Profile Settings</h2>
     <form id="profileForm" enctype="multipart/form-data">
-      <input type="hidden" id="admin_id" name="admin_id" value="<?php echo $_SESSION['admin_id'] ?? ''; ?>">
+      <input type="hidden" id="admin_id" name="admin_id" value="<?php echo $_SESSION['admin_id'] ?? ($_SESSION['user_id'] ?? ''); ?>">
       <div class="profile-form-group">
         <label for="profileImage">Profile Image</label>
         <div class="profile-image-upload">
@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data.success) {
         // Update form fields
         document.getElementById('username').value = data.username;
+        document.getElementById('admin_id').value = data.admin_id;
         
         // Update profile images
         updateProfileImage(data.image);
