@@ -46,6 +46,43 @@ redirectIfNotLoggedIn();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
  <link rel="stylesheet" href="../assets/css/style.css">
  <link rel="stylesheet" href="../assets/css/profile-modal.css">
+
+ <style>
+    .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 500;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.3s, transform 0.3s;
+    max-width: 300px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.success {
+    background-color: #4CAF50;
+    border-left: 4px solid #2E7D32;
+}
+
+.toast.error {
+    background-color: #F44336;
+    border-left: 4px solid #C62828;
+}
+
+.toast.info {
+    background-color: #2196F3;
+    border-left: 4px solid #1565C0;
+}
+ </style>
 </head>
 <body>
     <!-- Loader -->

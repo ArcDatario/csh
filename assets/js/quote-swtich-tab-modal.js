@@ -82,12 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Check for saved tab on page load
-    const savedTab = localStorage.getItem('activeTab');
-    if (savedTab) {
-        activateTab(savedTab);
-    } else {
-        // Always activate the pending tab by default if none is saved
-        activateTab('pending-orders-container');
-    }
+    // Always activate the pending tab by default on page load
+    activateTab('pending-orders-container');
 });

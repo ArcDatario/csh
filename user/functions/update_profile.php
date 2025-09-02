@@ -39,7 +39,36 @@ if (empty($name) || empty($address)) {
     exit;
 }
 
-// Password change validation (unchanged from your original)
+// Password change validation
+if (!empty($newPassword)) {
+    if (empty($currentPassword)) {
+        $response['message'] = 'Current password is required to set a new password';
+        echo json_encode($response);
+        exit;
+    }
+    
+    // Verify current password
+    if (!password_verify($currentPassword, $currentUser['password'])) {
+        $response['message'] = 'Current password is incorrect';
+        echo json_encode($response);
+        exit;
+    }
+    
+    if ($newPassword !== $confirmPassword) {
+        $response['message'] = 'New passwords do not match';
+        echo json_encode($response);
+        exit;
+    }
+    
+    if (strlen($newPassword) < 6) {
+        $response['message'] = 'New password must be at least 6 characters long';
+        echo json_encode($response);
+        exit;
+    }
+    
+    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+    $passwordUpdate = ", password = ?";
+}
 
 // Handle image upload
 $imageUpdate = '';
@@ -98,8 +127,7 @@ if (!empty($_FILES['profileImage']['name'])) {
     $_SESSION['image'] = $newImageName;
 }
 
-// Prepare the update query (unchanged from your original)
-
+// Prepare the update query
 $query = "UPDATE users SET name = ?, email = ?, phone_number = ?, address = ?";
 $params = [$name, $email, $phone, $address];
 $types = "ssss";

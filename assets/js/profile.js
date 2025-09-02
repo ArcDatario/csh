@@ -301,47 +301,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-  function updateProfile() {
-    const form = document.getElementById('profileForm');
-    const formData = new FormData(form);
-    
-    // Add current password if new password is provided
-    const newPassword = document.getElementById('newPassword').value;
-    if (newPassword) {
-        const currentPassword = prompt('Please enter your current password to confirm changes:');
-        if (!currentPassword) return;
-        formData.append('currentPassword', currentPassword);
-    }
-    
-    fetch('functions/update_profile.php', {
-        method: 'POST',
-        body: formData,
-        credentials: 'same-origin' // Important for sessions
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update profile image in navbar if changed
-            if (data.newImage) {
-                const profileImages = document.querySelectorAll('.profile-icon img, #imagePreview');
-                profileImages.forEach(img => {
-                    img.src = 'functions/profile/' + data.newImage + '?t=' + new Date().getTime();
-                });
-                // Force refresh by adding timestamp
-                document.getElementById('imagePreview').src = 'functions/profile/' + data.newImage + '?t=' + new Date().getTime();
-            }
-            
-            showToast('Profile updated successfully!', 'success');
-            modal.style.display = 'none';
-        } else {
-            showToast('Error: ' + data.message, 'error');
+   function updateProfile() {
+        const form = document.getElementById('profileForm');
+        const formData = new FormData(form);
+        
+        // Add current password if new password is provided
+        const newPassword = document.getElementById('newPassword').value;
+        if (newPassword) {
+            const currentPassword = prompt('Please enter your current password to confirm changes:');
+            if (!currentPassword) return;
+            formData.append('currentPassword', currentPassword);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('An error occurred while updating profile', 'error');
-    });
-}
+        
+        fetch('functions/update_profile.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin' // Important for sessions
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update profile image in navbar if changed
+                if (data.newImage) {
+                    const profileImages = document.querySelectorAll('.profile-icon img, #imagePreview');
+                    profileImages.forEach(img => {
+                        img.src = 'functions/profile/' + data.newImage + '?t=' + new Date().getTime();
+                    });
+                    // Force refresh by adding timestamp
+                    document.getElementById('imagePreview').src = 'functions/profile/' + data.newImage + '?t=' + new Date().getTime();
+                }
+                
+                showToast('Profile updated successfully!', 'success'); // Toast notification
+                modal.style.display = 'none';
+            } else {
+                showToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred while updating profile', 'error');
+        });
+    }
 });
 
     // Mobile toggle functionality

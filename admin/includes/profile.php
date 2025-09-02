@@ -44,21 +44,58 @@
       </div>
       <div class="profile-form-group">
         <label for="currentPassword">Current Password (leave blank to keep)</label>
-        <input type="password" id="currentPassword" name="currentPassword" autocomplete="new-password">
+        <div class="password-input-container">
+          <input type="password" id="currentPassword" name="currentPassword" autocomplete="new-password">
+          <span class="toggle-password" data-target="currentPassword">👁️</span>
+        </div>
       </div>
       <div class="profile-form-group">
         <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" name="newPassword" autocomplete="new-password">
+        <div class="password-input-container">
+          <input type="password" id="newPassword" name="newPassword" autocomplete="new-password">
+          <span class="toggle-password" data-target="newPassword">👁️</span>
+        </div>
       </div>
       <div class="profile-form-group">
         <label for="confirmPassword">Confirm New Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password">
+        <div class="password-input-container">
+          <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password">
+          <span class="toggle-password" data-target="confirmPassword">👁️</span>
+        </div>
       </div>
       <button type="submit" class="profile-save-btn">Save Changes</button>
       <div id="profileMessage" class="profile-message"></div>
     </form>
   </div>
 </div>
+
+<style>
+.password-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-container input {
+  padding-right: 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.toggle-password:hover {
+  opacity: 1;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -107,6 +144,25 @@ document.addEventListener('DOMContentLoaded', function() {
   // Control body scrolling when modal is open
   function toggleBodyScroll(enable) {
     document.body.style.overflow = enable ? '' : 'hidden';
+  }
+
+  // Toggle password visibility
+  function setupPasswordToggles() {
+    const toggles = document.querySelectorAll('.toggle-password');
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const passwordInput = document.getElementById(targetId);
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          this.textContent = '🔒';
+        } else {
+          passwordInput.type = 'password';
+          this.textContent = '👁️';
+        }
+      });
+    });
   }
 
   // Open modal when profile link is clicked
@@ -194,8 +250,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load initial profile data
+  // Load initial profile data and set up password toggles
   fetchAdminData();
+  setupPasswordToggles();
 });
 </script>
 
