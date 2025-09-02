@@ -37,6 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         }
         $stmt->close();
 
+        // Increment user's completed orders count based on orders.user_id = users.id
+        $incrementQuery = "UPDATE users SET completed_orders = completed_orders + 1 WHERE id = ?";
+        $incrementStmt = $conn->prepare($incrementQuery);
+        $incrementStmt->bind_param("i", $user_id);
+        
+        if (!$incrementStmt->execute()) {
+            throw new Exception("Failed to increment user's completed order count");
+        }
+        $incrementStmt->close();
+
         // Notify the customer (with status = 'approved')
         $customer_content = "Order with ticket #{$ticket} has been successfully delivered!";
         $notification_status = "approved";

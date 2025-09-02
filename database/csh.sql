@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 25, 2025 at 03:06 PM
+-- Generation Time: Sep 02, 2025 at 08:21 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,11 +45,11 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `username`, `fullname`, `password`, `role`, `image`, `token`, `token_expiry`, `last_login`, `created_at`) VALUES
-(1, 'admin', 'admin', '$2a$12$W6a/qLGDukm4/xbLq8/2ouSFmwAOI0TH2bDGfM2ucq3p0fpezzUhW', 'Owner', 'admin_1.jpg', NULL, NULL, '2025-08-18 17:14:33', '2025-04-04 14:28:31'),
-(3, 'field', 'field manager', '$2y$10$dNldj0RIra/5ABt/XqG.Dutl36HkU7uDcblzUvDNCc2mgaw9nR5.W', 'Field Manager', '', NULL, NULL, '2025-08-18 16:57:38', '2025-04-10 14:59:04'),
-(4, 'secretary', 'secretary', '$2y$10$9x9fhZ.zenNuZOc0NBonh.RrmEkZcf2SqKwWEW0GOAXAZDv3zdxLe', 'Secretary', 'admin_4.jpeg', NULL, NULL, '2025-06-07 03:08:33', '2025-04-10 14:59:32'),
-(5, 'generalmanager', 'generalmanager', '$2y$10$0fKTvr4qKLmTaHNA5z1rxOg/Shs8eyyNya9ytYUCIJWovdht2Xx.i', 'General Manager', '', NULL, NULL, '2025-05-27 02:21:27', '2025-04-10 15:00:30'),
-(6, 'designer', 'designer', '$2y$10$s45PNv7UuFvz7dWrMomkxOC7ORdzu95m4E6wWJU.D8vwbLiKUv94C', 'Designer', '', NULL, NULL, '2025-08-07 13:47:40', '2025-04-10 15:50:00');
+(1, 'admin', 'admin', '$2a$12$W6a/qLGDukm4/xbLq8/2ouSFmwAOI0TH2bDGfM2ucq3p0fpezzUhW', 'Owner', 'admin_1.png', NULL, NULL, '2025-09-01 05:38:51', '2025-04-04 14:28:31'),
+(3, 'field', 'field manager', '$2y$10$dNldj0RIra/5ABt/XqG.Dutl36HkU7uDcblzUvDNCc2mgaw9nR5.W', 'Field Manager', '', NULL, NULL, '2025-08-27 16:44:22', '2025-04-10 14:59:04'),
+(4, 'secretary', 'secretary', '$2y$10$9x9fhZ.zenNuZOc0NBonh.RrmEkZcf2SqKwWEW0GOAXAZDv3zdxLe', 'Secretary', 'admin_4.jpeg', NULL, NULL, '2025-08-27 16:45:02', '2025-04-10 14:59:32'),
+(5, 'generalmanager', 'generalmanager', '$2y$10$BK0jjQyIj6wnRa/GvFCch.uDOYyt13AT/qKJL38N6LbDenXOGmELK', 'General Manager', '', NULL, NULL, '2025-08-27 16:27:02', '2025-04-10 15:00:30'),
+(6, 'designer', 'designer', '$2y$10$s45PNv7UuFvz7dWrMomkxOC7ORdzu95m4E6wWJU.D8vwbLiKUv94C', 'Designer', '', NULL, NULL, '2025-08-27 16:32:32', '2025-04-10 15:50:00');
 
 -- --------------------------------------------------------
 
@@ -213,7 +213,26 @@ INSERT INTO `notification` (`id`, `user_id`, `order_id`, `content`, `notify_user
 (149, 14, 65, 'Order #629538 has been picked up and will be processed. Please prepare the materials needed for this order.', '', '', '', '', '', 'yes', '', '', '', '', '', '', '', '2025-06-07 02:58:54'),
 (150, 14, 66, 'Order #457944 has been marked as ready to ship and will be delivered to: Dasmarinas Cavite, Sandionisio, blk 16', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-06-07 03:04:31'),
 (151, 14, 66, 'Order #457944 has been marked as ready to ship and will be delivered to: Dasmarinas Cavite, Sandionisio, blk 16', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-06-07 03:04:35'),
-(152, 14, 66, 'Order with ticket #457944 has been successfully delivered!', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-06-07 03:08:54');
+(152, 14, 66, 'Order with ticket #457944 has been successfully delivered!', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-06-07 03:08:54'),
+(153, 23, 77, 'New Quote, Direct to Film Print, 100', '', 'yes', 'yes', 'yes', '', '', '', '', '', '', '', '', '', '2025-08-27 16:18:31'),
+(154, 23, 77, 'Designer just added a quote price of ₱100 on ticket #900930', '', 'yes', 'yes', '', '', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:19:45'),
+(155, 23, 77, 'admin just approved a quote price of ₱100.00 on ticket #900930', '', '', '', '', '', 'yes', '', '', '', '', '', '', 'approved', '2025-08-27 16:20:41'),
+(156, 23, 77, 'Quote #900930 has been agreed to the price', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:21:45'),
+(157, 23, 77, 'Your order with ticket #900930 is ready for pickup. Our logistics team will pick up the items at your address: akljshdliajhsdkjl hkajhsdkj  manila', 'yes', '', '', '', '', '', '', '', '', '', '', '', 'info', '2025-08-27 16:24:00'),
+(158, 23, 77, 'Order #900930 has been picked up and will be processed. Please prepare the materials needed for this order.', '', '', '', '', '', 'yes', '', '', '', '', '', '', '', '2025-08-27 16:28:20'),
+(159, 23, 77, 'Order #900930 has been marked as ready to ship and will be delivered to: akljshdliajhsdkjl hkajhsdkj  manila', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:29:49'),
+(160, 23, 77, 'Order #900930 has been marked as ready to ship and will be delivered to: akljshdliajhsdkjl hkajhsdkj  manila', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:29:53'),
+(161, 23, 77, 'Order with ticket #900930 has been successfully delivered!', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:30:23'),
+(162, 23, 78, 'New Quote, Direct to Film Print, 100', '', 'yes', 'yes', 'yes', '', '', '', '', '', '', '', '', '', '2025-08-27 16:32:01'),
+(163, 23, 78, 'Designer just added a quote price of ₱100 on ticket #670831', '', 'yes', 'yes', '', '', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:32:39'),
+(164, 23, 78, 'admin just approved a quote price of ₱100.00 on ticket #670831', '', '', '', '', '', 'yes', '', '', '', '', '', '', 'approved', '2025-08-27 16:32:53'),
+(165, 23, 78, 'Quote #670831 has been agreed to the price', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:33:21'),
+(166, 23, 78, 'Your order with ticket #670831 is ready for pickup. Our logistics team will pick up the items at your address: akljshdliajhsdkjl hkajhsdkj  manila', 'yes', '', '', '', '', '', '', '', '', '', '', '', 'info', '2025-08-27 16:33:39'),
+(167, 23, 78, 'Order #670831 has been picked up and will be processed. Please prepare the materials needed for this order.', '', '', '', '', '', 'yes', '', '', '', '', '', '', '', '2025-08-27 16:33:50'),
+(168, 23, 78, 'Order #670831 has been marked as ready to ship and will be delivered to: akljshdliajhsdkjl hkajhsdkj  manila', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:34:14'),
+(169, 23, 78, 'Order #670831 has been marked as ready to ship and will be delivered to: akljshdliajhsdkjl hkajhsdkj  manila', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:34:17'),
+(170, 23, 78, 'Order with ticket #670831 has been successfully delivered!', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:34:40'),
+(171, 3, NULL, 'Field manager has requested new stocks', '', '', '', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:44:45');
 
 -- --------------------------------------------------------
 
@@ -267,7 +286,9 @@ INSERT INTO `orders` (`id`, `ticket`, `user_id`, `print_type`, `quantity`, `pric
 (69, 300804, 14, 'Screen Printing', 312, NULL, NULL, 0, 'asdasdasd', 'pending', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', NULL, 0, '', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68349cd8821a8_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 16:54:48'),
 (70, 931242, 14, 'Glitters Print', 32, 98.00, 3136.00, 0, 'asdasdsad', 'approved', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', 'yes', '2025-06-06 05:25:54', '', NULL, 0, '', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68349cefd80da_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 16:55:11'),
 (75, 162420, 14, 'Emboss Print', 42, 99.00, 4158.00, 4158, 'asdasd asdasd', 'completed', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 05:27:56', 'yes', '2025-06-06 05:25:07', 'yes', '2025-06-06 05:28:15', 1, 'yes', '2025-06-06 05:28:45', '2025-06-06 05:29:26', '', NULL, '', '0000-00-00 00:00:00', '2025-05-07 02:21:35', 'uploads/6834e0e643756_457944-glitters-print.jpeg', '2025-06-26 21:45:10'),
-(76, 411058, 14, 'Screen Printing', 142, 90.00, 12780.00, 12780, 'asdasdasdasd', 'completed', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 00:42:57', 'yes', '2025-06-06 00:41:28', 'yes', '2025-06-06 00:43:54', 1, 'yes', '2025-06-06 01:53:39', '2025-06-06 03:29:27', '', NULL, '', '0000-00-00 00:00:00', '2025-06-06 04:18:09', 'uploads/6834e1772e252_457944-glitters-print.jpeg', '2025-06-26 21:47:35');
+(76, 411058, 14, 'Screen Printing', 142, 90.00, 12780.00, 12780, 'asdasdasdasd', 'completed', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 00:42:57', 'yes', '2025-06-06 00:41:28', 'yes', '2025-06-06 00:43:54', 1, 'yes', '2025-06-06 01:53:39', '2025-06-06 03:29:27', '', NULL, '', '0000-00-00 00:00:00', '2025-06-06 04:18:09', 'uploads/6834e1772e252_457944-glitters-print.jpeg', '2025-06-26 21:47:35'),
+(77, 900930, 23, 'Direct to Film Print', 100, 100.00, 10000.00, 10000, ' aklsjhdalkjsghd kasd asd', 'completed', 'akljshdliajhsdkjl hkajhsdkj  manila', 'yes', '2025-08-27 16:19:45', 'yes', '2025-08-27 16:21:45', 'yes', '2025-08-27 16:20:41', 'yes', '2025-08-27 16:28:20', 1, 'yes', '2025-08-27 16:29:04', '2025-08-27 16:29:53', '', NULL, '', '0000-00-00 00:00:00', '2025-08-27 16:30:23', 'uploads/68aebf578cdd7_4-removebg.png', '2025-08-27 08:18:31'),
+(78, 670831, 23, 'Direct to Film Print', 100, 100.00, 10000.00, 10000, 'asd asda sda sd', 'completed', 'akljshdliajhsdkjl hkajhsdkj  manila', 'yes', '2025-08-27 16:32:39', 'yes', '2025-08-27 16:33:21', 'yes', '2025-08-27 16:32:53', 'yes', '2025-08-27 16:33:50', 1, 'yes', '2025-08-27 16:34:09', '2025-08-27 16:34:17', '', NULL, '', '0000-00-00 00:00:00', '2025-08-27 16:34:40', 'uploads/68aec281ac733_4-removebg.png', '2025-08-27 08:32:01');
 
 -- --------------------------------------------------------
 
@@ -322,7 +343,8 @@ INSERT INTO `stock_requests` (`id`, `field_manager_id`, `item_id`, `item_name`, 
 (1, 3, 2, 'chemical', 23, 'completed', '2025-06-07 00:24:20', 'yes', '2025-06-07 01:28:23', 'yes', '2025-06-07 01:32:03', '', '2025-06-07 01:32:14'),
 (2, 3, 3, 'shirts', 22, 'preparing', '2025-06-07 00:24:20', 'yes', '2025-06-07 01:39:29', '', NULL, '', NULL),
 (3, 3, 4, 'screen', 334, 'completed', '2025-06-07 00:35:26', 'yes', '2025-06-07 00:49:05', 'yes', '2025-06-07 01:27:16', '', '2025-06-07 01:27:42'),
-(4, 3, 5, 'prints', 234, 'completed', '2025-06-07 00:35:26', 'yes', '2025-06-07 00:55:27', 'yes', '2025-06-07 00:57:13', 'yes', '2025-06-07 01:26:32');
+(4, 3, 5, 'prints', 234, 'completed', '2025-06-07 00:35:26', 'yes', '2025-06-07 00:55:27', 'yes', '2025-06-07 00:57:13', 'yes', '2025-06-07 01:26:32'),
+(5, 3, 2, 'chemical', 500, 'pending', '2025-08-27 16:44:45', 'no', NULL, 'no', NULL, '', NULL);
 
 -- --------------------------------------------------------
 
@@ -352,7 +374,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `name`, `phone_number`, `password`, `status`, `address`, `image`, `created_at`, `remember_token`, `remember_expiry`, `reset_token`, `reset_expiry`, `completed_orders`) VALUES
-(14, 'capstoneproject0101@gmail.com', 'capstones', '09946726471', '$2a$12$FNno0E/fWVvFHbzVRRhyROFXy1122x/GB/HDNbKDqaREW5PSUHVyK', '', 'asdasdasd asdasdasdasd', '6839d2b8d45bc.jpeg', '2025-06-05 15:53:57', '3e1366a2d46679b9382b596f4aa7adc65707bfeab17c17886a9ca1383fb54686', '2025-07-07 00:08:32', NULL, NULL, 0);
+(14, 'capstoneproject0101@gmail.com', 'capstones', '09946726471', '$2y$10$ezjIhkPHNXQca9yQG..9KeYitPC7dPkzKfKsxsWsEg6CMGmbE6epq', '', 'asdasdasd asdasdasdasd', '68b48f385049d.png', '2025-06-05 15:53:57', 'b1720baa135d303842216e9aa9bb3ca56e4f990c70a6873c39df03d18501af26', '2025-10-01 02:06:26', NULL, NULL, 0),
+(23, 'datarioarc@gmail.com', 'arcdatario', '09761125698', '$2y$10$tYyl8kaOGhoxlDO5hDv9SewZhGTQms.QlOcGNkSAio2/mBYx0Kz1C', '', 'akljshdliajhsdkjl hkajhsdkj  manila', '', '2025-08-27 16:17:47', 'f0e9d7b46784fc33ef842ba476c5ecedff00808c73c01353a57bd6793ed743d0', '2025-09-26 16:36:34', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -450,13 +473,13 @@ ALTER TABLE `inventory`
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=172;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `services`
@@ -468,13 +491,13 @@ ALTER TABLE `services`
 -- AUTO_INCREMENT for table `stock_requests`
 --
 ALTER TABLE `stock_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `work`
