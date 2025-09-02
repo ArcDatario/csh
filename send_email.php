@@ -17,8 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['success' => false, 'message' => 'Please provide a valid email address']);
+        exit;
+    }
+
     // Create PHPMailer instance
-      $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    $mail = new PHPMailer(true);
 
     try {
         // Server settings
@@ -29,11 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->Password   = 'sgox knuc kool pftq';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
+        
+        // Enable debugging if needed (0 = off, 1 = client messages, 2 = client and server messages)
+        // $mail->SMTPDebug = 2;
 
         // Recipients
-        $mail->setFrom($email, $name);
+        $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Contact Form'); // Use a fixed from address
         $mail->addAddress('capstonehosting0101@gmail.com', 'CSH Enterprises');
-        $mail->addReplyTo($email, $name);
+        $mail->addReplyTo($email, $name); // Set reply-to to the submitter's email
 
         // Content
         $mail->isHTML(true);

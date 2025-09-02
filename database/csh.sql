@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 02, 2025 at 08:21 AM
+-- Generation Time: Sep 02, 2025 at 09:37 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,9 +45,9 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `username`, `fullname`, `password`, `role`, `image`, `token`, `token_expiry`, `last_login`, `created_at`) VALUES
-(1, 'admin', 'admin', '$2a$12$W6a/qLGDukm4/xbLq8/2ouSFmwAOI0TH2bDGfM2ucq3p0fpezzUhW', 'Owner', 'admin_1.png', NULL, NULL, '2025-09-01 05:38:51', '2025-04-04 14:28:31'),
-(3, 'field', 'field manager', '$2y$10$dNldj0RIra/5ABt/XqG.Dutl36HkU7uDcblzUvDNCc2mgaw9nR5.W', 'Field Manager', '', NULL, NULL, '2025-08-27 16:44:22', '2025-04-10 14:59:04'),
-(4, 'secretary', 'secretary', '$2y$10$9x9fhZ.zenNuZOc0NBonh.RrmEkZcf2SqKwWEW0GOAXAZDv3zdxLe', 'Secretary', 'admin_4.jpeg', NULL, NULL, '2025-08-27 16:45:02', '2025-04-10 14:59:32'),
+(1, 'admin', 'admin', '$2a$12$W6a/qLGDukm4/xbLq8/2ouSFmwAOI0TH2bDGfM2ucq3p0fpezzUhW', 'Owner', 'admin_1.png', NULL, NULL, '2025-09-02 15:04:44', '2025-04-04 14:28:31'),
+(3, 'field', 'field manager', '$2y$10$dNldj0RIra/5ABt/XqG.Dutl36HkU7uDcblzUvDNCc2mgaw9nR5.W', 'Field Manager', '', NULL, NULL, '2025-09-02 15:05:38', '2025-04-10 14:59:04'),
+(4, 'secretary', 'secretary', '$2y$10$9x9fhZ.zenNuZOc0NBonh.RrmEkZcf2SqKwWEW0GOAXAZDv3zdxLe', 'Secretary', 'admin_4.jpeg', '$2y$10$pn8hXLLdwnx3M2Lp7rAgUuZ3ozPxfg65JaVa1u2UUEQbMMDR1gqba', '2025-10-02 09:06:20', '2025-09-02 15:06:20', '2025-04-10 14:59:32'),
 (5, 'generalmanager', 'generalmanager', '$2y$10$BK0jjQyIj6wnRa/GvFCch.uDOYyt13AT/qKJL38N6LbDenXOGmELK', 'General Manager', '', NULL, NULL, '2025-08-27 16:27:02', '2025-04-10 15:00:30'),
 (6, 'designer', 'designer', '$2y$10$s45PNv7UuFvz7dWrMomkxOC7ORdzu95m4E6wWJU.D8vwbLiKUv94C', 'Designer', '', NULL, NULL, '2025-08-27 16:32:32', '2025-04-10 15:50:00');
 
@@ -232,7 +232,13 @@ INSERT INTO `notification` (`id`, `user_id`, `order_id`, `content`, `notify_user
 (168, 23, 78, 'Order #670831 has been marked as ready to ship and will be delivered to: akljshdliajhsdkjl hkajhsdkj  manila', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:34:14'),
 (169, 23, 78, 'Order #670831 has been marked as ready to ship and will be delivered to: akljshdliajhsdkjl hkajhsdkj  manila', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:34:17'),
 (170, 23, 78, 'Order with ticket #670831 has been successfully delivered!', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-08-27 16:34:40'),
-(171, 3, NULL, 'Field manager has requested new stocks', '', '', '', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:44:45');
+(171, 3, NULL, 'Field manager has requested new stocks', '', '', '', '', 'yes', '', '', '', '', '', '', '', '', '2025-08-27 16:44:45'),
+(172, 14, 64, 'Your order with ticket #692559 is ready for pickup. Our logistics team will pick up the items at your address: Dasmarinas Cavite, Sandionisio, blk 16', 'yes', '', '', '', '', '', '', '', '', '', '', '', 'info', '2025-09-02 15:05:02'),
+(173, 14, 64, 'Order #692559 has been picked up and will be processed. Please prepare the materials needed for this order.', '', '', '', '', '', 'yes', '', '', '', '', '', '', '', '2025-09-02 15:05:18'),
+(174, 14, 65, 'Order #629538 has been marked as ready to ship and will be delivered to: Dasmarinas Cavite, Sandionisio, blk 16', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-09-02 15:06:04'),
+(175, 14, 65, 'Order #629538 has been marked as ready to ship and will be delivered to: Dasmarinas Cavite, Sandionisio, blk 16', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', '', '2025-09-02 15:06:08'),
+(176, 14, 65, 'Order with ticket #629538 has been successfully delivered!', '', 'yes', 'yes', '', 'yes', '', '', '', '', '', '', '', 'approved', '2025-09-02 15:17:00'),
+(177, 14, 79, 'New Quote, Screen Printing, 232', '', 'yes', 'yes', 'yes', '', '', '', '', '', '', '', '', '', '2025-09-02 15:36:34');
 
 -- --------------------------------------------------------
 
@@ -272,23 +278,6 @@ CREATE TABLE `orders` (
   `design_file` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`id`, `ticket`, `user_id`, `print_type`, `quantity`, `pricing`, `subtotal`, `total`, `note`, `status`, `address`, `is_approved_designer`, `designer_approved_date`, `is_user_approved`, `user_approved_date`, `is_approved_admin`, `admin_approved_date`, `is_for_pickup`, `pickup_date`, `pickup_attempt`, `is_for_processing`, `processing_date`, `shipping_date`, `is_delivered`, `delivered_date`, `is_approved_field_manager`, `field_manager_approved_date`, `completion_date`, `design_file`, `created_at`) VALUES
-(64, 692559, 14, 'Emboss Print', 34, 90.00, 3060.00, 0, 'asdasd asdasd asd', 'to-pick-up', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 00:42:35', 'yes', '2025-05-26 21:20:05', 'no', NULL, 0, '', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68346a7165731_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 13:19:45'),
-(65, 629538, 14, 'Emboss Print', 32, 12.00, 384.00, 0, 'adsasd asd asd as', 'processing', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 04:30:36', 'yes', '2025-05-26 21:20:36', 'yes', '2025-06-07 02:58:54', 1, 'no', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68346a98cb9bd_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 13:20:24'),
-(66, 457944, 14, 'Glitters Print', 32, 53.00, 1696.00, 1696, 'asdasdasdasd', 'completed', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-05-30 03:14:01', 'yes', '2025-05-26 21:28:36', 'yes', '2025-06-06 00:57:34', 1, 'yes', '2025-06-07 03:00:03', '2025-06-07 03:04:35', '', NULL, '', '0000-00-00 00:00:00', '2025-06-07 03:08:54', 'uploads/68346c7d46d02_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 13:28:29'),
-(67, 930798, 14, 'Screen Printing', 321, 42.00, 13482.00, 0, 'asdas dasdas dasd asd', 'processing', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-05-27 01:36:23', 'yes', '2025-05-26 21:29:08', 'yes', '2025-05-30 04:32:45', 2, 'yes', '2025-06-06 03:37:36', NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68346c9d00a9d_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 13:29:01'),
-(68, 189152, 14, 'Emboss Print', 321, 70.00, 22470.00, 0, 'asdasdasd', 'rejected', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-05-27 01:34:21', 'yes', '2025-05-27 00:07:14', 'yes', '2025-05-30 03:39:45', 3, '', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68346d953d7bd_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 13:33:09'),
-(69, 300804, 14, 'Screen Printing', 312, NULL, NULL, 0, 'asdasdasd', 'pending', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', NULL, 0, '', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68349cd8821a8_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 16:54:48'),
-(70, 931242, 14, 'Glitters Print', 32, 98.00, 3136.00, 0, 'asdasdsad', 'approved', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', 'yes', '2025-06-06 05:25:54', '', NULL, 0, '', NULL, NULL, '', NULL, '', '0000-00-00 00:00:00', NULL, 'uploads/68349cefd80da_flametrack_logo_related_to_fire_estinguisher.jpeg', '2025-06-26 16:55:11'),
-(75, 162420, 14, 'Emboss Print', 42, 99.00, 4158.00, 4158, 'asdasd asdasd', 'completed', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 05:27:56', 'yes', '2025-06-06 05:25:07', 'yes', '2025-06-06 05:28:15', 1, 'yes', '2025-06-06 05:28:45', '2025-06-06 05:29:26', '', NULL, '', '0000-00-00 00:00:00', '2025-05-07 02:21:35', 'uploads/6834e0e643756_457944-glitters-print.jpeg', '2025-06-26 21:45:10'),
-(76, 411058, 14, 'Screen Printing', 142, 90.00, 12780.00, 12780, 'asdasdasdasd', 'completed', 'Dasmarinas Cavite, Sandionisio, blk 16', 'no', '0000-00-00 00:00:00', 'yes', '2025-06-06 00:42:57', 'yes', '2025-06-06 00:41:28', 'yes', '2025-06-06 00:43:54', 1, 'yes', '2025-06-06 01:53:39', '2025-06-06 03:29:27', '', NULL, '', '0000-00-00 00:00:00', '2025-06-06 04:18:09', 'uploads/6834e1772e252_457944-glitters-print.jpeg', '2025-06-26 21:47:35'),
-(77, 900930, 23, 'Direct to Film Print', 100, 100.00, 10000.00, 10000, ' aklsjhdalkjsghd kasd asd', 'completed', 'akljshdliajhsdkjl hkajhsdkj  manila', 'yes', '2025-08-27 16:19:45', 'yes', '2025-08-27 16:21:45', 'yes', '2025-08-27 16:20:41', 'yes', '2025-08-27 16:28:20', 1, 'yes', '2025-08-27 16:29:04', '2025-08-27 16:29:53', '', NULL, '', '0000-00-00 00:00:00', '2025-08-27 16:30:23', 'uploads/68aebf578cdd7_4-removebg.png', '2025-08-27 08:18:31'),
-(78, 670831, 23, 'Direct to Film Print', 100, 100.00, 10000.00, 10000, 'asd asda sda sd', 'completed', 'akljshdliajhsdkjl hkajhsdkj  manila', 'yes', '2025-08-27 16:32:39', 'yes', '2025-08-27 16:33:21', 'yes', '2025-08-27 16:32:53', 'yes', '2025-08-27 16:33:50', 1, 'yes', '2025-08-27 16:34:09', '2025-08-27 16:34:17', '', NULL, '', '0000-00-00 00:00:00', '2025-08-27 16:34:40', 'uploads/68aec281ac733_4-removebg.png', '2025-08-27 08:32:01');
 
 -- --------------------------------------------------------
 
@@ -374,8 +363,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `name`, `phone_number`, `password`, `status`, `address`, `image`, `created_at`, `remember_token`, `remember_expiry`, `reset_token`, `reset_expiry`, `completed_orders`) VALUES
-(14, 'capstoneproject0101@gmail.com', 'capstones', '09946726471', '$2y$10$ezjIhkPHNXQca9yQG..9KeYitPC7dPkzKfKsxsWsEg6CMGmbE6epq', '', 'asdasdasd asdasdasdasd', '68b48f385049d.png', '2025-06-05 15:53:57', 'b1720baa135d303842216e9aa9bb3ca56e4f990c70a6873c39df03d18501af26', '2025-10-01 02:06:26', NULL, NULL, 0),
-(23, 'datarioarc@gmail.com', 'arcdatario', '09761125698', '$2y$10$tYyl8kaOGhoxlDO5hDv9SewZhGTQms.QlOcGNkSAio2/mBYx0Kz1C', '', 'akljshdliajhsdkjl hkajhsdkj  manila', '', '2025-08-27 16:17:47', 'f0e9d7b46784fc33ef842ba476c5ecedff00808c73c01353a57bd6793ed743d0', '2025-09-26 16:36:34', NULL, NULL, 0);
+(14, 'capstoneproject0101@gmail.com', 'capstones', '09946726471', '$2y$10$ezjIhkPHNXQca9yQG..9KeYitPC7dPkzKfKsxsWsEg6CMGmbE6epq', '', 'asdasdasd asdasdasdasd', '68b48f385049d.png', '2025-06-05 15:53:57', 'b1720baa135d303842216e9aa9bb3ca56e4f990c70a6873c39df03d18501af26', '2025-10-01 02:06:26', NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -473,13 +461,13 @@ ALTER TABLE `inventory`
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=172;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=178;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT for table `services`
