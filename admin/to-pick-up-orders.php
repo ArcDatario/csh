@@ -283,7 +283,7 @@ if (isset($_SESSION['admin_role'])) {
     <!-- Pickup Modal -->
     <div id="pickupModal" class="quote-modal">
         <div class="quote-modal-content">
-            <span class="quote-modal-close">&times;</span>
+          
             <h2>Order Ready for Pickup</h2>
             <div class="quote-modal-body">
                 <!-- Group 1: Ticket and Customer in one row -->

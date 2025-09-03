@@ -1,5 +1,4 @@
 <?php
-
 // update_pricing.php
 // Start session and include database connection
 session_start();
@@ -19,20 +18,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     $ticket = isset($_POST['ticket']) ? $_POST['ticket'] : null;
     $quantity = isset($_POST['quantity']) ? $_POST['quantity'] : null;
 
-    // Get pricing-value if sent
+    // Get pricing-value if sent (this is the OLD price)
     $pricing_value = isset($_POST['pricing']) && $_POST['pricing'] !== '' ? $_POST['pricing'] : null;
 
-    // Determine which price to use
-    if (!empty($pricing_value) && is_numeric($pricing_value)) {
-        $unit_price = $pricing_value;
-    } elseif (!empty($price) && is_numeric($price)) {
-        $unit_price = $price;
+    // FIXED: Prioritize the NEW price entered by admin over the old pricing value
+    if (!empty($price) && is_numeric($price)) {
+        $unit_price = $price; // Use the new price entered by admin
+    } elseif (!empty($pricing_value) && is_numeric($pricing_value)) {
+        $unit_price = $pricing_value; // Fallback to old price if no new price entered
     } else {
         $unit_price = null;
     }
 
-    // Calculate subtotal
-    if (!empty($unit_price) && !empty($quantity) && is_numeric($unit_price) && is_numeric($quantity)) {
+    // Calculate subtotal - use the new calculation if we have a new price
+    if (!empty($price) && is_numeric($price) && !empty($quantity) && is_numeric($quantity)) {
+        // If admin entered a new price, use that for calculation
+        $subtotal = $price * $quantity;
+    } elseif (!empty($subtotal) && is_numeric($subtotal)) {
+        // If subtotal was already calculated client-side, use that
+        $subtotal = $subtotal;
+    } else if (!empty($unit_price) && !empty($quantity) && is_numeric($unit_price) && is_numeric($quantity)) {
+        // Fallback calculation
         $subtotal = $unit_price * $quantity;
     } else {
         $subtotal = null;
@@ -59,34 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         $user_email = $user_data['email'];
         $user_query->close();
 
-        // Build the SQL query dynamically based on provided values
-        $query = "UPDATE orders SET is_approved_admin = 'yes', admin_approved_date = NOW(), status = 'approved'";
-        $params = [];
-        $types = "";
-
-        if (!empty($unit_price) && is_numeric($unit_price)) {
-            $query .= ", pricing = ?";
-            $params[] = $unit_price;
-            $types .= "d";
-        }
-
-        if (!empty($subtotal) && is_numeric($subtotal)) {
-            $query .= ", subtotal = ?";
-            $params[] = $subtotal;
-            $types .= "d";
-        }
-
-        $query .= " WHERE id = ?";
-        $params[] = $id;
-        $types .= "i";
-
-        // Prepare and bind parameters
+        // Update the order with new pricing and subtotal
+        $query = "UPDATE orders SET is_approved_admin = 'yes', admin_approved_date = NOW(), status = 'approved', pricing = ?, subtotal = ? WHERE id = ?";
+        
         $stmt = $conn->prepare($query);
         if ($stmt === false) {
             throw new Exception("Failed to prepare the statement: " . $conn->error);
         }
 
-        $stmt->bind_param($types, ...$params);
+        $stmt->bind_param("ddi", $unit_price, $subtotal, $id);
 
         // Execute the query
         if ($stmt->execute()) {
