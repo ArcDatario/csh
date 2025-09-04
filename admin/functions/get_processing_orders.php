@@ -17,11 +17,26 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+        // Determine the appropriate thumbnail based on file extension
+        $designFile = $order['design_file'];
+        $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
+        
+        if ($fileExtension === 'psd') {
+            $thumbnail = "../photoshop.png";
+        } elseif ($fileExtension === 'pdf') {
+            $thumbnail = "../pdf.png";
+        } elseif ($fileExtension === 'ai') {
+            $thumbnail = "../illustrator.png";
+        } else {
+            // For image files, use the actual file
+            $thumbnail = "../user/" . htmlspecialchars($designFile, ENT_QUOTES, 'UTF-8');
+        }
+        
         echo '<tr>
                 <td>'.htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8').'</td>
                 <td>
                     <div class="user-cell">
-                        <img src="../user/'.htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8').'" alt="file design" width="50" height="50">
+                        <img src="'.$thumbnail.'" alt="file design" width="50" height="50">
                         <span>'.htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8').'</span>
                     </div>
                 </td>

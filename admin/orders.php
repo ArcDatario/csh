@@ -372,69 +372,90 @@ if (isset($_SESSION['admin_role'])) {
             <th>Action</th>
         </tr>
     </thead>
-    <?php
-    require_once 'auth_check.php';
-    require_once '../db_connection.php';
+   <?php
+require_once 'auth_check.php';
+require_once '../db_connection.php';
 
-    if (!isLoggedIn()) {
-        header('Location: login.php');
-        exit();
-    }
+if (!isLoggedIn()) {
+    header('Location: login.php');
+    exit();
+}
 
-    // Fetch orders with user names from the database
-    $sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, users.name, users.phone_number 
-            FROM orders 
-            INNER JOIN users ON orders.user_id = users.id 
-             WHERE orders.status = 'pending' 
-            ORDER BY orders.created_at DESC";
-    $result = $conn->query($sql);
-    ?>
-    <tbody id="designers-table-body">
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($order = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <div class="user-cell">
-                            <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
-                            <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
-                        </div>
-                    </td>
-                    <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <span class="status status-warning">
-                            <?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>
-                        </span>
-                    </td>
-                    <td>
-                     
-<button class="btn btn-outline view-quote-modal" 
-        data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
-        data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>">
-    View
-</button>
-
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
+// Fetch orders with user names from the database
+$sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, users.name, users.phone_number 
+        FROM orders 
+        INNER JOIN users ON orders.user_id = users.id 
+         WHERE orders.status = 'pending' 
+        ORDER BY orders.created_at DESC";
+$result = $conn->query($sql);
+?>
+<tbody id="designers-table-body">
+    <?php if ($result->num_rows > 0): ?>
+        <?php while ($order = $result->fetch_assoc()): 
+            // Determine the appropriate thumbnail based on file extension
+            $designFile = $order['design_file'];
+            $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
+            
+            if ($fileExtension === 'psd') {
+                $thumbnail = "../photoshop.png";
+            } elseif ($fileExtension === 'pdf') {
+                $thumbnail = "../pdf.png";
+            } elseif ($fileExtension === 'ai') {
+                $thumbnail = "../illustrator.png";
+            } else {
+                // For image files, use the actual file
+                $thumbnail = "../user/" . htmlspecialchars($designFile, ENT_QUOTES, 'UTF-8');
+            }
+        ?>
             <tr>
-                <td colspan="7">No orders found</td>
+                <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td>
+                    <div class="user-cell">
+                        <img src="<?php echo $thumbnail; ?>" alt="file design" width="50" height="50">
+                        <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    </div>
+                </td>
+                <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td>
+                    <span class="status status-warning">
+                        <?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-outline view-quote-modal" 
+                                data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
+                                data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>">
+                            View
+                        </button>
+                        <a href="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" 
+                           class="btn btn-download" 
+                           download 
+                           title="Download design file">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </td>
             </tr>
-        <?php endif; ?>
-    </tbody>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="7">No orders found</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
 </table>
                 </div>
             </section>
@@ -586,10 +607,22 @@ function handleViewButtonClick() {
     // Store data in modal
     quoteModal.setAttribute('data-current-id', id);
     
+    // Determine thumbnail based on file extension
+    const fileExtension = design.split('.').pop().toLowerCase();
+    let thumbnailSrc = '../user/' + design;
+    
+    if (fileExtension === 'psd') {
+        thumbnailSrc = '../photoshop.png';
+    } else if (fileExtension === 'pdf') {
+        thumbnailSrc = '../pdf.png';
+    } else if (fileExtension === 'ai') {
+        thumbnailSrc = '../illustrator.png';
+    }
+    
     // Populate modal fields
     document.getElementById('quote-modal-ticket').textContent = ticket;
     document.getElementById('quote-modal-name').textContent = name;
-    document.getElementById('quote-modal-design').src = '../user/' + design;
+    document.getElementById('quote-modal-design').src = thumbnailSrc;
     document.getElementById('quote-modal-print-type').textContent = printType;
     document.getElementById('quote-modal-quantity').textContent = quantity;
     document.getElementById('quote-modal-date').textContent = date;
@@ -788,21 +821,21 @@ imageViewerModal.addEventListener('click', function (e) {
 });
 
 // Download button functionality
+// Download button functionality
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('download-design-btn')) {
-    const container = e.target.closest('.design-image-container');
-    const imgSrc = container.querySelector('img').src;
+    const container = e.target.closest('.quote-modal-content');
     const ticket = document.getElementById('quote-modal-ticket').textContent;
     const printType = document.getElementById('quote-modal-print-type').textContent;
     
-    // Extract filename from URL
-    const filename = imgSrc.split('/').pop();
-    const extension = filename.split('.').pop();
+    // Get the original file path from the data attribute
+    const viewButton = document.querySelector(`.view-quote-modal[data-ticket="${ticket}"]`);
+    const originalFile = viewButton.getAttribute('data-design');
     
     // Create download link
     const link = document.createElement('a');
-    link.href = imgSrc;
-    link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
+    link.href = '../user/' + originalFile;
+    link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${originalFile.split('.').pop()}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

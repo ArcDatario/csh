@@ -218,7 +218,7 @@ if (isset($_SESSION['admin_role'])) {
         <div class="design-image-container">
           <img id="processing-modal-design" src="" alt="Design" class="design-image">
           <div class="design-buttons">
-            <button class="view-design-btn">View</button>
+           <button class="view-design-btn" id="modal-view-btn">View</button>
             <button class="download-design-btn">Download</button>
           </div>
         </div>
@@ -381,17 +381,45 @@ function handleViewButtonClick() {
     const design = this.getAttribute('data-design');
     const printType = this.getAttribute('data-print-type');
     const quantity = this.getAttribute('data-quantity');
+    const isViewable = this.getAttribute('data-viewable') === 'yes';
 
     // Store data in modal
     processingModal.setAttribute('data-current-id', id);
 
     // Populate modal fields
     document.getElementById('processing-modal-ticket').textContent = ticket;
-    document.getElementById('processing-modal-design').src = '../user/' + design;
+    
+    // Determine if we should show the actual file or a placeholder
+    const fileExtension = design.split('.').pop().toLowerCase();
+    const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    
+    if (imageFormats.includes(fileExtension)) {
+        // Show the actual image file
+        document.getElementById('processing-modal-design').src = '../user/' + design;
+    } else {
+        // Show appropriate placeholder based on file type
+        let placeholderSrc = '../file.png'; // default placeholder
+        if (fileExtension === 'psd') placeholderSrc = '../photoshop.png';
+        if (fileExtension === 'pdf') placeholderSrc = '../pdf.png';
+        if (fileExtension === 'ai') placeholderSrc = '../illustrator.png';
+        
+        document.getElementById('processing-modal-design').src = placeholderSrc;
+    }
+    
     document.getElementById('processing-modal-print-type').textContent = printType;
     document.getElementById('processing-modal-quantity').textContent = quantity;
     document.getElementById('processing-modal-id').value = id;
     document.getElementById('processing-modal-ticket-input').value = ticket;
+
+    // Show/hide view button based on file type
+    const viewButton = document.querySelector('.view-design-btn');
+    if (viewButton) {
+        if (isViewable) {
+            viewButton.style.display = 'inline-block';
+        } else {
+            viewButton.style.display = 'none';
+        }
+    }
 
     // Show modal
     processingModal.style.display = 'block';
@@ -464,9 +492,26 @@ function setupImageViewer() {
     // View button functionality
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('view-design-btn')) {
-            const imgSrc = e.target.closest('.design-image-container').querySelector('img').src;
-            document.getElementById('expandedDesignImage').src = imgSrc;
-            imageViewerModal.style.display = 'block';
+            const container = e.target.closest('.design-image-container');
+            const imgElement = container.querySelector('img');
+            const ticket = document.getElementById('processing-modal-ticket').textContent;
+            
+            // Get the actual design file from the button's data attribute
+            const viewButton = document.querySelector('.view-quote-modal[data-ticket="' + ticket + '"]');
+            const designFile = viewButton.getAttribute('data-design');
+            
+            // Check if it's an image format that can be displayed in browser
+            const fileExtension = designFile.split('.').pop().toLowerCase();
+            const displayableFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            
+            if (displayableFormats.includes(fileExtension)) {
+                // Show the actual image
+                document.getElementById('expandedDesignImage').src = '../user/' + designFile;
+                imageViewerModal.style.display = 'block';
+            } else {
+                // This shouldn't happen since we hide the button, but just in case
+                showToast('Cannot Preview', 'This file format cannot be previewed in the browser. Please download the file to view it.', 'warning');
+            }
         }
     });
 
@@ -494,17 +539,22 @@ function setupDownloadButtons() {
 
         newBtn.addEventListener('click', function() {
             const container = newBtn.closest('.design-image-container');
-            const imgSrc = container.querySelector('img').src;
+            const imgElement = container.querySelector('img');
             const ticket = document.getElementById('processing-modal-ticket').textContent;
             const printType = document.getElementById('processing-modal-print-type').textContent;
-
-            // Extract filename from URL
-            const filename = imgSrc.split('/').pop();
-            const extension = filename.split('.').pop();
-
-            // Create download link
+            
+            // Get the actual design file path from the button's data attribute
+            const viewButton = document.querySelector('.view-quote-modal[data-ticket="' + ticket + '"]');
+            const designFile = viewButton.getAttribute('data-design');
+            
+            // Create download link for the actual file, not the thumbnail
             const link = document.createElement('a');
-            link.href = imgSrc;
+            link.href = '../user/' + designFile;
+            
+            // Extract filename and extension
+            const filename = designFile.split('/').pop();
+            const extension = filename.split('.').pop();
+            
             link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
             document.body.appendChild(link);
             link.click();

@@ -300,8 +300,6 @@ function handlePriceCalculation() {
     }
 }
 
-// ...existing code...
-
 function handleViewButtonClick() {
     const id = this.getAttribute('data-id');
     const userId = this.getAttribute('data-user-id');
@@ -315,16 +313,38 @@ function handleViewButtonClick() {
     const status = this.getAttribute('data-status');
     const note = this.getAttribute('data-note');
     const address = this.getAttribute('data-address');
-    const pricing = this.getAttribute('data-pricing'); // Get pricing value
-    const subtotal = this.getAttribute('data-subtotal'); // Get subtotal value
+    const pricing = this.getAttribute('data-pricing');
+    const subtotal = this.getAttribute('data-subtotal');
+    const isViewable = this.getAttribute('data-viewable') === 'yes'; // Get viewable status
 
     // Store data in modal
     quoteModal.setAttribute('data-current-id', id);
+    quoteModal.setAttribute('data-design-file', design); // Store the actual design file
+    quoteModal.setAttribute('data-is-viewable', isViewable); // Store viewable status
+
+    // Determine the correct image source for display
+    let imageSrc;
+    if (isViewable) {
+        // For viewable images, use the actual file
+        imageSrc = '../user/' + design;
+    } else {
+        // For non-viewable files, use appropriate placeholder based on extension
+        const fileExtension = design.split('.').pop().toLowerCase();
+        if (fileExtension === 'psd') {
+            imageSrc = '../photoshop.png';
+        } else if (fileExtension === 'pdf') {
+            imageSrc = '../pdf.png';
+        } else if (fileExtension === 'ai') {
+            imageSrc = '../illustrator.png';
+        } else {
+            imageSrc = '../file.png';
+        }
+    }
 
     // Populate modal fields
     document.getElementById('quote-modal-ticket').textContent = ticket;
     document.getElementById('quote-modal-name').textContent = name;
-    document.getElementById('quote-modal-design').src = '../user/' + design;
+    document.getElementById('quote-modal-design').src = imageSrc;
     document.getElementById('quote-modal-print-type').textContent = printType;
     document.getElementById('quote-modal-quantity').textContent = quantity;
     document.getElementById('quote-modal-date').textContent = date;
@@ -351,8 +371,6 @@ function handleViewButtonClick() {
     quoteModal.style.display = 'block';
 }
 
-// ...existing code...
-
 // Save quote handler
 function handleSaveQuote() {
     const quoteAmount = priceInput.value;
@@ -361,7 +379,7 @@ function handleSaveQuote() {
     const userId = document.getElementById('user_id').value;
     const ticket = document.getElementById('ticket-value-input').value;
     const quantity = document.getElementById('quote-modal-quantity').textContent.trim();
-    const pricingValue = document.getElementById('pricing-value').value; // <-- get the hidden pricing value
+    const pricingValue = document.getElementById('pricing-value').value;
 
     // Only validate quoteAmount if it's not empty (allow empty if pricingValue exists)
     if (quoteAmount && isNaN(quoteAmount)) {
@@ -371,12 +389,12 @@ function handleSaveQuote() {
 
     const formData = new FormData();
     formData.append('id', id);
-    formData.append('price', quoteAmount); // can be empty if not entered
+    formData.append('price', quoteAmount);
     formData.append('subtotal', subtotalAmount);
     formData.append('user_id', userId);
     formData.append('ticket', ticket);
     formData.append('quantity', quantity);
-    formData.append('pricing', pricingValue); // <-- always send this
+    formData.append('pricing', pricingValue);
 
     // Show loading state
     const originalText = saveBtn.textContent;
@@ -392,7 +410,7 @@ function handleSaveQuote() {
         if (data.success) {
             showToast('Success', data.message, 'success');
             quoteModal.style.display = 'none';
-            refreshDesignersTable(); // Refresh table after successful save
+            refreshDesignersTable();
         } else {
             showToast('Error', data.message, 'error');
         }
@@ -424,7 +442,7 @@ function refreshDesignersTable() {
         .then(response => response.text())
         .then(data => {
             document.getElementById('admins-table-body').innerHTML = data;
-            attachEventListeners(); // Reattach event listeners after refresh
+            attachEventListeners();
         })
         .catch(error => console.error('Error refreshing table:', error));
 }
@@ -459,7 +477,7 @@ function init() {
 // Start the application
 document.addEventListener('DOMContentLoaded', init);
 
-// Your existing toast function exactly as provided
+// Toast function
 function showToast(title, message, type = 'info') {
     const toastContainer = document.getElementById('toastContainer');
     
@@ -501,11 +519,9 @@ function showToast(title, message, type = 'info') {
         }, 300);
     });
 }
-</script>
 
-<script>
-    // Image Viewer Modal
-    const imageViewerModal = document.createElement('div');
+// Image Viewer Modal
+const imageViewerModal = document.createElement('div');
 imageViewerModal.className = 'image-viewer-modal';
 imageViewerModal.innerHTML = `
   <span class="close-viewer">&times;</span>
@@ -516,9 +532,17 @@ document.body.appendChild(imageViewerModal);
 // View button functionality
 document.addEventListener('click', function (e) {
   if (e.target.classList.contains('view-design-btn')) {
-    const imgSrc = e.target.closest('.design-image-container').querySelector('img').src;
-    document.getElementById('viewed-image').src = imgSrc;
-    imageViewerModal.style.display = 'block';
+    // Get the actual design file path, not the placeholder
+    const designFile = quoteModal.getAttribute('data-design-file');
+    const isViewable = quoteModal.getAttribute('data-is-viewable') === 'true';
+    
+    // Only show the image if it's viewable
+    if (isViewable) {
+        document.getElementById('viewed-image').src = '../user/' + designFile;
+        imageViewerModal.style.display = 'block';
+    } else {
+        showToast('Info', 'This file type cannot be previewed. Please download the file to view it.', 'info');
+    }
   }
 });
 
@@ -539,22 +563,30 @@ imageViewerModal.addEventListener('click', function (e) {
 // Download button functionality
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('download-design-btn')) {
-    const container = e.target.closest('.design-image-container');
-    const imgSrc = container.querySelector('img').src;
+    // Get the actual design file from the modal attribute
+    const designFile = quoteModal.getAttribute('data-design-file');
     const ticket = document.getElementById('quote-modal-ticket').textContent;
     const printType = document.getElementById('quote-modal-print-type').textContent;
     
-    // Extract filename from URL
-    const filename = imgSrc.split('/').pop();
+    // Create the actual file path for download
+    const filePath = '../user/' + designFile;
+    
+    // Extract filename from the actual design file
+    const filename = designFile.split('/').pop();
     const extension = filename.split('.').pop();
     
-    // Create download link
+    // Create download link for the actual file
     const link = document.createElement('a');
-    link.href = imgSrc;
+    link.href = filePath;
     link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
+    link.target = '_blank'; // Open in new tab for better UX
+    
+    // Add link to document, click it, then remove it
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    showToast('Download', 'Download started', 'success');
   }
 });
 

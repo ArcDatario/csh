@@ -24,7 +24,6 @@ function updateOnProcessTable() {
         .then(data => {
             document.getElementById('onprocess-table-body').innerHTML = data;
             attachViewButtonListeners();
-            // setupImageAndDownloadButtons(); // REMOVE THIS LINE
         })
         .catch(error => {
             console.error('Error fetching on-process orders:', error);
@@ -37,7 +36,13 @@ function attachViewButtonListeners() {
         button.addEventListener('click', handleOnProcessViewButtonClick);
     });
 }
-
+// Reset view button state when modal is closed
+function resetViewButtonState() {
+    const viewButtons = document.querySelectorAll('#onProcessModal .view-design-btn');
+    viewButtons.forEach(button => {
+        button.style.display = 'inline-block'; // Reset to default
+    });
+}
 // View button click handler for on-process orders
 function handleOnProcessViewButtonClick() {
     const orderData = {
@@ -55,7 +60,8 @@ function handleOnProcessViewButtonClick() {
         address: this.getAttribute('data-address'),
         email: this.getAttribute('data-email'),
         pricing: this.getAttribute('data-pricing'),
-        subtotal: this.getAttribute('data-subtotal')
+        subtotal: this.getAttribute('data-subtotal'),
+        viewable: this.getAttribute('data-viewable') === 'yes'
     };
 
     // Store data in modal
@@ -76,7 +82,24 @@ function handleOnProcessViewButtonClick() {
     document.getElementById('onprocess-modal-pricing').textContent = orderData.pricing ? '₱' + parseFloat(orderData.pricing).toFixed(2) : 'N/A';
     document.getElementById('onprocess-modal-subtotal').textContent = orderData.subtotal ? '₱' + parseFloat(orderData.subtotal).toFixed(2) : 'N/A';
     document.getElementById('onprocess-modal-note').textContent = orderData.note || 'No notes';
-    document.getElementById('onprocess-modal-design').src = '../user/' + orderData.design;
+    
+    // Determine if we should show the actual file or a placeholder
+    const fileExtension = orderData.design.split('.').pop().toLowerCase();
+    const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    
+    if (imageFormats.includes(fileExtension)) {
+        // Show the actual image file
+        document.getElementById('onprocess-modal-design').src = '../user/' + orderData.design;
+    } else {
+        // Show appropriate placeholder based on file type
+        let placeholderSrc = '../file.png'; // default placeholder
+        if (fileExtension === 'psd') placeholderSrc = '../photoshop.png';
+        if (fileExtension === 'pdf') placeholderSrc = '../pdf.png';
+        if (fileExtension === 'ai') placeholderSrc = '../illustrator.png';
+        
+        document.getElementById('onprocess-modal-design').src = placeholderSrc;
+    }
+    
     document.getElementById('onprocess-modal-process-date').textContent = orderData.date || new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -85,10 +108,21 @@ function handleOnProcessViewButtonClick() {
         minute: '2-digit'
     });
     
+    // Show/hide view button based on file type
+    const viewButtons = document.querySelectorAll('#onProcessModal .view-design-btn');
+    if (viewButtons.length > 0) {
+        viewButtons.forEach(button => {
+            if (orderData.viewable) {
+                button.style.display = 'inline-block';
+            } else {
+                button.style.display = 'none';
+            }
+        });
+    }
+
     // Show modal
     document.getElementById('onProcessModal').style.display = 'block';
 }
-
 // Setup image viewer and download buttons (attach only once)
 function setupImageAndDownloadButtons() {
     // This function is now empty or can be removed
@@ -100,24 +134,45 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeOnProcessTable();
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('view-design-btn')) {
-            const imgSrc = e.target.closest('.design-image-container').querySelector('img').src;
-            document.getElementById('expandedDesignImage').src = imgSrc;
-            document.getElementById('imageViewerModal').style.display = 'block';
+            const container = e.target.closest('.design-image-container');
+            const imgElement = container.querySelector('img');
+            const ticket = container.closest('.quote-modal-content').querySelector('#onprocess-modal-ticket').textContent;
+            
+            // Get the actual design file from the button's data attribute
+            const viewButton = document.querySelector('.view-on-process-modal[data-ticket="' + ticket + '"]');
+            const designFile = viewButton.getAttribute('data-design');
+            
+            // Check if it's an image format that can be displayed in browser
+            const fileExtension = designFile.split('.').pop().toLowerCase();
+            const displayableFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            
+            if (displayableFormats.includes(fileExtension)) {
+                // Show the actual image
+                document.getElementById('expandedDesignImage').src = '../user/' + designFile;
+                document.getElementById('imageViewerModal').style.display = 'block';
+            } else {
+                // This shouldn't happen since we hide the button, but just in case
+                showToast('Cannot Preview', 'This file format cannot be previewed in the browser. Please download the file to view it.', 'warning');
+            }
         }
 
         if (e.target.classList.contains('download-design-btn')) {
             const container = e.target.closest('.design-image-container');
-            const imgSrc = container.querySelector('img').src;
             const ticket = container.closest('.quote-modal-content').querySelector('#onprocess-modal-ticket').textContent;
             const printType = container.closest('.quote-modal-content').querySelector('#onprocess-modal-print-type').textContent;
-
-            // Extract filename from URL
-            const filename = imgSrc.split('/').pop();
-            const extension = filename.split('.').pop();
-
-            // Create download link
+            
+            // Get the actual design file from the button's data attribute
+            const viewButton = document.querySelector('.view-on-process-modal[data-ticket="' + ticket + '"]');
+            const designFile = viewButton.getAttribute('data-design');
+            
+            // Create download link for the actual file, not the thumbnail
             const link = document.createElement('a');
-            link.href = imgSrc;
+            link.href = '../user/' + designFile;
+            
+            // Extract filename and extension
+            const filename = designFile.split('/').pop();
+            const extension = filename.split('.').pop();
+            
             link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
             document.body.appendChild(link);
             link.click();
@@ -131,27 +186,25 @@ function initializeModals() {
     const onProcessModal = document.getElementById('onProcessModal');
     const confirmShipModal = document.getElementById('confirmShipModal');
     
-    // Close buttons
     document.querySelectorAll('.quote-modal-close, #onprocess-modal-close').forEach(btn => {
-        btn.addEventListener('click', function() {
-            onProcessModal.style.display = 'none';
-        });
+    btn.addEventListener('click', function() {
+        onProcessModal.style.display = 'none';
+        resetViewButtonState(); // Reset view button state
     });
-    
+});
     document.getElementById('confirm-ship-no').addEventListener('click', function() {
         confirmShipModal.style.display = 'none';
     });
     
-    // Close when clicking outside modal
     window.addEventListener('click', function(event) {
-        if (event.target === onProcessModal) {
-            onProcessModal.style.display = 'none';
-        }
-        if (event.target === confirmShipModal) {
-            confirmShipModal.style.display = 'none';
-        }
-    });
-    
+    if (event.target === onProcessModal) {
+        onProcessModal.style.display = 'none';
+        resetViewButtonState(); // Reset view button state
+    }
+    if (event.target === confirmShipModal) {
+        confirmShipModal.style.display = 'none';
+    }
+});
     // Ship button handler
     document.getElementById('onprocess-modal-ship').addEventListener('click', function() {
         confirmShipModal.style.display = 'block';
