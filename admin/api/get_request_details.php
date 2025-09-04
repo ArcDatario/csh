@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json');
 require_once '../../db_connection.php';
-require_once '../../auth_check.php';
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -19,14 +18,6 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $requestId = (int)$_GET['id'];
 $response = ['success' => false, 'message' => '', 'data' => null];
-
-// Check if user is authenticated
-if (!isLoggedIn()) {
-    http_response_code(401);
-    $response['message'] = 'Unauthorized';
-    echo json_encode($response);
-    exit();
-}
 
 // Get database connection from db_connection.php
 global $conn;

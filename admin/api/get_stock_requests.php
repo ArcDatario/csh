@@ -1,6 +1,5 @@
 <?php
 require_once '../../db_connection.php';
-require_once '../../auth_check.php';
 
 $response = ['success' => false, 'message' => '', 'data' => []];
 

@@ -39,65 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
- // Theme Toggle
- const themeToggle = document.getElementById('themeToggle');
- const html = document.documentElement;
- 
- // Check for saved theme preference (default to light if none)
- const savedTheme = localStorage.getItem('theme') || 'light';
- html.setAttribute('data-theme', savedTheme);
- 
- // Initialize the toggle button state
- const icon = themeToggle.querySelector('i');
- const text = themeToggle.querySelector('span');
- icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
- text.textContent = savedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
- 
- // Initialize charts with saved theme (ADDED THIS CRUCIAL LINE)
- document.addEventListener('DOMContentLoaded', () => {
-     updateChartsForTheme(savedTheme);
- });
- 
- themeToggle.addEventListener('click', () => {
-     const currentTheme = html.getAttribute('data-theme');
-     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-     
-     // Update theme
-     html.setAttribute('data-theme', newTheme);
-     localStorage.setItem('theme', newTheme);
-     
-     // Update UI
-     icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-     text.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
-     
-     // Show toast
-     showToast(`${newTheme === 'dark' ? 'Dark' : 'Light'} mode activated`, 
-             `Switched to ${newTheme} mode`, 
-             newTheme === 'dark' ? 'success' : 'info');
-     
-     // Update charts
-     updateChartsForTheme(newTheme);
- });
- 
- // Chart update function (unchanged but included for completeness)
- function updateChartsForTheme(theme) {
-     const textColor = theme === 'dark' ? '#f8fafc' : '#0f172a';
-     const gridColor = theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(148, 163, 184, 0.1)';
- 
-     if (revenueChart) {
-         revenueChart.options.scales.x.grid.color = gridColor;
-         revenueChart.options.scales.y.grid.color = gridColor;
-         revenueChart.options.scales.x.ticks.color = textColor;
-         revenueChart.options.scales.y.ticks.color = textColor;
-         revenueChart.update();
-     }
- 
-     if (trafficChart) {
-         trafficChart.options.plugins.legend.labels.color = textColor;
-         trafficChart.update();
-     }
- }
          
       
          // Card hover animations
