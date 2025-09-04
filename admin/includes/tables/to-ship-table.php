@@ -17,6 +17,9 @@
     </table>
 </div>
 
+<!-- Toast Container (ADDED THIS ELEMENT) -->
+<div id="toastContainer" class="toast-container"></div>
+
 <!-- To Ship Modal -->
 <div id="toShipModal" class="quote-modal">
   <div class="quote-modal-content">
@@ -56,7 +59,6 @@
         <div class="design-image-container">
           <img id="toship-modal-design" src="" alt="Design" class="design-image">
           <div class="design-buttons">
-            <button class="view-design-btn">View</button>
             <button class="download-design-btn">Download</button>
           </div>
         </div>
@@ -102,6 +104,7 @@
       <input type="hidden" id="toship-modal-id" name="id">
       <input type="hidden" id="toship-modal-user-id" name="user_id">
       <input type="hidden" id="toship-modal-ticket-input" name="ticket">
+      <input type="hidden" id="toship-modal-design-file" name="design_file">
     </div>
     <div class="quote-modal-footer">
       <button id="toship-modal-complete" class="quote-modal-btn btn-process">Mark as Shipped</button>
@@ -125,7 +128,59 @@
   </div>
 </div>
 
+<style>
+
+</style>
+
 <script>
+// Helper function to get thumbnail path
+function getToShipThumbnailPath(designFilePath) {
+    const filename = designFilePath.split('/').pop();
+    const fileExtension = filename.split('.').pop().toLowerCase();
+    
+    if (fileExtension === 'psd') {
+        return "../photoshop.png";
+    } else if (fileExtension === 'pdf') {
+        return "../pdf.png";
+    } else if (fileExtension === 'ai') {
+        return "../illustrator.png";
+    } else {
+        return "../user/" + designFilePath;
+    }
+}
+
+// Download design file handler for to-ship orders
+function handleToShipDownloadDesign(event) {
+    event.stopPropagation(); // Prevent event from bubbling
+    
+    const designFilePath = document.getElementById('toship-modal-design-file').value;
+    if (!designFilePath) {
+        showToShipToast('Download Error', 'No file available for download', 'error');
+        return;
+    }
+    
+    // Create a temporary link to trigger download
+    const downloadLink = document.createElement('a');
+    
+    // Use absolute path to avoid confusion with includes
+    downloadLink.href = '../user/' + designFilePath;
+    
+    // Extract filename from path for the download attribute
+    const filename = designFilePath.split('/').pop();
+    downloadLink.download = filename;
+    
+    // For security, set target to _blank to avoid navigation issues
+    downloadLink.target = '_blank';
+    
+    // Trigger download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+    // Show success toast
+    showToShipToast('Download', 'File download started', 'success');
+}
+
 // Function to fetch and update the to-ship table
 function updateToShipTable() {
     fetch('api/get_toship_orders.php')
@@ -167,11 +222,16 @@ function handleToShipViewButtonClick() {
     };
 
     // Store data in modal
-    document.getElementById('toShipModal').setAttribute('data-current-id', orderData.id);
+    const toShipModal = document.getElementById('toShipModal');
+    toShipModal.setAttribute('data-current-id', orderData.id);
     document.getElementById('toship-modal-id').value = orderData.id;
     document.getElementById('toship-modal-user-id').value = orderData.userId;
     document.getElementById('toship-modal-email').value = orderData.email;
     document.getElementById('toship-modal-ticket-input').value = orderData.ticket;
+    document.getElementById('toship-modal-design-file').value = orderData.design;
+    
+    // Get correct thumbnail path
+    const thumbnailPath = getToShipThumbnailPath(orderData.design);
     
     // Populate modal fields
     document.getElementById('toship-modal-ticket').textContent = orderData.ticket;
@@ -184,7 +244,7 @@ function handleToShipViewButtonClick() {
     document.getElementById('toship-modal-pricing').textContent = orderData.pricing ? '₱' + parseFloat(orderData.pricing).toFixed(2) : 'N/A';
     document.getElementById('toship-modal-subtotal').textContent = orderData.subtotal ? '₱' + parseFloat(orderData.subtotal).toFixed(2) : 'N/A';
     document.getElementById('toship-modal-note').textContent = orderData.note || 'No notes';
-    document.getElementById('toship-modal-design').src = '../user/' + orderData.design;
+    document.getElementById('toship-modal-design').src = thumbnailPath;
     document.getElementById('toship-modal-ship-date').textContent = orderData.date || new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -193,8 +253,20 @@ function handleToShipViewButtonClick() {
         minute: '2-digit'
     });
     
+    // Remove any existing event listeners from modal buttons first
+    const downloadButtons = document.querySelectorAll('#toShipModal .download-design-btn');
+    
+    downloadButtons.forEach(button => {
+        button.replaceWith(button.cloneNode(true));
+    });
+    
+    // Attach new event listeners to modal buttons
+    document.querySelectorAll('#toShipModal .download-design-btn').forEach(button => {
+        button.addEventListener('click', handleToShipDownloadDesign);
+    });
+    
     // Show modal
-    document.getElementById('toShipModal').style.display = 'block';
+    toShipModal.style.display = 'block';
 }
 
 // Initialize modals and event listeners
@@ -266,16 +338,16 @@ function initializeToShipModals() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast('Success', data.message, 'success');
+                showToShipToast('Success', data.message, 'success');
                 updateToShipTable();
                 toShipModal.style.display = 'none';
                 confirmModal.style.display = 'none';
             } else {
-                showToast('Error', data.message, 'error');
+                showToShipToast('Error', data.message, 'error');
             }
         })
         .catch(error => {
-            showToast('Error', 'An error occurred while updating order', 'error');
+            showToShipToast('Error', 'An error occurred while updating order', 'error');
             console.error('Error:', error);
         })
         .finally(() => {
@@ -293,9 +365,16 @@ function initializeToShipTable() {
     }
 }
 
-// Toast notification function
-function showToast(title, message, type = 'info') {
-    const toastContainer = document.getElementById('toastContainer');
+// Toast notification function (FIXED TO WORK PROPERLY)
+function showToShipToast(title, message, type = 'info') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
     
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -316,22 +395,29 @@ function showToast(title, message, type = 'info') {
     
     toastContainer.appendChild(toast);
     
+    // Trigger animation
     setTimeout(() => {
         toast.classList.add('show');
     }, 100);
     
+    // Auto remove after 5 seconds
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {
-            toast.remove();
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
         }, 300);
     }, 5000);
     
+    // Close button handler
     const closeBtn = toast.querySelector('.toast-close');
     closeBtn.addEventListener('click', () => {
         toast.classList.remove('show');
         setTimeout(() => {
-            toast.remove();
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
         }, 300);
     });
 }

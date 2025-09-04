@@ -33,11 +33,30 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+        // Extract just the filename from the path
+        $designFilePath = $order['design_file'];
+        $filename = basename($designFilePath);
+        
+        // Get the file extension
+        $fileExtension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        // Set thumbnail based on file extension
+        if ($fileExtension === 'psd') {
+            $thumbnail = "../photoshop.png";
+        } elseif ($fileExtension === 'pdf') {
+            $thumbnail = "../pdf.png";
+        } elseif ($fileExtension === 'ai') {
+            $thumbnail = "../illustrator.png";
+        } else {
+            // For image files, use the actual file
+            $thumbnail = "../user/" . $designFilePath;
+        }
+        
         echo '<tr>';
         echo '<td>' . htmlspecialchars($order['ticket']) . '</td>';
         echo '<td>';
         echo '<div class="user-cell">';
-        echo '<img src="../user/' . htmlspecialchars($order['design_file']) . '" alt="file design" width="50" height="50">';
+        echo '<img src="' . $thumbnail . '" alt="file design" width="50" height="50" onerror="this.onerror=null; this.src=\'../placeholder-image.png\';">';
         echo '<span>' . htmlspecialchars($order['name']) . '</span>';
         echo '</div>';
         echo '</td>';
