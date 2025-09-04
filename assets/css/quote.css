@@ -754,3 +754,71 @@ background-color: #2ecc71; /* Green for Completed */
 .status-approved {
     background-color: #2ecc71; /* Green for Completed */
 }
+
+        /* style for */
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.view-details-btn, .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.view-details-btn {
+    background-color: #4a6cf7;
+    color: white;
+    border: none;
+}
+
+.download-btn {
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+}
+
+.view-details-btn:hover {
+    background-color: #3a5cd8;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+    color: white;
+}
+
+.quote-date {
+    color: #6c757d;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .card-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .button-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

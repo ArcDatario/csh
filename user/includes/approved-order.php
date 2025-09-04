@@ -24,19 +24,32 @@ if ($user_id) {
 }
 ?>
 
-<!-- HTML Structure -->
 <?php if (!$user_id): ?>
     <div class="no-orders">No user ID found. Please log in.</div>
 <?php elseif (!$has_orders): ?>
     <div class="no-orders">No orders found</div>
 <?php else: ?>
     <?php foreach ($orders as $order): 
-       
         $createdAt = date('M d, Y', strtotime($order['created_at']));
         $subtotal = $order['pricing'] * $order['quantity'];
+        
+        // Determine the appropriate thumbnail based on file extension
+        $designFile = $order['design_file'];
+        $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
+        
+        if ($fileExtension === 'psd') {
+            $thumbnail = "../photoshop.png";
+        } elseif ($fileExtension === 'pdf') {
+            $thumbnail = "../pdf.png";
+        } elseif ($fileExtension === 'ai') {
+            $thumbnail = "../illustrator.png";
+        } else {
+            // For image files, use the actual file
+            $thumbnail = htmlspecialchars($designFile, ENT_QUOTES, 'UTF-8');
+        }
     ?>
         <div class="quote-card animate__animated animate__fadeInUp">
-            <img src="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" alt="Design" class="card-image">
+            <img src="<?= $thumbnail ?>" alt="Design" class="card-image">
             <span class="card-status status-approved"><?= htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8') ?></span>
             <div class="card-content">
                 <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
@@ -50,22 +63,30 @@ if ($user_id) {
                         <span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span>
                     </div>
                 </div>
-                <div class="card-actions">
-                            
-                <button class="view-details-btn approved-order-btn" 
-                    data-approved-id="<?= htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8') ?>" 
-                    data-approved-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>" 
-                    data-approved-created-at="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
-                    data-approved-admin="<?= htmlspecialchars($order['is_approved_admin'], ENT_QUOTES, 'UTF-8') ?>"
-                    data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8') ?>"
-                    data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
-                    data-subtotal="<?= htmlspecialchars($order['pricing'] * $order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
-                    data-admin-approved-date="<?= htmlspecialchars($order['admin_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
-                >
-                    <i class="fas fa-eye"></i> View
-                </button>
                     <span class="quote-date"><?= $createdAt ?></span>
-                </div>
+                <div class="card-actions">
+    <div class="button-group">
+        <button class="view-details-btn approved-order-btn" 
+            data-approved-id="<?= htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8') ?>" 
+            data-approved-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>" 
+            data-approved-created-at="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
+            data-approved-admin="<?= htmlspecialchars($order['is_approved_admin'], ENT_QUOTES, 'UTF-8') ?>"
+            data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8') ?>"
+            data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
+            data-subtotal="<?= htmlspecialchars($order['pricing'] * $order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
+            data-admin-approved-date="<?= htmlspecialchars($order['admin_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
+        >
+            <i class="fas fa-eye"></i> View
+        </button>
+        <a href="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" 
+           class="download-btn" 
+           download 
+           title="Download design file">
+            <i class="fas fa-download"></i>
+        </a>
+    </div>
+
+</div>
             </div>
         </div>
     <?php endforeach; ?>
