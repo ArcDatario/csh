@@ -404,7 +404,7 @@ if ($user_id) {
     </button>
 
     <!-- Quote Modal -->
-    <div class="quote-modal" id="quoteModal">
+    <div class="quote-modal" id="quoteModal" style="z-index: 500 !important;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Create New Quote</h2>
