@@ -1,10 +1,5 @@
 <?php
 require_once '../../db_connection.php';
-require_once '../../auth_check.php';
-
-if (!isLoggedIn()) {
-    die(json_encode(['success' => false, 'message' => 'Unauthorized access']));
-}
 
 header('Content-Type: application/json');
 

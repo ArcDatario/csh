@@ -411,18 +411,18 @@ if ($user_id) {
                 <button class="close-modal" id="closeModal">&times;</button>
             </div>
             <form id="quoteForm" enctype="multipart/form-data" method="post">
-            <div class="form-group">
-    <label for="designFile">Upload Design</label>
-    <div class="file-input-container">
-    <div class="file-input-btn">
-        <i class="fas fa-cloud-upload-alt"></i>
-        <span class="upload-text">Click to upload design file</span>
-        <input type="file" id="designFile" name="designFile" class="file-input" 
-               accept=".psd,.ai,.pdf,image/*" required>
+    <div class="form-group">
+        <label for="designFile">Upload Design</label>
+        <div class="file-input-container">
+            <div class="file-input-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span class="upload-text">Click to upload design file</span>
+                <input type="file" id="designFile" name="designFile" class="file-input" 
+                       accept=".psd,.ai,.pdf,image/*" required>
+            </div>
+            <div id="file-name" class="file-name-display"></div>
+        </div>
     </div>
-    <div id="file-name" class="file-name-display"></div>
-</div>
-</div>
     
     <div class="form-group" style="display: flex; gap: 10px;">
         <div style="flex: 7;">
@@ -439,22 +439,112 @@ if ($user_id) {
         </div>
         <div style="flex: 3;">
             <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" name="quantity" class="form-control" min="1" placeholder="Quantity" style="width: 100%; background-color:transparent;" required>
+            <input type="number" id="quantity" name="quantity" class="form-control" 
+                   min="500" value="500" placeholder="Quantity" 
+                   style="width: 100%; background-color:transparent;" required>
         </div>
     </div>
     
-   <input type="text" name="address" id="address" class="address" 
-       value="<?php echo htmlspecialchars($full_address, ENT_QUOTES, 'UTF-8'); ?>" readonly style="display:none;">
+    <input type="text" name="address" id="address" class="address" 
+           value="<?php echo htmlspecialchars($full_address, ENT_QUOTES, 'UTF-8'); ?>" readonly style="display:none;">
 
     <div class="form-group">
         <label for="note">Note</label>
-        <textarea id="note" name="note" class="form-control note-input" rows="2" placeholder="Enter any additional notes or instructions" style="background-color:transparent;"></textarea>
+        <textarea id="note" name="note" class="form-control note-input" rows="2" 
+                  placeholder="Enter any additional notes or instructions" 
+                  style="background-color:transparent;"></textarea>
     </div>
     
-    <button type="submit" class="submit-btn">
+    <button type="submit" class="submit-btn" id="submitQuoteBtn">
         <i class="fas fa-paper-plane"></i> Submit Quote
     </button>
 </form>
+
+<script>
+// Function to show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity');
+    const submitBtn = document.getElementById('submitQuoteBtn');
+    
+    function validateQuantity() {
+        const quantity = parseInt(quantityInput.value);
+        
+        if (isNaN(quantity) || quantity < 500) {
+            // Show error state but keep button enabled
+            submitBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Doesn\'t meet the Min. Qty of 500';
+            submitBtn.style.backgroundColor = '#dc3545';
+            submitBtn.style.borderColor = '#dc3545';
+            return false;
+        } else {
+            // Show normal state
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Quote';
+            submitBtn.style.backgroundColor = '';
+            submitBtn.style.borderColor = '';
+            return true;
+        }
+    }
+    
+    // Validate on input change
+    quantityInput.addEventListener('input', validateQuantity);
+    
+    // Validate on form submission
+    document.getElementById('quoteForm').addEventListener('submit', function(e) {
+        if (!validateQuantity()) {
+            e.preventDefault();
+            // Show error toast
+            showToast('Quantity must be at least 500', 'error');
+            // Add a little shake animation to indicate error
+            submitBtn.classList.add('shake');
+            setTimeout(() => {
+                submitBtn.classList.remove('shake');
+            }, 500);
+        }
+    });
+    
+    // Initial validation
+    validateQuantity();
+});
+
+// Add CSS for shake animation
+const style = document.createElement('style');
+style.textContent = `
+    .shake {
+        animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        20% { transform: translateX(-10px); }
+        40% { transform: translateX(10px); }
+        60% { transform: translateX(-10px); }
+        80% { transform: translateX(10px); }
+        100% { transform: translateX(0); }
+    }
+    
+`;
+document.head.appendChild(style);
+</script>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
