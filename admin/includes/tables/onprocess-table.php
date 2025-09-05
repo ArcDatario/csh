@@ -123,63 +123,6 @@ function handleOnProcessViewButtonClick() {
     // Show modal
     document.getElementById('onProcessModal').style.display = 'block';
 }
-// Setup image viewer and download buttons (attach only once)
-function setupImageAndDownloadButtons() {
-    // This function is now empty or can be removed
-}
-
-// Attach the event listener ONCE when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeModals();
-    initializeOnProcessTable();
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('view-design-btn')) {
-            const container = e.target.closest('.design-image-container');
-            const imgElement = container.querySelector('img');
-            const ticket = container.closest('.quote-modal-content').querySelector('#onprocess-modal-ticket').textContent;
-            
-            // Get the actual design file from the button's data attribute
-            const viewButton = document.querySelector('.view-on-process-modal[data-ticket="' + ticket + '"]');
-            const designFile = viewButton.getAttribute('data-design');
-            
-            // Check if it's an image format that can be displayed in browser
-            const fileExtension = designFile.split('.').pop().toLowerCase();
-            const displayableFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
-            
-            if (displayableFormats.includes(fileExtension)) {
-                // Show the actual image
-                document.getElementById('expandedDesignImage').src = '../user/' + designFile;
-                document.getElementById('imageViewerModal').style.display = 'block';
-            } else {
-                // This shouldn't happen since we hide the button, but just in case
-                showToast('Cannot Preview', 'This file format cannot be previewed in the browser. Please download the file to view it.', 'warning');
-            }
-        }
-
-        if (e.target.classList.contains('download-design-btn')) {
-            const container = e.target.closest('.design-image-container');
-            const ticket = container.closest('.quote-modal-content').querySelector('#onprocess-modal-ticket').textContent;
-            const printType = container.closest('.quote-modal-content').querySelector('#onprocess-modal-print-type').textContent;
-            
-            // Get the actual design file from the button's data attribute
-            const viewButton = document.querySelector('.view-on-process-modal[data-ticket="' + ticket + '"]');
-            const designFile = viewButton.getAttribute('data-design');
-            
-            // Create download link for the actual file, not the thumbnail
-            const link = document.createElement('a');
-            link.href = '../user/' + designFile;
-            
-            // Extract filename and extension
-            const filename = designFile.split('/').pop();
-            const extension = filename.split('.').pop();
-            
-            link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    });
-});
 
 // Initialize modals and event listeners
 function initializeModals() {
@@ -265,8 +208,68 @@ function initializeModals() {
     });
 }
 
+// Setup image viewer and download buttons
+function setupImageAndDownloadButtons() {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('view-design-btn')) {
+            const container = e.target.closest('.design-image-container');
+            const imgElement = container.querySelector('img');
+            const ticket = container.closest('.quote-modal-content').querySelector('#onprocess-modal-ticket').textContent;
+            
+            // Get the actual design file from the button's data attribute
+            const viewButton = document.querySelector('.view-on-process-modal[data-ticket="' + ticket + '"]');
+            const designFile = viewButton.getAttribute('data-design');
+            
+            // Check if it's an image format that can be displayed in browser
+            const fileExtension = designFile.split('.').pop().toLowerCase();
+            const displayableFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            
+            if (displayableFormats.includes(fileExtension)) {
+                // Show the actual image
+                document.getElementById('expandedDesignImage').src = '../user/' + designFile;
+                document.getElementById('imageViewerModal').style.display = 'block';
+            } else {
+                // This shouldn't happen since we hide the button, but just in case
+                showToast('Cannot Preview', 'This file format cannot be previewed in the browser. Please download the file to view it.', 'warning');
+            }
+        }
+
+        if (e.target.classList.contains('download-design-btn')) {
+            const container = e.target.closest('.design-image-container');
+            const ticket = container.closest('.quote-modal-content').querySelector('#onprocess-modal-ticket').textContent;
+            const printType = container.closest('.quote-modal-content').querySelector('#onprocess-modal-print-type').textContent;
+            
+            // Get the actual design file from the button's data attribute
+            const viewButton = document.querySelector('.view-on-process-modal[data-ticket="' + ticket + '"]');
+            const designFile = viewButton.getAttribute('data-design');
+            
+            // Create download link for the actual file, not the thumbnail
+            const link = document.createElement('a');
+            link.href = '../user/' + designFile;
+            
+            // Extract filename and extension
+            const filename = designFile.split('/').pop();
+            const extension = filename.split('.').pop();
+            
+            link.download = `${ticket}-${printType.toLowerCase().replace(/ /g, '-')}.${extension}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+}
+
 // Toast notification function
 function showToast(title, message, type = 'info') {
+    // Check if a toast with the same message is already showing
+    const existingToasts = document.querySelectorAll('.toast');
+    for (const toast of existingToasts) {
+        const toastMessage = toast.querySelector('.toast-message').textContent;
+        if (toastMessage === message) {
+            return; // Don't show duplicate toast
+        }
+    }
+    
     const toastContainer = document.getElementById('toastContainer');
     
     const toast = document.createElement('div');
@@ -316,9 +319,10 @@ function initializeOnProcessTable() {
     }
 }
 
-// Initialize everything when DOM is loaded
+// Initialize everything when DOM is loaded - SINGLE event listener
 document.addEventListener('DOMContentLoaded', function() {
     initializeModals();
+    setupImageAndDownloadButtons();
     initializeOnProcessTable();
 });
 
