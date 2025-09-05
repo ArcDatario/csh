@@ -411,18 +411,18 @@ if ($user_id) {
                 <button class="close-modal" id="closeModal">&times;</button>
             </div>
             <form id="quoteForm" enctype="multipart/form-data" method="post">
-    <div class="form-group">
-        <label for="designFile">Upload Design</label>
-        <div class="file-input-container">
-            <div class="file-input-btn">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span class="upload-text">Click to upload design file</span>
-                <input type="file" id="designFile" name="designFile" class="file-input" 
-                       accept=".psd,.ai,.pdf,image/*" required>
-            </div>
-            <div id="file-name" class="file-name-display"></div>
-        </div>
+            <div class="form-group">
+    <label for="designFile">Upload Design</label>
+    <div class="file-input-container">
+    <div class="file-input-btn">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span class="upload-text">Click to upload design file</span>
+        <input type="file" id="designFile" name="designFile" class="file-input" 
+               accept=".psd,.ai,.pdf,image/*" required>
     </div>
+    <div id="file-name" class="file-name-display"></div>
+</div>
+</div>
     
     <div class="form-group" style="display: flex; gap: 10px;">
         <div style="flex: 7;">
@@ -439,20 +439,16 @@ if ($user_id) {
         </div>
         <div style="flex: 3;">
             <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" name="quantity" class="form-control" 
-                   min="500" value="500" placeholder="Quantity" 
-                   style="width: 100%; background-color:transparent;" required>
+            <input type="number" id="quantity" name="quantity" class="form-control" min="1" placeholder="Quantity" style="width: 100%; background-color:transparent;" required>
         </div>
     </div>
     
-    <input type="text" name="address" id="address" class="address" 
-           value="<?php echo htmlspecialchars($full_address, ENT_QUOTES, 'UTF-8'); ?>" readonly style="display:none;">
+   <input type="text" name="address" id="address" class="address" 
+       value="<?php echo htmlspecialchars($full_address, ENT_QUOTES, 'UTF-8'); ?>" readonly style="display:none;">
 
     <div class="form-group">
         <label for="note">Note</label>
-        <textarea id="note" name="note" class="form-control note-input" rows="2" 
-                  placeholder="Enter any additional notes or instructions" 
-                  style="background-color:transparent;"></textarea>
+        <textarea id="note" name="note" class="form-control note-input" rows="2" placeholder="Enter any additional notes or instructions" style="background-color:transparent;"></textarea>
     </div>
     
     <button type="submit" class="submit-btn">
