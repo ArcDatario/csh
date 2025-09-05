@@ -1,9 +1,27 @@
 <?php
 require_once 'auth_check.php';
 
-// Call the logout function
-logout();
+// Call the admin-specific logout function
+admin_logout();
 
-// Note: The logout() function is already included in the auth_functions.php we created earlier
-// This is the standalone logout page that will handle the logout process
+// Admin-specific logout function that preserves user session
+function admin_logout() {
+    global $conn;
+
+    if (isset($_SESSION['admin_id'])) {
+        // Clear admin token from database
+        $conn->query("UPDATE admins SET token = NULL, token_expiry = NULL WHERE id = {$_SESSION['admin_id']}");
+
+        // Clear admin session variables only
+        unset($_SESSION['admin_id']);
+        unset($_SESSION['admin_username']);
+        unset($_SESSION['admin_role']);
+        
+        // Clear admin cookie only
+        setcookie('admin_token', '', time() - 3600, '/');
+    }
+
+    header('Location: login');
+    exit();
+}
 ?>

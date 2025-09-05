@@ -438,7 +438,7 @@ if ($user_id) {
             </select>
         </div>
         <div style="flex: 3;">
-            <label for="quantity">Quantity</label>
+            <label for="quantity">Qty (Min. 500)</label>
             <input type="number" id="quantity" name="quantity" class="form-control" min="1" placeholder="Quantity" style="width: 100%; background-color:transparent;" required>
         </div>
     </div>
