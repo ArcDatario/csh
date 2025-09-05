@@ -455,105 +455,10 @@ if ($user_id) {
                   style="background-color:transparent;"></textarea>
     </div>
     
-    <button type="submit" class="submit-btn" id="submitQuoteBtn">
+    <button type="submit" class="submit-btn">
         <i class="fas fa-paper-plane"></i> Submit Quote
     </button>
 </form>
-
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const quantityInput = document.getElementById('quantity');
-    const submitBtn = document.getElementById('submitQuoteBtn');
-    const toastContainer = document.getElementById('toastContainer');
-    
-    // Function to show toast notification
-    function showToast(message, type = 'info') {
-        // Create toast element
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}-toast`;
-        toast.innerHTML = `
-            <div class="toast-content">
-                <i class="fas ${type === 'info' ? 'fa-info-circle' : 'fa-check-circle'}"></i>
-                <span>${message}</span>
-            </div>
-            <button class="toast-close-btn">&times;</button>
-        `;
-        
-        // Add to container
-        toastContainer.appendChild(toast);
-        
-        // Add show class after a small delay
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 10);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            hideToast(toast);
-        }, 5000);
-        
-        // Close button functionality
-        toast.querySelector('.toast-close-btn').addEventListener('click', () => {
-            hideToast(toast);
-        });
-    }
-    
-    function hideToast(toast) {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            toastContainer.removeChild(toast);
-        }, 300);
-    }
-    
-    function validateQuantity() {
-        const quantity = parseInt(quantityInput.value);
-        
-        if (isNaN(quantity) || quantity < 500) {
-            // Show info toast instead of changing button
-            showToast("Minimum quantity is 500. Please adjust your order.", 'info');
-            return false;
-        }
-        return true;
-    }
-    
-    // Validate on input change
-    quantityInput.addEventListener('input', validateQuantity);
-    
-    // Validate on form submission
-    document.getElementById('quoteForm').addEventListener('submit', function(e) {
-        if (!validateQuantity()) {
-            e.preventDefault();
-            // Add a little shake animation to indicate error
-            submitBtn.classList.add('shake');
-            setTimeout(() => {
-                submitBtn.classList.remove('shake');
-            }, 500);
-        }
-    });
-    
-    // Add CSS for shake animation
-    const style = document.createElement('style');
-    style.textContent = `
-        .shake {
-            animation: shake 0.5s;
-        }
-        
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(-10px); }
-            40% { transform: translateX(10px); }
-            60% { transform: translateX(-10px); }
-            80% { transform: translateX(10px); }
-            100% { transform: translateX(0); }
-        }
-        
-    
-    `;
-    document.head.appendChild(style);
-});
-</script>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
