@@ -460,49 +460,62 @@ if ($user_id) {
     </button>
 </form>
 
-<script>
-// Function to show toast notification
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    
-    document.body.appendChild(toast);
-    
-    // Show toast
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-    
-    // Hide after 3 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }, 3000);
-}
 
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantity');
     const submitBtn = document.getElementById('submitQuoteBtn');
+    const toastContainer = document.getElementById('toastContainer');
+    
+    // Function to show toast notification
+    function showToast(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}-toast`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas ${type === 'info' ? 'fa-info-circle' : 'fa-check-circle'}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast-close-btn">&times;</button>
+        `;
+        
+        // Add to container
+        toastContainer.appendChild(toast);
+        
+        // Add show class after a small delay
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            hideToast(toast);
+        }, 5000);
+        
+        // Close button functionality
+        toast.querySelector('.toast-close-btn').addEventListener('click', () => {
+            hideToast(toast);
+        });
+    }
+    
+    function hideToast(toast) {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toastContainer.removeChild(toast);
+        }, 300);
+    }
     
     function validateQuantity() {
         const quantity = parseInt(quantityInput.value);
         
         if (isNaN(quantity) || quantity < 500) {
-            // Show error state but keep button enabled
-            submitBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Doesn\'t meet the Min. Qty of 500';
-            submitBtn.style.backgroundColor = '#dc3545';
-            submitBtn.style.borderColor = '#dc3545';
+            // Show info toast instead of changing button
+            showToast("Minimum quantity is 500. Please adjust your order.", 'info');
             return false;
-        } else {
-            // Show normal state
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Quote';
-            submitBtn.style.backgroundColor = '';
-            submitBtn.style.borderColor = '';
-            return true;
         }
+        return true;
     }
     
     // Validate on input change
@@ -512,8 +525,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('quoteForm').addEventListener('submit', function(e) {
         if (!validateQuantity()) {
             e.preventDefault();
-            // Show error toast
-            showToast('Quantity must be at least 500', 'error');
             // Add a little shake animation to indicate error
             submitBtn.classList.add('shake');
             setTimeout(() => {
@@ -522,28 +533,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Initial validation
-    validateQuantity();
+    // Add CSS for shake animation
+    const style = document.createElement('style');
+    style.textContent = `
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        
+    
+    `;
+    document.head.appendChild(style);
 });
-
-// Add CSS for shake animation
-const style = document.createElement('style');
-style.textContent = `
-    .shake {
-        animation: shake 0.5s;
-    }
-    
-    @keyframes shake {
-        0% { transform: translateX(0); }
-        20% { transform: translateX(-10px); }
-        40% { transform: translateX(10px); }
-        60% { transform: translateX(-10px); }
-        80% { transform: translateX(10px); }
-        100% { transform: translateX(0); }
-    }
-    
-`;
-document.head.appendChild(style);
 </script>
         </div>
     </div>
