@@ -409,7 +409,7 @@ else: ?>
                     </div>
                     <div class="contact-detail">
                         <i class="fas fa-envelope"></i>
-                        <span>cshenterprises@gmail.com</span>
+                        <span>cshenterprises888@gmail.com</span>
                     </div>
                 </div>
                 <div class="social-links">
