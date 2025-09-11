@@ -9,7 +9,7 @@ redirectIfNotLoggedIn();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSH Enterprises | Modern Cloth Printing</title>
-   <link rel="icon" href="../assets/images/tshirt.png" type="image/x-icon">
+   <link rel="icon" href="../assets/images/icons/shirt.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
@@ -26,7 +26,7 @@ redirectIfNotLoggedIn();
     <header>
         <div class="header-container">
             <a href="#" class="logo">
-                 <img src="../assets/images/icons/tshirt.png" alt="" style="height: 45px; width: 35px;">
+                 <img src="../assets/images/icons/shirt1.png" alt="" style="height: 45px; width: 35px;">
                 CSH
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">

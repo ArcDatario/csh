@@ -90,10 +90,10 @@ header {
 }
 
 .logo {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 30px;
+    font-weight: 900;
     color: transparent;
-background: linear-gradient(90deg, black, #4a8fe7, #ff6347, #ffd700, black);
+background: linear-gradient(90deg, #1a3c72, #4a8fe7, #2d5aa9, #1e3f73, #1a3c72);
 -webkit-background-clip: text;
 background-clip: text;
     text-decoration: none;
