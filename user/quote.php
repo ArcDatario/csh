@@ -48,7 +48,36 @@ $full_address = trim($address);
     <link rel="stylesheet" href="../assets/css/profile-modal.css">
 
     <style>
-        
+        .orders-tabs {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 12px 24px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-button:hover {
+    color: #2196F3;
+    background-color: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #2196F3;
+    border-bottom: 3px solid #2196F3;
+    font-weight: 600;
+}
         .quote-date{
             font-size:12px;
             margin-left:7px;
@@ -102,7 +131,9 @@ $full_address = trim($address);
   }
 }
 
-
+ .quote-card.hidden {
+        display: none !important;
+    }
     </style>
 </head>
 <body>
@@ -131,73 +162,26 @@ $full_address = trim($address);
     <main class="main-content">
 
 
-
 <div class="orders-tabs">
-    <button class="tab-button active" data-tab="pending-orders-container">Pending</button>
-    <button class="tab-button" data-tab="approved-orders-container">Approved</button>
-    <button class="tab-button" data-tab="pickup-orders-container">To Pick Up</button>
-     <button class="tab-button" data-tab="processing-orders-container">Processing</button>
-    <button class="tab-button" data-tab="ship-orders-container">To Ship</button>
-    <button class="tab-button" data-tab="completed-orders-container">Completed</button>
+    <a href="quote" class="tab-button active" >Pending</a>
+    <a href="approved-order" class="tab-button  " >Approved</a>
+    <a href="to-pickup-order" class="tab-button" >To Pick Up</a>
+    <a href="processing-order" class="tab-button">Processing</a>
+    <a href="to-ship-order" class="tab-button">To Ship</a>
+    <a href="completed-order" class="tab-button">Completed</a>
 </div>
 
 <div class="search-wrapper">
-  <div class="search-container">
-    <!-- Pending -->
-<div class="pending-search" style="display: block;">
-  <input type="text"
-         id="PendingSearchInput"
-         class="search-input"
-         placeholder="Search by Ticket #">
-  <span class="search-icon">&#128269;</span>
-</div>
-
-<!-- Approved -->
-<div class="approved-search" style="display: none;">
-  <input type="text"
-         id="ApproveSearchInput"
-         class="search-input"
-         placeholder="Search by Ticket #">
-  <span class="search-icon">&#128269;</span>
-</div>
-
-<!-- To-Pickup -->
-<div class="topickup-search" style="display: none;">
-  <input type="text"
-         id="ToPickupSearchInput"
-         class="search-input"
-         placeholder="Search by Ticket #">
-  <span class="search-icon">&#128269;</span>
-</div>
-
-<!-- To-Processing -->
-<div class="processing-search" style="display: none;">
-  <input type="text"
-         id="ProcessingSearchInput"
-         class="search-input"
-         placeholder="Search by Ticket #">
-  <span class="search-icon">&#128269;</span>
-</div>
-
-<!-- To-Ship -->
-<div class="toship-search" style="display: none;">
-  <input type="text"
-         id="ToShipSearchInput"
-         class="search-input"
-         placeholder="Search by Ticket #">
-  <span class="search-icon">&#128269;</span>
-</div>
-
-<!-- Completed -->
-<div class="completed-search" style="display: none;">
-  <input type="text"
-         id="CompletedSearchInput"
-         class="search-input"
-         placeholder="Search by Ticket #">
-  <span class="search-icon">&#128269;</span>
-</div>
-
-  </div>
+    <div class="search-container">
+        <!-- Pending -->
+        <div class="pending-search" style="display: block;">
+            <input type="text"
+                   id="PendingSearchInput"
+                   class="search-input"
+                   placeholder="Search by Ticket #">
+            <span class="search-icon">&#128269;</span>
+        </div>
+    </div>
 </div>
 
 
@@ -295,11 +279,6 @@ if ($user_id) {
 <?php endif; ?>
         </div>
 
-        <?php include "includes/approved-order.php";?>
-         <?php include "includes/to-pick-up-order.php";?>
-         <?php include "includes/processing-order.php";?>
-          <?php include "includes/to-ship-order.php";?>
-           <?php include "includes/completed-order.php";?>
     </main>
 
 
@@ -461,7 +440,7 @@ if ($user_id) {
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/quote.js"></script>
 
-    <script src="../assets/js/quote-swtich-tab-modal.js"></script>
+
 
     <script>
    // Function to open the modal with order details
@@ -507,35 +486,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Pending Orders Search Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('PendingSearchInput');
-    const pendingOrdersContainer = document.getElementById('pending-orders-container');
-
-    if (searchInput && pendingOrdersContainer) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.trim().toLowerCase();
-            const cards = pendingOrdersContainer.querySelectorAll('.quote-card');
-
-            cards.forEach(card => {
-                // Find the Ticket # value inside the card
-                let ticketNumber = '';
-                card.querySelectorAll('.card-detail').forEach(detail => {
-                    const label = detail.querySelector('.detail-label');
-                    const value = detail.querySelector('.detail-value');
-                    if (label && value && label.textContent.trim().toLowerCase() === 'ticket #') {
-                        ticketNumber = value.textContent.trim().toLowerCase();
+ document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('PendingSearchInput');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim().toLowerCase();
+                const cards = document.querySelectorAll('.quote-card');
+                
+                cards.forEach(card => {
+                    // Find the Ticket # value inside the card
+                    let ticketNumber = '';
+                    card.querySelectorAll('.card-detail').forEach(detail => {
+                        const label = detail.querySelector('.detail-label');
+                        const value = detail.querySelector('.detail-value');
+                        if (label && value && label.textContent.trim().toLowerCase() === 'ticket #') {
+                            ticketNumber = value.textContent.trim().toLowerCase();
+                        }
+                    });
+                    
+                    if (searchTerm === '' || ticketNumber.includes(searchTerm)) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
                     }
                 });
-                // Show card if ticket matches query, else hide
-                if (ticketNumber.includes(query)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
             });
-        });
-    }
-});
+        }
+    });
     </script>
 
 

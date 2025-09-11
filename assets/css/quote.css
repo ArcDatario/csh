@@ -440,91 +440,134 @@
     animation: pulse 2s infinite;
 }
 
-/* Updated Quote Card Styles */
+/* Updated Quotes Container */
 .quotes-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    padding: 30px;
-    margin-top: 20px;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(220px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 30px !important;
+    margin-top: 20px !important;
 }
 
+/* Updated Quote Card Styles */
 .quote-card {
-    display: flex; /* Changed to flex for horizontal layout */
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: all 0.3s ease;
-    position: relative;
-    margin-bottom: 20px;
-    align-items: center; /* Align content vertically */
-    padding: 15px; /* Added padding for spacing */
+    display: flex !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    margin-bottom: 0 !important; /* Remove bottom margin since we have gap */
+    align-items: center !important;
+    padding: 15px !important;
+    height: 100% !important; /* Make cards equal height */
 }
 
 .quote-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px) !important;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15) !important;
 }
 
 .card-image {
-    width: 100px; /* Adjusted width for smaller image */
-    height: 100px; /* Adjusted height for smaller image */
-    object-fit: cover;
-    border-radius: 10px; /* Optional: Rounded corners for the image */
-    margin-right: 15px; /* Spacing between image and content */
+    width: 70px !important; /* Smaller image */
+    height: 70px !important; /* Smaller image */
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    margin-right: 12px !important;
 }
 
 .card-content {
-    flex: 1; /* Allow content to take remaining space */
-    padding: 0; /* Removed padding to align with flex layout */
+    flex: 1 !important;
+    padding: 0 !important;
 }
 
 .card-title {
-    font-size: 0.9rem; /* Reduced font size */
-    font-weight: 500; /* Reduced font weight */
-    margin-bottom: 5px;
-    color: #333;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    margin-bottom: 5px !important;
+    color: #333 !important;
+    line-height: 1.3 !important;
 }
 
 .card-details {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px; /* Reduced margin for compact layout */
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 8px !important;
 }
 
 .card-detail {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .detail-label {
-    font-size: 0.75rem; /* Reduced font size */
-    font-weight: 400; /* Reduced font weight */
-    color: #777;
+    font-size: 0.65rem !important;
+    font-weight: 400 !important;
+    color: #777 !important;
 }
 
 .detail-value {
-    font-size: 0.85rem; /* Reduced font size */
-    font-weight: 500; /* Reduced font weight */
-    color: #444;
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+    color: #444 !important;
 }
 
 .card-status {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.65rem; /* Reduced font size */
-    font-weight: 500; /* Reduced font weight */
-    text-transform: uppercase;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    padding: 3px 8px !important;
+    border-radius: 12px !important;
+    font-size: 0.55rem !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    color: white !important;
 }
 
 .card-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px; /* Reduced margin for compact layout */
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 8px !important;
+}
+
+.view-details-btn {
+    padding: 5px 8px !important;
+    font-size: 0.7rem !important;
+}
+
+.quote-date {
+    font-size: 0.65rem !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .quotes-container {
+        grid-template-columns: repeat(3, minmax(200px, 1fr)) !important; /* 3 cards on medium-large screens */
+    }
+}
+
+@media (max-width: 900px) {
+    .quotes-container {
+        grid-template-columns: repeat(2, minmax(180px, 1fr)) !important; /* 2 cards on tablet */
+    }
+}
+
+@media (max-width: 600px) {
+    .quotes-container {
+        grid-template-columns: 1fr !important; /* 1 card on mobile */
+        gap: 15px !important;
+        padding: 15px !important;
+    }
+    
+    .quote-card {
+        padding: 12px !important;
+    }
+    
+    .card-image {
+        width: 60px !important;
+        height: 60px !important;
+    }
 }
 
 .view-details-btn {
