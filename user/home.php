@@ -108,18 +108,16 @@ redirectIfNotLoggedIn();
     </header>
 
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="hero-container">
+    <section class="hero" id="home" style="background-image: url('../assets/images/csh-hero.jpeg');">
+        <div class="hero-container" >
             <br>
             <div class="hero-content">
-                <h1>Revolutionary Cloth Printing Solutions</h1>
+                <h1>CSH Enterprises Printing Solutions</h1>
                 <p>Transform your ideas into wearable art with our cutting-edge printing technology. From small batches to large orders, we deliver quality and creativity.</p>
                 <a href="quote" class="cta-button">Get Quote</a>
 
             </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Custom Printed T-shirts">
-            </div>
+           
         </div>
     </section>
 
