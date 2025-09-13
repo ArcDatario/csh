@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Recipients
         $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Contact Form'); // Use a fixed from address
-        $mail->addAddress('capstonehosting0101@gmail.com', 'CSH Enterprises');
+        $mail->addAddress('cshenterprises888@gmail.com', 'CSH Enterprises');
         $mail->addReplyTo($email, $name); // Set reply-to to the submitter's email
 
         // Content
