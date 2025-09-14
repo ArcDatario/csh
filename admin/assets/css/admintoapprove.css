@@ -280,3 +280,34 @@
     font-size: 30px;
   }
 }
+
+/* Shirt items layout */
+.shirt-items-container {
+  margin-top: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.shirt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background-color: #fafafa;
+}
+
+.shirt-item:nth-child(even) {
+  background-color: #fdfdfd;
+}
+
+.shirt-color {
+  font-weight: 500;
+  color: #333;
+}
+
+.shirt-qty {
+  font-weight: 600;
+  color: #444;
+}

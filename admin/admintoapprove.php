@@ -106,54 +106,67 @@ if (isset($_SESSION['admin_role'])) {
             ORDER BY orders.created_at DESC";
     $result = $conn->query($sql);
     ?>
-    <tbody id="admins-table-body">
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($order = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <div class="user-cell">
-                            <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
-                            <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
-                        </div>
-                    </td>
-                    <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <span class="status status-warning">
-                            <?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>
-                        </span>
-                    </td>
-                    <td>
-                     
-<button class="btn btn-outline view-quote-modal" 
-        data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
-        data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
-        data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>">
-    View
-</button>
+<tbody id="admins-table-body">
+    <?php if ($result->num_rows > 0): ?>
+        <?php while ($order = $result->fetch_assoc()): ?>
+            <?php
+            // Fetch shirt items for this order
+            $items_sql = "SELECT shirt_color, quantity 
+                          FROM items 
+                          WHERE order_id = " . intval($order['id']);
+            $items_result = $conn->query($items_sql);
 
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
+            $shirtItems = [];
+            if ($items_result && $items_result->num_rows > 0) {
+                while ($item = $items_result->fetch_assoc()) {
+                    $shirtItems[] = $item;
+                }
+            }
+            ?>
             <tr>
-                <td colspan="7">No orders found</td>
+                <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td>
+                    <div class="user-cell">
+                        <img src="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" alt="file design" width="50" height="50">
+                        <span><?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    </div>
+                </td>
+                <td><?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td>
+                    <span class="status status-warning">
+                        <?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-outline view-quote-modal" 
+                        data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
+                        data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-items='<?php echo json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT); ?>'>
+                        View
+                    </button>
+                </td>
             </tr>
-        <?php endif; ?>
-    </tbody>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="7">No orders found</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
 </table>
                 </div>
             </section>
@@ -202,6 +215,13 @@ if (isset($_SESSION['admin_role'])) {
             <span class="quote-modal-label">Mobile #:</span>
             <span id="quote-modal-mobile" class="quote-modal-value"></span>
           </div>
+        </div>
+      </div>
+
+      <!-- Shirt Colors & Quantities Section -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+        <div id="quote-modal-shirt-items" class="shirt-items-container">
         </div>
       </div>
       
@@ -315,20 +335,19 @@ function handleViewButtonClick() {
     const address = this.getAttribute('data-address');
     const pricing = this.getAttribute('data-pricing');
     const subtotal = this.getAttribute('data-subtotal');
-    const isViewable = this.getAttribute('data-viewable') === 'yes'; // Get viewable status
+    const isViewable = this.getAttribute('data-viewable') === 'yes';
+    const items = JSON.parse(this.getAttribute('data-items') || "[]"); // 👈 parse shirt items
 
     // Store data in modal
     quoteModal.setAttribute('data-current-id', id);
-    quoteModal.setAttribute('data-design-file', design); // Store the actual design file
-    quoteModal.setAttribute('data-is-viewable', isViewable); // Store viewable status
+    quoteModal.setAttribute('data-design-file', design);
+    quoteModal.setAttribute('data-is-viewable', isViewable);
 
     // Determine the correct image source for display
     let imageSrc;
     if (isViewable) {
-        // For viewable images, use the actual file
         imageSrc = '../user/' + design;
     } else {
-        // For non-viewable files, use appropriate placeholder based on extension
         const fileExtension = design.split('.').pop().toLowerCase();
         if (fileExtension === 'psd') {
             imageSrc = '../photoshop.png';
@@ -359,13 +378,29 @@ function handleViewButtonClick() {
     document.getElementById('quote-modal-price').textContent = pricing ? `₱${parseFloat(pricing).toFixed(2)}` : 'N/A';
     document.getElementById('quote-modal-subtotal').textContent = subtotal ? `₱${parseFloat(subtotal).toFixed(2)}` : 'N/A';
 
-    // Set the values for the input fields as requested
     document.getElementById('pricing-value').value = pricing ? parseFloat(pricing) : '';
     document.getElementById('subtotal-value').value = subtotal ? parseFloat(subtotal) : '';
 
     // Reset input fields for manual update
     priceInput.value = '';
     subtotalText.textContent = 'Updated: ₱0.00';
+
+    // 👉 Populate Shirt Colors & Quantities
+    const itemsContainer = document.getElementById("quote-modal-shirt-items");
+    itemsContainer.innerHTML = "";
+    if (items.length > 0) {
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.innerHTML = `
+          <span class="shirt-color">${item.shirt_color}</span>
+          <span class="shirt-qty">${item.quantity}</span>
+        `;
+        itemsContainer.appendChild(div);
+      });
+    } else {
+        itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+    }
 
     // Show modal
     quoteModal.style.display = 'block';

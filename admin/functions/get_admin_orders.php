@@ -10,19 +10,30 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+
+        // ✅ Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        }
+
         // Determine the appropriate thumbnail based on file extension
         $designFile = $order['design_file'];
         $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
-        
-        // Define image formats that can be displayed directly
+
         $imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
         $isViewable = in_array($fileExtension, $imageFormats);
-        
+
         if ($isViewable) {
-            // For image files, use the actual file
             $thumbnail = "../user/" . htmlspecialchars($designFile, ENT_QUOTES, 'UTF-8');
         } else {
-            // For non-image files, use appropriate placeholder
             if ($fileExtension === 'psd') {
                 $thumbnail = "../photoshop.png";
             } elseif ($fileExtension === 'pdf') {
@@ -30,10 +41,10 @@ if ($result->num_rows > 0) {
             } elseif ($fileExtension === 'ai') {
                 $thumbnail = "../illustrator.png";
             } else {
-                $thumbnail = "../file.png"; // default placeholder
+                $thumbnail = "../file.png";
             }
         }
-        
+
         echo '<tr>
                 <td>'.htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8').'</td>
                 <td>
@@ -67,6 +78,7 @@ if ($result->num_rows > 0) {
                             data-address="'.htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8').'"
                             data-pricing="'.htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8').'"
                             data-subtotal="'.htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8').'"
+                            data-items=\''.json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT).'\'
                             data-viewable="'.($isViewable ? 'yes' : 'no').'">
                         View
                     </button>
