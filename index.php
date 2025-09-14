@@ -258,7 +258,7 @@ redirectToUserHomeIfLoggedIn();
     <header>
         <div class="header-container">
             <a href="#" class="logo">
-                 <img src="assets/images/icons/shirt1.png" alt="" style="height: 45px; width: 35px;">
+                 <!-- <img src="assets/images/icons/shirt1.png" alt="" style="height: 45px; width: 35px;"> -->
                 CSH
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -269,7 +269,7 @@ redirectToUserHomeIfLoggedIn();
                     <li><a href="#home">Home</a></li>
                     <li><a href="#services">Services</a></li>
                     <li><a href="#gallery">Gallery</a></li>
-                    <li><a href="#contact">Contact</a></li>   
+                    <li><a href="#contact">Contact Us</a></li>   
                     <li><a href="#" id="openTicketModal">Ticket</a></li>                     
                     <li><a href="login">Log in</a></li>
                 </ul>
@@ -455,7 +455,7 @@ else: ?>
                     <li><a href="#home">Home</a></li>
                     <li><a href="#services">Services</a></li>
                     <li><a href="#gallery">Gallery</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
                 </ul>
             </div>
             <div class="footer-col">
