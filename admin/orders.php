@@ -311,6 +311,37 @@ if (isset($_SESSION['admin_role'])) {
     font-size: 30px;
   }
 }
+
+/* Shirt items layout */
+.shirt-items-container {
+  margin-top: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.shirt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background-color: #fafafa;
+}
+
+.shirt-item:nth-child(even) {
+  background-color: #fdfdfd;
+}
+
+.shirt-color {
+  font-weight: 500;
+  color: #333;
+}
+
+.shirt-qty {
+  font-weight: 600;
+  color: #444;
+}
     </style>
 </head>
 
@@ -382,16 +413,30 @@ if (!isLoggedIn()) {
 }
 
 // Fetch orders with user names from the database
-$sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, users.name, users.phone_number 
+$sql = "SELECT orders.*, users.name, users.phone_number 
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
-         WHERE orders.status = 'pending' 
-        ORDER BY orders.created_at DESC";
+        WHERE orders.status = 'pending' 
+        ORDER BY orders.created_at DESC ";
 $result = $conn->query($sql);
 ?>
 <tbody id="designers-table-body">
     <?php if ($result->num_rows > 0): ?>
         <?php while ($order = $result->fetch_assoc()): 
+// Fetch shirt items for this order
+$items_sql = "SELECT shirt_color, quantity 
+              FROM items 
+              WHERE order_id = " . intval($order['id']);
+$items_result = $conn->query($items_sql);
+
+$shirtItems = [];
+if ($items_result && $items_result->num_rows > 0) {
+    while ($item = $items_result->fetch_assoc()) {
+        $shirtItems[] = $item;
+    }
+}
+
+            
             // Determine the appropriate thumbnail based on file extension
             $designFile = $order['design_file'];
             $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
@@ -425,21 +470,24 @@ $result = $conn->query($sql);
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn btn-outline view-quote-modal" 
-                                data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
-                                data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>">
-                            View
-                        </button>
+<button class="btn btn-outline view-quote-modal" 
+    data-id="<?php echo htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-user-id="<?php echo htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-mobile="<?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-name="<?php echo htmlspecialchars($order['name'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-date="<?php echo htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8'); ?>"
+    data-status="<?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-note="<?php echo htmlspecialchars($order['note'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
+    data-items='<?php echo json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT); ?>'>
+    View
+</button>
                         <a href="../user/<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>" 
                            class="btn btn-download" 
                            download 
@@ -507,6 +555,13 @@ $result = $conn->query($sql);
         </div>
       </div>
       
+      <!-- Shirt Colors & Quantities Section -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+        <div id="quote-modal-shirt-items" class="shirt-items-container">
+        </div>
+      </div>
+
       <!-- Note -->
       <div class="quote-modal-row">
         <span class="quote-modal-label">Note:</span>
@@ -603,7 +658,8 @@ function handleViewButtonClick() {
     const status = this.getAttribute('data-status');
     const note = this.getAttribute('data-note');
     const address = this.getAttribute('data-address');
-    
+    const items = JSON.parse(this.getAttribute('data-items') || "[]");
+
     // Store data in modal
     quoteModal.setAttribute('data-current-id', id);
     
@@ -637,6 +693,24 @@ function handleViewButtonClick() {
     priceInput.value = '';
     subtotalInput.value = '';
     subtotalText.textContent = 'Subtotal: ₱0.00';
+
+    // 👉 Populate Shirt Colors & Quantities
+  const itemsContainer = document.getElementById("quote-modal-shirt-items");
+    itemsContainer.innerHTML = "";
+    if (items.length > 0) {
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.innerHTML = `
+          <span class="shirt-color">${item.shirt_color}</span>
+          <span class="shirt-qty">${item.quantity}</span>
+        `;
+        itemsContainer.appendChild(div);
+      });
+    } else {
+        itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+    }
+
     
     // Show modal
     quoteModal.style.display = 'block';
