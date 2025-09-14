@@ -148,7 +148,7 @@ $full_address = trim($address);
     <header>
         <div class="header-container">
             <a href="#" class="logo">
-                 <img src="../assets/images/icons/shirt1.png" alt="" style="height: 45px; width: 35px;">
+                 <!-- <img src="../assets/images/icons/shirt1.png" alt="" style="height: 45px; width: 35px;"> -->
                 CSH
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
