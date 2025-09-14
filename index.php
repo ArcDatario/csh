@@ -251,7 +251,7 @@ redirectToUserHomeIfLoggedIn();
         <div class="loader">
             <i class="fas fa-tshirt t-shirt"></i>
         </div>
-        <div class="loader-text">Loading</div>
+       
     </div>
 
     <!-- Header -->

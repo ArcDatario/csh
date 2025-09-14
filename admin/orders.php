@@ -331,8 +331,8 @@ if (isset($_SESSION['admin_role'])) {
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle">
-                <span style="margin-right:8px;">Dark Mode</span>
-                <i class="fas fa-moon"></i>
+                <!-- <span style="margin-right:8px;">Dark Mode</span> -->
+                <!-- <i class="fas fa-moon"></i> -->
             </div>
                     
           <?php include "includes/notification.php";?>

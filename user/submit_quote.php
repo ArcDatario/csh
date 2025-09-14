@@ -22,9 +22,11 @@ try {
 
     // Get form data
     $printType = $_POST['printType'] ?? '';
-    $quantity = $_POST['quantity'] ?? 0;
+    $totalQuantity = $_POST['total_quantity'] ?? 0;
     $note = $_POST['note'] ?? '';
-    $address = $_POST['address'] ?? ''; // Get the address value from the form
+    $address = $_POST['address'] ?? '';
+    $shirtColors = $_POST['shirt_color'] ?? [];
+    $shirtQuantities = $_POST['shirt_quantity'] ?? [];
 
     // Generate a unique 6-digit ticket number
     do {
@@ -55,14 +57,29 @@ try {
     
     // Insert into orders database
     $stmt = $conn->prepare("INSERT INTO orders (user_id, print_type, quantity, note, design_file, ticket, address, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("isissis", $userId, $printType, $quantity, $note, $designFile, $ticket, $address);
+    $stmt->bind_param("isissis", $userId, $printType, $totalQuantity, $note, $designFile, $ticket, $address);
     
     if ($stmt->execute()) {
         $orderId = $stmt->insert_id; // Get the inserted order's ID
+        
+        // Insert shirt items into items table
+        if (!empty($shirtColors) && !empty($shirtQuantities)) {
+            $itemStmt = $conn->prepare("INSERT INTO items (order_id, shirt_color, quantity) VALUES (?, ?, ?)");
+            
+            foreach ($shirtColors as $index => $color) {
+                $quantity = $shirtQuantities[$index] ?? 0;
+                if (!empty($color) && $quantity > 0) {
+                    $itemStmt->bind_param("isi", $orderId, $color, $quantity);
+                    $itemStmt->execute();
+                }
+            }
+            
+            $itemStmt->close();
+        }
 
         // Insert notification with order_id
-        $notificationContent = "New Quote, $printType, $quantity";
-       $notificationStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_designer, notify_owner, notify_manager, created_at) VALUES (?, ?, ?, 'yes', 'yes', 'yes', NOW())");
+        $notificationContent = "New Quote, $printType, $totalQuantity";
+        $notificationStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_designer, notify_owner, notify_manager, created_at) VALUES (?, ?, ?, 'yes', 'yes', 'yes', NOW())");
         $notificationStmt->bind_param("iis", $userId, $orderId, $notificationContent);
         
         if ($notificationStmt->execute()) {

@@ -384,58 +384,377 @@ if ($user_id) {
 
     <!-- Quote Modal -->
     <div class="quote-modal" id="quoteModal" style="z-index: 500 !important;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create New Quote</h2>
-                <button class="close-modal" id="closeModal">&times;</button>
-            </div>
-            <form id="quoteForm" enctype="multipart/form-data" method="post">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Quote</h2>
+            <button class="close-modal" id="closeModal">&times;</button>
+        </div>
+        <form id="quoteForm" enctype="multipart/form-data" method="post">
             <div class="form-group">
-    <label for="designFile">Upload Design</label>
-    <div class="file-input-container">
-    <div class="file-input-btn">
-        <i class="fas fa-cloud-upload-alt"></i>
-        <span class="upload-text">Click to upload design file</span>
-        <input type="file" id="designFile" name="designFile" class="file-input" 
-               accept=".psd,.ai,.pdf,image/*" required>
-    </div>
-    <div id="file-name" class="file-name-display"></div>
+                <label for="designFile">Upload Design</label>
+                <div class="file-input-container">
+                    <div class="file-input-btn">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span class="upload-text">Click to upload design file</span>
+                        <input type="file" id="designFile" name="designFile" class="file-input" 
+                               accept=".psd,.ai,.pdf,image/*" required>
+                    </div>
+                    <div id="file-name" class="file-name-display"></div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-col form-col-print-type">
+                    <label for="printType">Print Type</label>
+                    <select id="printType" name="printType" class="form-control" required>
+                        <option value="">Select print type</option>
+                        <option value="Direct to Film Print">Direct to Film Print</option>
+                        <option value="Screen Printing">Screen Printing</option>
+                        <option value="Emboss Print">Emboss Print</option>
+                        <option value="Hi-Density Print">Hi-Density Print</option>
+                        <option value="Glitters Print">Glitters Print</option>
+                        <option value="Silk Screen Print">Silk Screen Print</option>
+                    </select>
+                </div>
+              
+            </div>
+            <!-- Replace the quantity input section with this code -->
+<div class="form-group">
+    <label>Shirt Colors & Quantities (Total Minimum: 500)</label>
+    <div id="shirtItemsContainer">
+        <div class="shirt-item-row">
+            <div class="form-row">
+               <div class="form-col">
+    <select name="shirt_color[]" class="form-control" required>
+        <option value="">Select Color</option>
+        <option value="White">White</option>
+        <option value="Black">Black</option>
+        <option value="Red">Red</option>
+        <option value="Blue">Blue</option>
+        <option value="Green">Green</option>
+        <option value="Yellow">Yellow</option>
+        <option value="Orange">Orange</option>
+        <option value="Purple">Purple</option>
+        <option value="Pink">Pink</option>
+        <option value="Gray">Gray</option>
+        <option value="Brown">Brown</option>
+        <option value="Navy">Navy</option>
+        <option value="Maroon">Maroon</option>
+        <option value="Teal">Teal</option>
+        <option value="Olive">Olive</option>
+        <option value="Other">Other (Specify in notes)</option>
+    </select>
 </div>
-</div>
-    
-    <div class="form-group" style="display: flex; gap: 10px;">
-        <div style="flex: 7;">
-            <label for="printType">Print Type</label>
-            <select id="printType" name="printType" class="form-control" style="width: 100%;" required>
-                <option value="">Select print type</option>
-                <option value="Direct to Film Print">Direct to Film Print</option>
-                <option value="Screen Printing">Screen Printing</option>
-                <option value="Emboss Print">Emboss Print</option>
-                <option value="Hi-Density Print">Hi-Density Print</option>
-                <option value="Glitters Print">Glitters Print</option>
-                <option value="Silk Screen Print">Silk Screen Print</option>
-            </select>
-        </div>
-        <div style="flex: 3;">
-            <label for="quantity">Qty (Min. 500)</label>
-            <input type="number" id="quantity" name="quantity" class="form-control" min="1" placeholder="Quantity" style="width: 100%; background-color:transparent;" required>
+                <div class="form-col">
+                    <input type="number" name="shirt_quantity[]" class="form-control shirt-quantity" min="1" placeholder="Qty" required>
+                </div>
+                <div class="form-col" style="flex: 0 0 auto;">
+                    <button type="button" class="remove-item-btn" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    
-   <input type="text" name="address" id="address" class="address" 
-       value="<?php echo htmlspecialchars($full_address, ENT_QUOTES, 'UTF-8'); ?>" readonly style="display:none;">
-
-    <div class="form-group">
-        <label for="note">Note</label>
-        <textarea id="note" name="note" class="form-control note-input" rows="2" placeholder="Enter any additional notes or instructions" style="background-color:transparent;"></textarea>
-    </div>
-    
-    <button type="submit" class="submit-btn">
-        <i class="fas fa-paper-plane"></i> Submit Quote
+    <button type="button" id="addShirtItem" class="add-item-btn">
+        <i class="fas fa-plus"></i> Add Another Shirt
     </button>
-</form>
-        </div>
+    <div class="total-quantity-display">
+        Total Quantity: <span id="totalQuantity">0</span>
     </div>
+</div>
+            <input type="text" name="address" id="address" class="address" 
+                   value="<?php echo htmlspecialchars($full_address, ENT_QUOTES, 'UTF-8'); ?>" readonly style="display:none;">
+
+            <div class="form-group">
+                <label for="note">Note</label>
+                <textarea id="note" name="note" class="form-control note-input" rows="2" placeholder="Enter any additional notes or instructions"></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Submit Quote
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+  .shirt-item-row {
+    margin-bottom: 8px;
+    padding: 8px 0;
+}
+
+.add-item-btn {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: none;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.add-item-btn:hover {
+    border-color: #4a90e2;
+    color: #4a90e2;
+}
+
+.remove-item-btn {
+    padding: 8px 10px;
+    background: none;
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.remove-item-btn:hover {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+.total-quantity-display {
+    margin-top: 8px;
+    padding: 8px 0;
+    font-weight: 500;
+    border-top: 1px solid #eee;
+}
+
+.total-quantity-display span {
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+/* Make form rows more compact */
+.form-row {
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+/* Adjust form columns for better spacing */
+.form-col {
+    margin-bottom: 0;
+}
+/* Modal Styles - Fixed Positioning */
+.quote-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.quote-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.quote-modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-col-print-type {
+    flex: 7;
+}
+
+.form-col-quantity {
+    flex: 3;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #444;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.file-input-container {
+    margin-top: 5px;
+}
+
+.file-input-btn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    border: 2px dashed #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+    text-align: center;
+}
+
+.file-input-btn:hover {
+    border-color: #4a90e2;
+    background-color: #f0f7ff;
+}
+
+.file-input-btn i {
+    font-size: 2rem;
+    color: #4a90e2;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-name-display {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #666;
+    word-break: break-all;
+}
+
+.note-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-actions {
+    margin-top: 25px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.submit-btn:hover {
+    background-color: #3a7bc8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .form-col {
+        width: 100%;
+    }
+}
+</style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/quote.js"></script>
