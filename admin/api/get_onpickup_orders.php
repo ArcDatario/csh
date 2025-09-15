@@ -2,7 +2,7 @@
 require_once '../../db_connection.php'; // Include your database connection file
 
 // Fetch orders on pickup (status = 'to-pick-up' AND is_for_pickup = 'yes')
-$sql = "SELECT orders.id,orders.user_id,orders.ticket, orders.design_file, orders.print_type,orders.note, orders.address, orders.quantity, orders.created_at, orders.status, orders.pricing, orders.subtotal,orders.pickup_attempt, users.name, users.phone_number, users.email 
+$sql = "SELECT orders.*, users.name, users.phone_number, users.email 
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
         WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'yes'
@@ -11,6 +11,19 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+        // Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        }
+
         // Extract just the filename from the path
         $designFilePath = $order['design_file'];
         $filename = basename($designFilePath);
@@ -63,7 +76,8 @@ if ($result->num_rows > 0) {
                             data-address="'.htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8').'"
                             data-email="'.htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8').'"
                             data-pricing="'.htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8').'"
-                            data-subtotal="'.htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8').'">
+                            data-subtotal="'.htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8').'"
+                            data-items=\''.htmlspecialchars(json_encode($shirtItems), ENT_QUOTES, 'UTF-8').'\'>
                         View
                     </button>
                 </td>

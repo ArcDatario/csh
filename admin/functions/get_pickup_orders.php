@@ -3,19 +3,31 @@
 require_once '../../db_connection.php';
 
 // Fetch orders ready for pickup (status = 'approved' and is_for_pickup = 'no')
-$sql = "SELECT orders.id, orders.user_id, orders.ticket, orders.design_file, orders.print_type, 
-               orders.note, orders.address, orders.quantity, orders.created_at, orders.status, 
-               orders.pricing, orders.subtotal, users.name, users.phone_number, users.email 
+$sql = "SELECT orders.*, users.name, users.phone_number, users.email 
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
         WHERE orders.status = 'to-pick-up' AND orders.is_for_pickup = 'no'
         ORDER BY orders.created_at DESC";
 
 $result = $conn->query($sql);
+
 ?>
 
 <?php if ($result->num_rows > 0): ?>
     <?php while ($order = $result->fetch_assoc()): 
+        // Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        }
+
         // Extract just the filename from the path
         $designFilePath = $order['design_file'];
         $filename = basename($designFilePath);
@@ -67,8 +79,9 @@ $result = $conn->query($sql);
                         data-address="<?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?>"
                         data-email="<?php echo htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8'); ?>"
                         data-pricing="<?php echo htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8'); ?>"
-                        data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>">
-                    View
+                        data-subtotal="<?php echo htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-items="<?php echo htmlspecialchars(json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8'); ?>">
+                        View
                 </button>
             </td>
         </tr>

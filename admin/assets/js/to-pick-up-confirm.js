@@ -4,6 +4,44 @@ const pickupModalClose = document.querySelector('.quote-modal-close');
 const confirmPickupBtn = document.getElementById('pickup-modal-confirm');
 const closePickupBtn = document.getElementById('pickup-modal-close');
 
+
+function attachEventListeners() {
+    // View buttons
+    document.querySelectorAll('.view-pickup-modal').forEach(button => {
+        // Remove old listener to avoid duplicates
+        button.removeEventListener('click', handlePickupViewButtonClick);
+        button.addEventListener('click', handlePickupViewButtonClick);
+    });
+
+    // Download & view design buttons inside modal
+    const downloadButtons = document.querySelectorAll('.download-design-btn');
+    downloadButtons.forEach(button => {
+        button.removeEventListener('click', handleDownloadDesign);
+        button.addEventListener('click', handleDownloadDesign);
+    });
+
+    const viewButtons = document.querySelectorAll('.view-design-btn');
+    viewButtons.forEach(button => {
+        button.removeEventListener('click', handleViewDesign);
+        button.addEventListener('click', handleViewDesign);
+    });
+
+    // Modal close
+    pickupModalClose.addEventListener('click', closePickupModal);
+    closePickupBtn.addEventListener('click', closePickupModal);
+    window.addEventListener('click', handleWindowClick);
+
+    const imageViewerClose = document.querySelector('.close-viewer');
+    if (imageViewerClose) {
+        imageViewerClose.addEventListener('click', () => {
+            const imageViewerModal = document.getElementById('imageViewerModal');
+            imageViewerModal.style.display = 'none';
+        });
+    }
+    // Confirm button
+    confirmPickupBtn.addEventListener('click', handleConfirmPickup);
+}
+
 // Helper function to get thumbnail path
 function getThumbnailPath(designFilePath) {
     const filename = designFilePath.split('/').pop();
@@ -44,7 +82,31 @@ function handlePickupViewButtonClick() {
     const email = this.getAttribute('data-email');
     const pricing = this.getAttribute('data-pricing');
     const subtotal = this.getAttribute('data-subtotal');
-    
+    // Populate shirt colors & quantities
+const shirtItemsContainer = document.getElementById('pickup-modal-shirt-items');
+shirtItemsContainer.innerHTML = ''; // Clear previous content
+
+const itemsData = this.getAttribute('data-items');
+if (itemsData) {
+    try {
+        const shirtItems = JSON.parse(itemsData);
+        if (shirtItems.length > 0) {
+            shirtItems.forEach(item => {
+                const div = document.createElement('div');
+                div.textContent = `${item.shirt_color} - ${item.quantity}`;
+                shirtItemsContainer.appendChild(div);
+            });
+        } else {
+            shirtItemsContainer.textContent = 'N/A';
+        }
+    } catch (e) {
+        console.error('Failed to parse shirt items JSON', e);
+        shirtItemsContainer.textContent = 'N/A';
+    }
+} else {
+    shirtItemsContainer.textContent = 'N/A';
+}
+
     // Store data in modal
     pickupModal.setAttribute('data-current-id', id);
     pickupModal.setAttribute('data-design-file', design); // Store the actual design file path
@@ -191,8 +253,16 @@ function closePickupModal() {
 }
 
 function handleWindowClick(event) {
+    const imageViewerModal = document.getElementById('imageViewerModal');
+
+    // Close pickup modal if clicking outside
     if (event.target === pickupModal) {
         closePickupModal();
+    }
+
+    // Close image viewer modal if clicking outside
+    if (imageViewerModal && event.target === imageViewerModal) {
+        imageViewerModal.style.display = 'none';
     }
 }
 
@@ -205,43 +275,6 @@ function refreshPickupTable() {
             attachEventListeners(); // Reattach event listeners after refresh
         })
         .catch(error => console.error('Error refreshing table:', error));
-}
-
-// Attach all event listeners
-function attachEventListeners() {
-    // View buttons
-    document.querySelectorAll('.view-pickup-modal').forEach(button => {
-        button.addEventListener('click', handlePickupViewButtonClick);
-    });
-    
-    // Remove any existing event listeners from modal buttons first
-    const downloadButtons = document.querySelectorAll('.download-design-btn');
-    const viewButtons = document.querySelectorAll('.view-design-btn');
-    
-    downloadButtons.forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-    
-    viewButtons.forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-    
-    // Attach new event listeners to modal buttons
-    document.querySelectorAll('.download-design-btn').forEach(button => {
-        button.addEventListener('click', handleDownloadDesign);
-    });
-    
-    document.querySelectorAll('.view-design-btn').forEach(button => {
-        button.addEventListener('click', handleViewDesign);
-    });
-    
-    // Modal close
-    pickupModalClose.addEventListener('click', closePickupModal);
-    closePickupBtn.addEventListener('click', closePickupModal);
-    window.addEventListener('click', handleWindowClick);
-    
-    // Confirm button
-    confirmPickupBtn.addEventListener('click', handleConfirmPickup);
 }
 
 // Toast function (FIXED VERSION)
@@ -305,7 +338,7 @@ function showToast(title, message, type = 'info') {
 function init() {
     attachEventListeners();
     refreshPickupTable();
-    
+
     // Set up periodic refresh (every 5 seconds)
     setInterval(refreshPickupTable, 5000);
 }

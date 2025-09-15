@@ -49,6 +49,31 @@ function handleOnPickupViewButtonClick() {
     const address = this.getAttribute('data-address');
     const email = this.getAttribute('data-email');
     const attempt = this.closest('tr').querySelector('td:nth-child(6)').textContent.trim();
+
+    // Populate shirt colors & quantities
+const shirtItemsContainer = document.getElementById('onpickup-modal-shirt-items');
+shirtItemsContainer.innerHTML = ''; // Clear previous content
+
+const itemsData = this.getAttribute('data-items');
+if (itemsData) {
+    try {
+        const shirtItems = JSON.parse(itemsData);
+        if (shirtItems.length > 0) {
+            shirtItems.forEach(item => {
+                const div = document.createElement('div');
+                div.textContent = `${item.shirt_color} - ${item.quantity}`;
+                shirtItemsContainer.appendChild(div);
+            });
+        } else {
+            shirtItemsContainer.textContent = 'N/A';
+        }
+    } catch (e) {
+        console.error('Failed to parse shirt items JSON', e);
+        shirtItemsContainer.textContent = 'N/A';
+    }
+} else {
+    shirtItemsContainer.textContent = 'N/A';
+}
     
     // Store data in modal
     document.getElementById('onPickupModal').setAttribute('data-current-id', id);

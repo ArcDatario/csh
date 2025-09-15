@@ -261,6 +261,11 @@ if (isset($_SESSION['admin_role'])) {
                 <span class="quote-modal-label">Address:</span>
                 <span id="onpickup-modal-address" class="quote-modal-value address-value"></span>
             </div>
+
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+                <div id="onpickup-modal-shirt-items" class="quote-modal-value"></div>
+            </div>
             
             <div class="quote-modal-row">
                 <span class="quote-modal-label">Last Pickup Attempt:</span>
@@ -333,6 +338,14 @@ if (isset($_SESSION['admin_role'])) {
                     </div>
                 </div>
                 
+                <!-- Shirt Colors & Quantities Section -->
+                <div class="quote-modal-row">
+                    <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+                    <div id="pickup-modal-shirt-items" class="quote-modal-value shirt-items">
+                        <!-- JS will populate this dynamically -->
+                    </div>
+                </div>
+
                 <!-- Note -->
                 <div class="quote-modal-row">
                     <span class="quote-modal-label">Note:</span>
@@ -358,14 +371,15 @@ if (isset($_SESSION['admin_role'])) {
                 </div>
                 
                 <!-- Pricing Information -->
-                <div class="quote-modal-row">
-                    <span class="quote-modal-label">Unit Price:</span>
-                    <span id="pickup-modal-pricing" class="quote-modal-value">₱0.00</span>
-                </div>
-                
-                <div class="quote-modal-row">
-                    <span class="quote-modal-label">Subtotal:</span>
-                    <span id="pickup-modal-subtotal" class="quote-modal-value">₱0.00</span>
+                <div class="quote-modal-row grouped-row">
+                    <div class="grouped-item">
+                        <span class="quote-modal-label">Unit Price:</span>
+                        <span id="pickup-modal-pricing" class="quote-modal-value">₱0.00</span>
+                    </div>
+                    <div class="grouped-item">
+                        <span class="quote-modal-label">Subtotal:</span>
+                        <span id="pickup-modal-subtotal" class="quote-modal-value">₱0.00</span>
+                    </div>
                 </div>
             </div>
             <div class="quote-modal-footer">
@@ -422,6 +436,36 @@ function handleOnPickupViewButtonClick() {
     const address = this.getAttribute('data-address');
     const email = this.getAttribute('data-email');
     const attempt = this.closest('tr').querySelector('td:nth-child(6)').textContent.trim();
+    
+        // Populate shirt colors & quantities
+    const shirtItemsContainer = document.getElementById('onpickup-modal-shirt-items');
+    shirtItemsContainer.innerHTML = ''; // Clear previous content
+
+    const itemsData = this.getAttribute('data-items');
+    console.log('data-items attribute:', itemsData); // <-- Check the raw data
+
+    if (itemsData) {
+        try {
+            const shirtItems = JSON.parse(itemsData);
+            console.log('Parsed shirt items:', shirtItems); // <-- Check parsed JSON
+            if (shirtItems.length > 0) {
+                shirtItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.textContent = `${item.shirt_color} - ${item.quantity}`;
+                    shirtItemsContainer.appendChild(div);
+                });
+            } else {
+                shirtItemsContainer.textContent = 'N/A';
+            }
+        } catch (e) {
+            console.error('Failed to parse shirt items JSON', e);
+            shirtItemsContainer.textContent = 'N/A';
+        }
+    } else {
+        console.log('No itemsData found');
+        shirtItemsContainer.textContent = 'N/A';
+    }
+
     
     // Store data in modal
     onPickupModal.setAttribute('data-current-id', id);
