@@ -239,7 +239,7 @@ $full_address = trim($address);
                         <img src="<?= $thumbnail ?>" alt="Design" class="card-image">
                         <span class="card-status status-approved"><?= htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8') ?></span>
                         <div class="card-content">
-                            <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTes, 'UTF-8') ?></h3>
+                            <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
                             <div class="card-details">
                                 <div class="card-detail">
                                     <span class="detail-label">Quantity</span>

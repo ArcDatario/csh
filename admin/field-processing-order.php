@@ -158,7 +158,20 @@ if (isset($_SESSION['admin_role'])) {
     ?>
     <tbody id="admins-table-body">
         <?php if ($result->num_rows > 0): ?>
-            <?php while ($order = $result->fetch_assoc()): ?>
+            <?php while ($order = $result->fetch_assoc()):
+                        // Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        } ?>
+                
                 <tr>
                     <td><?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td>
@@ -181,7 +194,8 @@ if (isset($_SESSION['admin_role'])) {
                                 data-ticket="<?php echo htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-design="<?php echo htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8'); ?>"
                                 data-print-type="<?php echo htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>">
+                                data-quantity="<?php echo htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-items='<?php echo json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT); ?>'>
                             Process
                         </button>
                     </td>
@@ -235,6 +249,14 @@ if (isset($_SESSION['admin_role'])) {
         <span class="quote-modal-label">Quantity:</span>
         <span id="processing-modal-quantity" class="quote-modal-value"></span>
       </div>
+
+        <!-- Shirt Colors & Quantities Section -->
+        <div class="quote-modal-row">
+            <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+            <div id="quote-modal-shirt-items" class="shirt-items-container">
+                <!-- JS will populate this dynamically -->
+            </div>
+        </div>
       
       <!-- Hidden fields -->
       <input type="hidden" id="processing-modal-id" name="id">
@@ -305,6 +327,14 @@ if (isset($_SESSION['admin_role'])) {
         <span class="quote-modal-label">Quantity:</span>
         <span id="onprocess-modal-quantity" class="quote-modal-value"></span>
       </div>
+
+              <!-- Shirt Colors & Quantities Section -->
+    <div class="quote-modal-row">
+            <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+            <div id="quote-modal-shirt-items" class="shirt-items-container">
+                <!-- JS will populate this dynamically -->
+            </div>
+    </div>
       
       <!-- Pricing -->
       <div class="quote-modal-row">
@@ -382,13 +412,15 @@ function handleViewButtonClick() {
     const printType = this.getAttribute('data-print-type');
     const quantity = this.getAttribute('data-quantity');
     const isViewable = this.getAttribute('data-viewable') === 'yes';
+    const items = JSON.parse(this.getAttribute('data-items') || "[]"); // parse items safely
+
 
     // Store data in modal
     processingModal.setAttribute('data-current-id', id);
 
     // Populate modal fields
     document.getElementById('processing-modal-ticket').textContent = ticket;
-    
+
     // Determine if we should show the actual file or a placeholder
     const fileExtension = design.split('.').pop().toLowerCase();
     const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
@@ -419,6 +451,23 @@ function handleViewButtonClick() {
         } else {
             viewButton.style.display = 'none';
         }
+    }
+
+   // 👉 Populate Shirt Colors & Quantities
+    const itemsContainer = document.getElementById("quote-modal-shirt-items");
+    itemsContainer.innerHTML = "";
+    if (items.length > 0) {
+        items.forEach(item => {
+            const div = document.createElement("div");
+            div.classList.add("shirt-item");
+            div.innerHTML = `
+                <span class="shirt-color">${item.shirt_color}</span>
+                <span class="shirt-qty">${item.quantity}</span>
+            `;
+            itemsContainer.appendChild(div);
+        });
+    } else {
+        itemsContainer.innerHTML = "<em>No shirt colors added</em>";
     }
 
     // Show modal

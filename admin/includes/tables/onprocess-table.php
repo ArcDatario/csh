@@ -43,7 +43,6 @@ function resetViewButtonState() {
         button.style.display = 'inline-block'; // Reset to default
     });
 }
-// View button click handler for on-process orders
 function handleOnProcessViewButtonClick() {
     const orderData = {
         id: this.getAttribute('data-id'),
@@ -64,13 +63,23 @@ function handleOnProcessViewButtonClick() {
         viewable: this.getAttribute('data-viewable') === 'yes'
     };
 
+    let items = [];
+    try {
+        const rawItems = this.getAttribute('data-items');
+        console.log("Raw data-items:", rawItems);
+        items = JSON.parse(rawItems || "[]");
+        console.log("Parsed items:", items);
+    } catch (e) {
+        console.error("Error parsing shirt items:", e);
+    }
+
     // Store data in modal
     document.getElementById('onProcessModal').setAttribute('data-current-id', orderData.id);
     document.getElementById('onprocess-modal-id').value = orderData.id;
     document.getElementById('onprocess-modal-user-id').value = orderData.userId;
     document.getElementById('onprocess-modal-email').value = orderData.email;
     document.getElementById('onprocess-modal-ticket-input').value = orderData.ticket;
-    
+
     // Populate modal fields
     document.getElementById('onprocess-modal-ticket').textContent = orderData.ticket;
     document.getElementById('onprocess-modal-name').textContent = orderData.name;
@@ -82,24 +91,39 @@ function handleOnProcessViewButtonClick() {
     document.getElementById('onprocess-modal-pricing').textContent = orderData.pricing ? '₱' + parseFloat(orderData.pricing).toFixed(2) : 'N/A';
     document.getElementById('onprocess-modal-subtotal').textContent = orderData.subtotal ? '₱' + parseFloat(orderData.subtotal).toFixed(2) : 'N/A';
     document.getElementById('onprocess-modal-note').textContent = orderData.note || 'No notes';
-    
-    // Determine if we should show the actual file or a placeholder
+
+// 🆕 Populate Shirt Colors & Quantities
+const modal = document.getElementById("onProcessModal");
+const itemsContainer = modal.querySelector("#quote-modal-shirt-items");
+itemsContainer.innerHTML = "";
+
+if (items.length > 0) {
+    items.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.innerHTML = `
+            <span class="shirt-color">${item.shirt_color}</span>
+            <span class="shirt-qty">${item.quantity}</span>
+        `;
+        itemsContainer.appendChild(div);
+    });
+} else {
+    itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+}
+
+    // Design preview (same as you had)
     const fileExtension = orderData.design.split('.').pop().toLowerCase();
     const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
-    
     if (imageFormats.includes(fileExtension)) {
-        // Show the actual image file
         document.getElementById('onprocess-modal-design').src = '../user/' + orderData.design;
     } else {
-        // Show appropriate placeholder based on file type
-        let placeholderSrc = '../file.png'; // default placeholder
+        let placeholderSrc = '../file.png';
         if (fileExtension === 'psd') placeholderSrc = '../photoshop.png';
         if (fileExtension === 'pdf') placeholderSrc = '../pdf.png';
         if (fileExtension === 'ai') placeholderSrc = '../illustrator.png';
-        
         document.getElementById('onprocess-modal-design').src = placeholderSrc;
     }
-    
+
     document.getElementById('onprocess-modal-process-date').textContent = orderData.date || new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -107,22 +131,17 @@ function handleOnProcessViewButtonClick() {
         hour: '2-digit',
         minute: '2-digit'
     });
-    
-    // Show/hide view button based on file type
+
+    // Show/hide view button
     const viewButtons = document.querySelectorAll('#onProcessModal .view-design-btn');
-    if (viewButtons.length > 0) {
-        viewButtons.forEach(button => {
-            if (orderData.viewable) {
-                button.style.display = 'inline-block';
-            } else {
-                button.style.display = 'none';
-            }
-        });
-    }
+    viewButtons.forEach(button => {
+        button.style.display = orderData.viewable ? 'inline-block' : 'none';
+    });
 
     // Show modal
     document.getElementById('onProcessModal').style.display = 'block';
 }
+
 
 // Initialize modals and event listeners
 function initializeModals() {

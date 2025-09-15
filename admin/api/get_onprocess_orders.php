@@ -14,6 +14,20 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+
+        // Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        }
+
         // Determine the appropriate thumbnail based on file extension
         $designFile = $order['design_file'];
         $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
@@ -62,7 +76,8 @@ if ($result->num_rows > 0) {
                     data-email="' . htmlspecialchars($order['email'], ENT_QUOTES, 'UTF-8') . '"
                     data-pricing="' . htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8') . '"
                     data-subtotal="' . htmlspecialchars($order['subtotal'], ENT_QUOTES, 'UTF-8') . '"
-                    data-viewable="' . ($isViewable ? 'yes' : 'no') . '">
+                    data-viewable="' . ($isViewable ? 'yes' : 'no') . '"
+                    data-items=\''.json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT).'\'>
                     View
                 </button>
               </td>';
