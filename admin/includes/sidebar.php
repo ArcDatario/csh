@@ -10,6 +10,7 @@
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
+
           
 <?php
     // Determine the correct link and data-page based on role
@@ -45,6 +46,11 @@
             <a href="admin" class="nav-link" data-page="admin">
                 <i class="fas fa-user-shield"></i>
                 <span>Admin</span>
+            </a>
+
+            <a href="logs" class="nav-link" data-page="logs">
+                <i class="fas fa-file-alt"></i>
+            <span>Logs</span>
             </a>
             
             <div class="nav-section">

@@ -1,5 +1,6 @@
 <?php
 require_once '../../db_connection.php';
+require_once '../../log_helper.php'; // Include your logging helper
 header('Content-Type: application/json');
 
 $response = ['success' => false, 'message' => ''];
@@ -25,6 +26,15 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("si", $name, $quantity);
 
 if ($stmt->execute()) {
+    // Get current admin ID for logging
+    $admin_id = getCurrentAdminId();
+
+    // Prepare log message
+    $changes = "Added '$name' with quantity '$quantity'";
+
+    // Log the action
+    logAction($admin_id, 'add', 'inventory', $stmt->insert_id, $changes, 'inventory_management');
+
     $response = [
         'success' => true,
         'message' => 'Item added successfully'

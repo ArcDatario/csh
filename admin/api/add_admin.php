@@ -1,5 +1,6 @@
 <?php
 require_once '../../db_connection.php';
+require_once '../../log_helper.php';
 header('Content-Type: application/json');
 
 $response = ['success' => false, 'message' => ''];
@@ -37,6 +38,19 @@ $insert_stmt = $conn->prepare($insert_query);
 $insert_stmt->bind_param("ssss", $user_name, $fullname, $role, $hashedPassword);
 
 if ($insert_stmt->execute()) {
+    // Log the addition properly
+    $changes = "Added '{$user_name}' with role '{$role}'";
+
+    $admin_id = getCurrentAdminId(); // admin performing the action
+    logAction(
+        $admin_id,           // actor/admin
+        'add',               // action type
+        'admin',             // entity type
+        $conn->insert_id,    // newly added admin's ID
+        $changes,            // human-readable log
+        'admin_management'   // module/category
+    );
+
     $response = [
         'success' => true,
         'message' => 'Admin added successfully'

@@ -207,48 +207,64 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Handle form submission
-  const profileForm = document.getElementById('profileForm');
-  if (profileForm) {
-    profileForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      
-      fetch('update_profile.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          showMessage('Profile updated successfully!');
-          
-          // Update UI elements
-          if (data.newUsername) {
-            document.getElementById('username').value = data.newUsername;
-          }
-          
-          // Update image in all places
-          if (data.newImage !== undefined) {
-            updateProfileImage(data.newImage);
-          }
-          
-          // Close modal after 2 seconds
-          setTimeout(() => {
-            document.getElementById('profileModal').style.display = 'none';
-            toggleBodyScroll(true);
-          }, 2000);
-        } else {
-          showMessage('Error: ' + data.message, 'error');
+// Handle form submission
+const profileForm = document.getElementById('profileForm');
+if (profileForm) {
+  profileForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('update_profile.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Log the full PHP response
+      console.log("Full PHP Response:", data);
+
+      // Log debug info if available
+      if (data.debug) {
+        console.group("Profile Update Debug Info");
+        console.log("Admin ID:", data.debug.admin_id);
+        console.log("Log Content:", data.debug.log_content);
+        console.log("Log Status:", data.debug.log_status);
+        console.groupEnd();
+      }
+
+      if (data.success) {
+        showMessage('Profile updated successfully!');
+
+        // Update username in the form
+        if (data.newUsername) {
+          document.getElementById('username').value = data.newUsername;
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        showMessage('An error occurred while updating profile', 'error');
-      });
+
+        // Update profile image if returned
+        if (data.newImage !== undefined) {
+          updateProfileImage(data.newImage);
+        }
+
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          document.getElementById('profileModal').style.display = 'none';
+          toggleBodyScroll(true);
+        }, 2000);
+      } else {
+        showMessage('Error: ' + data.message, 'error');
+        if (data.debug) {
+          console.warn("Debug info on error:", data.debug);
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Fetch error:', error);
+      showMessage('An error occurred while updating profile', 'error');
     });
-  }
+  });
+}
+
 
   // Load initial profile data and set up password toggles
   fetchAdminData();

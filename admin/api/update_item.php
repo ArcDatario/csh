@@ -1,5 +1,6 @@
 <?php
 require_once '../../db_connection.php';
+require_once '../../log_helper.php';
 header('Content-Type: application/json');
 
 $response = ['success' => false, 'message' => ''];
@@ -20,18 +21,47 @@ if ($quantity < 0) {
     exit;
 }
 
-// Update item
-$query = "UPDATE inventory SET name = ?, quantity = ? WHERE id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("sii", $name, $quantity, $id);
+try {
+    // Get current item data for logging
+    $stmt = $conn->prepare("SELECT name, quantity FROM inventory WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $old_data = $stmt->get_result()->fetch_assoc();
 
-if ($stmt->execute()) {
-    $response = [
-        'success' => true,
-        'message' => 'Item updated successfully'
+    if (!$old_data) {
+        $response['message'] = 'Item not found';
+        echo json_encode($response);
+        exit;
+    }
+
+    // Update item
+    $update_stmt = $conn->prepare("UPDATE inventory SET name = ?, quantity = ? WHERE id = ?");
+    $update_stmt->bind_param("sii", $name, $quantity, $id);
+
+    if ($update_stmt->execute()) {
+        // Prepare new data for logging
+    $new_data = [
+        'name' => $name,
+        'quantity' => $quantity
     ];
-} else {
-    $response['message'] = 'Database error: ' . $conn->error;
+
+    // Generate readable changes
+    $changes = formatChanges($old_data, $new_data, ['name', 'quantity']);
+
+    // Log the action
+    $admin_id = getCurrentAdminId();
+    logAction($admin_id, 'update', 'inventory', $id, $changes, 'inventory_management');
+
+
+        $response = [
+            'success' => true,
+            'message' => 'Item updated successfully'
+        ];
+    } else {
+        $response['message'] = 'Database error: ' . $conn->error;
+    }
+} catch (Exception $e) {
+    $response['message'] = 'Error: ' . $e->getMessage();
 }
 
 echo json_encode($response);
