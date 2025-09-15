@@ -135,6 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                 . "CSH Enterprises";
 
             $mail->send();
+
+            require '../../log_helper.php'; // make sure you include this if not already
+            $admin_id = $_SESSION['admin_id']; // your logged-in admin
+
+            $logContent = "Marked Ticket #{$ticket} (Quantity: {$quantity}, ₱".number_format($subtotal, 2).") as ready to ship";
+            logAction($admin_id, 'update', 'orders', $id, $logContent, 'Orders');
             
             // Commit transaction if everything succeeded
             $conn->commit();

@@ -141,8 +141,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
                 . "CSH Enterprises";
 
             $mail->send();
-            
+
+            $logContent = "Marked Ticket #{$ticket} (₱".number_format($subtotal, 2).") as completed / delivered on ".date('M d, Y');
+            require '../../log_helper.php';
+            $admin_id = $_SESSION['admin_id'];
+            logAction($admin_id, 'update', 'orders', $id, $logContent, 'Orders');
+
             $conn->commit();
+            
             
             echo json_encode(['success' => true, 'message' => 'Order marked as completed and notifications sent successfully']);
         } catch (Exception $emailException) {

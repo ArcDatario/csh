@@ -139,6 +139,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
                     $mail->send();
                     
+                    // -------------------------------
+                    // Add system log for this action
+                    // -------------------------------
+                    require_once '../../log_helper.php'; // Make sure log helper is included
+
+                    $admin_id = $_SESSION['admin_id']; // admin performing the action
+                    $logContent = "Marked Ticket #{$ticket} for pickup";
+
+                    logAction(
+                        $admin_id,       // actor/admin
+                        'update',        // action type
+                        'orders',        // entity type
+                        $id,             // order ID
+                        $logContent,     // human-readable log
+                        'Orders'         // module/category
+                    );
+
+
                     echo json_encode(['success' => true, 'message' => 'Pickup confirmed and notifications sent successfully']);
                 } catch (Exception $emailException) {
                     error_log("Email sending failed: " . $emailException->getMessage());

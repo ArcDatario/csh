@@ -1,7 +1,15 @@
 <?php
 require_once '../../db_connection.php';
+require_once '../../log_helper.php'; // Include your log helper
 
 header('Content-Type: application/json');
+
+session_start(); // Make sure session is started
+$admin_id = $_SESSION['admin_id'] ?? null; // admin performing the action
+
+if (!$admin_id) {
+    die(json_encode(['success' => false, 'message' => 'Unauthorized access']));
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die(json_encode(['success' => false, 'message' => 'Invalid request method']));
@@ -24,6 +32,17 @@ try {
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
+        // Log the action
+        $logContent = "Marked Ticket #{$ticket} as processing";
+        logAction(
+            $admin_id,      // actor/admin
+            'update',       // action type
+            'orders',       // entity type
+            $id,            // order ID
+            $logContent,    // human-readable log
+            'Orders'        // module/category
+        );
+
         echo json_encode([
             'success' => true,
             'message' => "Order #$ticket has been marked as processing"

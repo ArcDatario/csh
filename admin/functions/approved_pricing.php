@@ -4,6 +4,7 @@
 session_start();
 require '../../db_connection.php'; // Adjust this to your database connection file
 require '../../vendor/autoload.php'; // Include PHPMailer autoloader
+require_once '../../log_helper.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -36,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
         $subtotal = $price * $quantity;
     } elseif (!empty($subtotal) && is_numeric($subtotal)) {
         // If subtotal was already calculated client-side, use that
-        $subtotal = $subtotal;
     } else if (!empty($unit_price) && !empty($quantity) && is_numeric($unit_price) && is_numeric($quantity)) {
         // Fallback calculation
         $subtotal = $unit_price * $quantity;
@@ -155,6 +155,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
                     $mail->send();
                     
+                $admin_id = $_SESSION['admin_id']; // designer/admin performing the action
+                $logContent = "Approved a quote of ₱" . number_format($price, 2);
+
+                if ($subtotal && is_numeric($subtotal)) {
+                    $logContent .= " (Subtotal: ₱" . number_format($subtotal, 2) . ")";
+                }
+
+                $logContent .= " for Ticket #{$ticket}";
+
+                logAction(
+                    $admin_id,        // actor/admin
+                    'update',         // action type
+                    'orders',         // entity type
+                    $id,              // order ID
+                    $logContent,      // human-readable log
+                    'Orders'          // module/category
+                );
+
                     // All operations successful
                     echo json_encode(['success' => true, 'message' => 'Pricing updated and notifications sent successfully']);
                 } catch (Exception $emailException) {
