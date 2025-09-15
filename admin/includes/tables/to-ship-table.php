@@ -75,6 +75,14 @@
         <span class="quote-modal-label">Quantity:</span>
         <span id="toship-modal-quantity" class="quote-modal-value"></span>
       </div>
+
+                    <!-- Shirt Colors & Quantities Section -->
+    <div class="quote-modal-row">
+            <span class="quote-modal-label">Items:</span>
+            <div id="quote-modal-shirt-items" class="shirt-items-container">
+                <!-- JS will populate this dynamically -->
+            </div>
+    </div>
       
       <!-- Pricing -->
       <div class="quote-modal-row">
@@ -221,6 +229,17 @@ function handleToShipViewButtonClick() {
         subtotal: this.getAttribute('data-subtotal')
     };
 
+    let items = [];
+    try {
+        const rawItems = this.getAttribute('data-items');
+        console.log("Raw data-items:", rawItems);
+        items = JSON.parse(rawItems || "[]");
+        console.log("Parsed items:", items);
+    } catch (e) {
+        console.error("Error parsing shirt items:", e);
+    }
+
+
     // Store data in modal
     const toShipModal = document.getElementById('toShipModal');
     toShipModal.setAttribute('data-current-id', orderData.id);
@@ -253,6 +272,23 @@ function handleToShipViewButtonClick() {
         minute: '2-digit'
     });
     
+// 🆕 Populate Shirt Colors & Quantities
+const modal = document.getElementById("toShipModal");
+const itemsContainer = modal.querySelector("#quote-modal-shirt-items");
+itemsContainer.innerHTML = "";
+
+if (items.length > 0) {
+    items.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.textContent = `${item.shirt_color} - ${item.quantity}`;
+        itemsContainer.appendChild(div);
+
+    });
+} else {
+    itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+}
+
     // Remove any existing event listeners from modal buttons first
     const downloadButtons = document.querySelectorAll('#toShipModal .download-design-btn');
     

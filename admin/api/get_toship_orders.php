@@ -11,6 +11,20 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+
+        // Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        }
+
         // Extract just the filename from the path
         $designFilePath = $order['design_file'];
         $filename = basename($designFilePath);
@@ -58,8 +72,9 @@ if ($result->num_rows > 0) {
         echo 'data-address="' . htmlspecialchars($order['address']) . '" ';
         echo 'data-email="' . htmlspecialchars($order['email']) . '" ';
         echo 'data-pricing="' . htmlspecialchars($order['pricing']) . '" ';
-        echo 'data-subtotal="' . htmlspecialchars($order['subtotal']) . '">';
-        echo 'View</button>';
+        echo 'data-subtotal="' . htmlspecialchars($order['subtotal']) . '" ';
+        echo 'data-items=\'' . json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) . '\' ';
+        echo '>View</button>';
         echo '</td>';
         echo '</tr>';
     }

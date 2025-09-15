@@ -263,7 +263,7 @@ if (isset($_SESSION['admin_role'])) {
             </div>
 
             <div class="quote-modal-row">
-                <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+                <span class="quote-modal-label">Items:</span>
                 <div id="onpickup-modal-shirt-items" class="quote-modal-value"></div>
             </div>
             
@@ -340,7 +340,7 @@ if (isset($_SESSION['admin_role'])) {
                 
                 <!-- Shirt Colors & Quantities Section -->
                 <div class="quote-modal-row">
-                    <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+                    <span class="quote-modal-label">Items:</span>
                     <div id="pickup-modal-shirt-items" class="quote-modal-value shirt-items">
                         <!-- JS will populate this dynamically -->
                     </div>

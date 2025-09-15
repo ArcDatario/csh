@@ -70,8 +70,9 @@
                     <span class="quote-modal-label">Print Type:</span>
                     <span id="completed-modal-print-type" class="quote-modal-value"></span>
                 </div>
+
                 <div class="grouped-item">
-                    <span class="quote-modal-label">Quantity:</span>
+                    <span class="quote-modal-label">Total Quantity:</span>
                     <span id="completed-modal-quantity" class="quote-modal-value"></span>
                 </div>
             </div>
@@ -85,6 +86,14 @@
                 <div class="grouped-item">
                     <span class="quote-modal-label">Subtotal:</span>
                     <span id="completed-modal-subtotal" class="quote-modal-value"></span>
+                </div>
+            </div>
+
+            <div class="quote-modal-row grouped-row">
+     
+                <div class="quote-modal-row">
+                    <span class="quote-modal-label">Items:</span>
+                    <div id="completed-modal-shirt-items" class="shirt-items-container"></div>
                 </div>
             </div>
             
@@ -258,6 +267,17 @@ function handleCompletedViewButtonClick() {
         completed: this.getAttribute('data-completed')
     };
 
+    let items = [];
+    try {
+        const rawItems = this.getAttribute('data-items');
+        console.log("Raw data-items:", rawItems);
+        items = JSON.parse(rawItems || "[]");
+        console.log("Parsed items:", items);
+    } catch (e) {
+        console.error("Error parsing shirt items:", e);
+    }
+
+
     // Store data in modal
     const completedModal = document.getElementById('completedModal');
     completedModal.setAttribute('data-current-id', orderData.id);
@@ -288,6 +308,24 @@ function handleCompletedViewButtonClick() {
     document.getElementById('completed-modal-shipping').textContent = formatCompletedDate(orderData.shipping);
     document.getElementById('completed-modal-completed').textContent = formatCompletedDate(orderData.completed);
     
+
+    // 🆕 Populate Shirt Colors & Quantities
+const modal = document.getElementById("completedModal");
+const itemsContainer = modal.querySelector("#completed-modal-shirt-items");
+itemsContainer.innerHTML = "";
+
+if (items.length > 0) {
+    items.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.textContent = `${item.shirt_color} - ${item.quantity}`;
+        itemsContainer.appendChild(div);
+
+    });
+} else {
+    itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+}
+
     // Remove any existing event listeners from modal buttons first
     const downloadButtons = document.querySelectorAll('#completedModal .download-design-btn');
     

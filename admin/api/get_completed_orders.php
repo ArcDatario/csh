@@ -33,6 +33,20 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
+
+        // Fetch shirt items for this order
+        $items_sql = "SELECT shirt_color, quantity 
+                      FROM items 
+                      WHERE order_id = " . intval($order['id']);
+        $items_result = $conn->query($items_sql);
+
+        $shirtItems = [];
+        if ($items_result && $items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+                $shirtItems[] = $item;
+            }
+        }
+
         // Extract just the filename from the path
         $designFilePath = $order['design_file'];
         $filename = basename($designFilePath);
@@ -74,6 +88,7 @@ if ($result->num_rows > 0) {
                 data-name="' . htmlspecialchars($order['name']) . '"
                 data-print-type="' . htmlspecialchars($order['print_type']) . '"
                 data-quantity="' . htmlspecialchars($order['quantity']) . '"
+                data-items=\'' . json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) . '\'
                 data-date="' . (isset($order['completion_date']) ? date('M d, Y', strtotime($order['completion_date'])) : 'N/A') . '"
                 data-status="' . htmlspecialchars($order['status']) . '"
                 data-note="' . htmlspecialchars($order['note']) . '"
