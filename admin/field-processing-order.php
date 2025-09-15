@@ -252,7 +252,7 @@ if (isset($_SESSION['admin_role'])) {
 
         <!-- Shirt Colors & Quantities Section -->
         <div class="quote-modal-row">
-            <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+            <span class="quote-modal-label">Items:</span>
             <div id="quote-modal-shirt-items" class="shirt-items-container">
                 <!-- JS will populate this dynamically -->
             </div>
@@ -330,7 +330,7 @@ if (isset($_SESSION['admin_role'])) {
 
               <!-- Shirt Colors & Quantities Section -->
     <div class="quote-modal-row">
-            <span class="quote-modal-label">Shirt Colors & Quantities:</span>
+            <span class="quote-modal-label">Items:</span>
             <div id="quote-modal-shirt-items" class="shirt-items-container">
                 <!-- JS will populate this dynamically -->
             </div>

@@ -28,6 +28,30 @@ if (isset($_SESSION['admin_role'])) {
     <link rel="stylesheet" href="assets/css/quote-modal.css">
    
 <style>
+    /* Apply to all modal close buttons, regardless of class */
+.toship-modal-close,
+.completed-modal-close,
+.quote-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #444;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.toship-modal-close:hover,
+.completed-modal-close:hover,
+.quote-modal-close:hover {
+  color: #000;
+}
+
+/* Make sure modal content is relatively positioned */
+.quote-modal-content {
+  position: relative;
+}
 .table-tabs {
     display: flex;
     gap: 10px;
@@ -89,6 +113,37 @@ if (isset($_SESSION['admin_role'])) {
     max-width: 100%;
     word-break: break-word;
 }
+#onpickup-modal-shirt-items,
+#pickup-modal-shirt-items,#quote-modal-shirt-items,
+#completed-modal-shirt-items  {
+  background: #f9f9f9; /* subtle background */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 5px;
+}
+
+.shirt-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dashed #ddd;
+  font-size: 13px;
+}
+
+.shirt-item:last-child {
+  border-bottom: none; /* remove last line */
+}
+
+.shirt-color {
+  font-weight: 500;
+  color: #333;
+}
+
+.shirt-qty {
+  color: #555;
+}
+
 </style>
 </head>
 
@@ -311,7 +366,6 @@ if (isset($_SESSION['admin_role'])) {
                 
                 <!-- Group 2: Image with buttons and details -->
                 <div class="quote-modal-row grouped-row-2">
-                    <div class="quote-modal-row grouped-row-2">
                         <div class="grouped-item">
                             <span class="quote-modal-label">Design:</span>
                             <div class="design-image-container">
@@ -324,6 +378,10 @@ if (isset($_SESSION['admin_role'])) {
                         </div>
                     <div class="grouped-item details-column">
                         <div class="detail-row">
+                            <span class="quote-modal-label">Mobile #:</span>
+                            <span id="pickup-modal-mobile" class="quote-modal-value"></span>
+                        </div>
+                        <div class="detail-row">
                             <span class="quote-modal-label">Print Type:</span>
                             <span id="pickup-modal-print-type" class="quote-modal-value"></span>
                         </div>
@@ -331,20 +389,17 @@ if (isset($_SESSION['admin_role'])) {
                             <span class="quote-modal-label">Quantity:</span>
                             <span id="pickup-modal-quantity" class="quote-modal-value"></span>
                         </div>
+                        <!-- Shirt Colors & Quantities Section -->
                         <div class="detail-row">
-                            <span class="quote-modal-label">Mobile #:</span>
-                            <span id="pickup-modal-mobile" class="quote-modal-value"></span>
+                            <span class="quote-modal-label">Items:</span>
+                            <div id="pickup-modal-shirt-items" class="quote-modal-value shirt-items">
+                            </div>
                         </div>
+
                     </div>
                 </div>
                 
-                <!-- Shirt Colors & Quantities Section -->
-                <div class="quote-modal-row">
-                    <span class="quote-modal-label">Items:</span>
-                    <div id="pickup-modal-shirt-items" class="quote-modal-value shirt-items">
-                        <!-- JS will populate this dynamically -->
-                    </div>
-                </div>
+
 
                 <!-- Note -->
                 <div class="quote-modal-row">
@@ -450,10 +505,14 @@ function handleOnPickupViewButtonClick() {
             console.log('Parsed shirt items:', shirtItems); // <-- Check parsed JSON
             if (shirtItems.length > 0) {
                 shirtItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.textContent = `${item.shirt_color} - ${item.quantity}`;
-                    shirtItemsContainer.appendChild(div);
-                });
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.innerHTML = `
+          <span class="shirt-color">${item.shirt_color}</span>
+          <span class="shirt-qty">${item.quantity}</span>
+        `;
+        shirtItemsContainer.appendChild(div); // ✅ keep same container variable
+      });
             } else {
                 shirtItemsContainer.textContent = 'N/A';
             }

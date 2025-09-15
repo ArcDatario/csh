@@ -204,6 +204,10 @@ if (isset($_SESSION['admin_role'])) {
         </div>
         <div class="grouped-item details-column">
           <div class="detail-row">
+            <span class="quote-modal-label">Mobile #:</span>
+            <span id="quote-modal-mobile" class="quote-modal-value"></span>
+          </div>
+          <div class="detail-row">
             <span class="quote-modal-label">Print Type:</span>
             <span id="quote-modal-print-type" class="quote-modal-value"></span>
           </div>
@@ -211,19 +215,17 @@ if (isset($_SESSION['admin_role'])) {
             <span class="quote-modal-label">Quantity:</span>
             <span id="quote-modal-quantity" class="quote-modal-value"></span>
           </div>
+          <!-- Shirt Colors & Quantities Section -->
           <div class="detail-row">
-            <span class="quote-modal-label">Mobile #:</span>
-            <span id="quote-modal-mobile" class="quote-modal-value"></span>
+            <span class="quote-modal-label">Items:</span>
+            <div id="quote-modal-shirt-items" class="shirt-items-container">
+            </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Shirt Colors & Quantities Section -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Shirt Colors & Quantities:</span>
-        <div id="quote-modal-shirt-items" class="shirt-items-container">
-        </div>
-      </div>
+      
       
       <!-- Note -->
       <div class="quote-modal-row">
@@ -389,7 +391,7 @@ function handleViewButtonClick() {
     const itemsContainer = document.getElementById("quote-modal-shirt-items");
     itemsContainer.innerHTML = "";
     if (items.length > 0) {
-      items.forEach(item => {
+  items.forEach(item => {
         const div = document.createElement("div");
         div.classList.add("shirt-item");
         div.innerHTML = `
@@ -397,7 +399,7 @@ function handleViewButtonClick() {
           <span class="shirt-qty">${item.quantity}</span>
         `;
         itemsContainer.appendChild(div);
-      });
+  });
     } else {
         itemsContainer.innerHTML = "<em>No shirt colors added</em>";
     }

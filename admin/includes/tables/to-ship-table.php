@@ -281,10 +281,12 @@ if (items.length > 0) {
     items.forEach(item => {
         const div = document.createElement("div");
         div.classList.add("shirt-item");
-        div.textContent = `${item.shirt_color} - ${item.quantity}`;
-        itemsContainer.appendChild(div);
-
-    });
+        div.innerHTML = `
+          <span class="shirt-color">${item.shirt_color}</span>
+          <span class="shirt-qty">${item.quantity}</span>
+        `;
+        itemsContainer.appendChild(div); // ✅ keep same container variable
+      });
 } else {
     itemsContainer.innerHTML = "<em>No shirt colors added</em>";
 }

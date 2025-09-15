@@ -19,127 +19,129 @@
 
 <!-- Completed Order Modal -->
 <div id="completedModal" class="quote-modal">
-    <div class="quote-modal-content">
-        <span class="completed-modal-close">&times;</span>
-        <h2>Completed Order Details</h2>
-        <div class="quote-modal-body">
-            <!-- Ticket and Customer -->
-            <div class="quote-modal-row grouped-row">
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Ticket #:</span>
-                    <span id="completed-modal-ticket" class="quote-modal-value"></span>
-                </div>
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Customer:</span>
-                    <span id="completed-modal-name" class="quote-modal-value"></span>
-                </div>
-            </div>
-            
-            <!-- Contact Info -->
-            <div class="quote-modal-row grouped-row">
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Email:</span>
-                    <span id="completed-modal-email" class="quote-modal-value"></span>
-                </div>
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Mobile #:</span>
-                    <span id="completed-modal-mobile" class="quote-modal-value"></span>
-                </div>
-            </div>
-            
-            <!-- Address -->
-            <div class="quote-modal-row">
-                <span class="quote-modal-label">Address:</span>
-                <span id="completed-modal-address" class="quote-modal-value address-value"></span>
-            </div>
-            
-            <!-- Design -->
-            <div class="quote-modal-row">
-                <span class="quote-modal-label">Design:</span>
-                <div class="design-image-container">
-                    <img id="completed-modal-design" src="" alt="Design" class="design-image">
-                    <div class="design-buttons">
-                        <button class="download-design-btn">Download</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Order Details -->
-            <div class="quote-modal-row grouped-row">
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Print Type:</span>
-                    <span id="completed-modal-print-type" class="quote-modal-value"></span>
-                </div>
+  <div class="quote-modal-content">
+    <!-- Top Close X -->
+    <span class="completed-modal-close">&times;</span>
 
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Total Quantity:</span>
-                    <span id="completed-modal-quantity" class="quote-modal-value"></span>
-                </div>
-            </div>
-            
-            <!-- Pricing -->
-            <div class="quote-modal-row grouped-row">
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Unit Price:</span>
-                    <span id="completed-modal-pricing" class="quote-modal-value"></span>
-                </div>
-                <div class="grouped-item">
-                    <span class="quote-modal-label">Subtotal:</span>
-                    <span id="completed-modal-subtotal" class="quote-modal-value"></span>
-                </div>
-            </div>
+    <h2>Completed Order Details</h2>
+    <div class="quote-modal-body">
 
-            <div class="quote-modal-row grouped-row">
-     
-                <div class="quote-modal-row">
-                    <span class="quote-modal-label">Items:</span>
-                    <div id="completed-modal-shirt-items" class="shirt-items-container"></div>
-                </div>
-            </div>
-            
-            <!-- Timeline -->
-            <div class="quote-modal-timeline">
-                <h3>Order Timeline</h3>
-                <div class="timeline-item">
-                    <span class="timeline-label">Order Placed:</span>
-                    <span id="completed-modal-created" class="timeline-value"></span>
-                </div>
-                <div class="timeline-item">
-                    <span class="timeline-label">Design Approved:</span>
-                    <span id="completed-modal-designer-approved" class="timeline-value"></span>
-                </div>
-                <div class="timeline-item">
-                    <span class="timeline-label">Admin Approved:</span>
-                    <span id="completed-modal-admin-approved" class="timeline-value"></span>
-                </div>
-                <div class="timeline-item">
-                    <span class="timeline-label">Processing Started:</span>
-                    <span id="completed-modal-processing" class="timeline-value"></span>
-                </div>
-                <div class="timeline-item">
-                    <span class="timeline-label">Pickup Date:</span>
-                    <span id="completed-modal-pickup" class="timeline-value"></span>
-                </div>
-                <div class="timeline-item">
-                    <span class="timeline-label">Shipping Date:</span>
-                    <span id="completed-modal-shipping" class="timeline-value"></span>
-                </div>
-                <div class="timeline-item">
-                    <span class="timeline-label">Completed Date:</span>
-                    <span id="completed-modal-completed" class="timeline-value"></span>
-                </div>
-            </div>
-            
-            <!-- Notes -->
-            <div class="quote-modal-row">
-                <span class="quote-modal-label">Notes:</span>
-                <span id="completed-modal-note" class="quote-modal-value note-value"></span>
-            </div>
+      <!-- Ticket and Customer -->
+      <div class="quote-modal-row grouped-row">
+        <div class="grouped-item">
+          <span class="quote-modal-label">Ticket #:</span>
+          <span id="completed-modal-ticket" class="quote-modal-value"></span>
         </div>
-        <div class="quote-modal-footer">
-            <button id="completed-modal-close" class="quote-modal-btn btn-secondary">Close</button>
+        <div class="grouped-item">
+          <span class="quote-modal-label">Customer:</span>
+          <span id="completed-modal-name" class="quote-modal-value"></span>
         </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="quote-modal-row grouped-row">
+        <div class="grouped-item">
+          <span class="quote-modal-label">Email:</span>
+          <span id="completed-modal-email" class="quote-modal-value"></span>
+        </div>
+        <div class="grouped-item">
+          <span class="quote-modal-label">Mobile #:</span>
+          <span id="completed-modal-mobile" class="quote-modal-value"></span>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Address:</span>
+        <span id="completed-modal-address" class="quote-modal-value address-value"></span>
+      </div>
+
+      <!-- Design -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Design:</span>
+        <div class="design-image-container">
+          <img id="completed-modal-design" src="" alt="Design" class="design-image">
+          <div class="design-buttons">
+            <button class="download-design-btn">Download</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Details -->
+      <div class="quote-modal-row grouped-row">
+        <div class="grouped-item">
+          <span class="quote-modal-label">Print Type:</span>
+          <span id="completed-modal-print-type" class="quote-modal-value"></span>
+        </div>
+        <div class="grouped-item">
+          <span class="quote-modal-label">Unit Price:</span>
+          <span id="completed-modal-pricing" class="quote-modal-value"></span>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="quote-modal-row grouped-row">
+        <div class="grouped-item">
+          <span class="quote-modal-label">Total Quantity:</span>
+          <span id="completed-modal-quantity" class="quote-modal-value"></span>
+        </div>
+        <div class="grouped-item">
+          <span class="quote-modal-label">Subtotal:</span>
+          <span id="completed-modal-subtotal" class="quote-modal-value"></span>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Items:</span>
+        <div id="completed-modal-shirt-items" class="shirt-items-container"></div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="quote-modal-timeline">
+        <h3>Order Timeline</h3>
+        <div class="timeline-item">
+          <span class="timeline-label">Order Placed:</span>
+          <span id="completed-modal-created" class="timeline-value"></span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-label">Design Approved:</span>
+          <span id="completed-modal-designer-approved" class="timeline-value"></span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-label">Admin Approved:</span>
+          <span id="completed-modal-admin-approved" class="timeline-value"></span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-label">Processing Started:</span>
+          <span id="completed-modal-processing" class="timeline-value"></span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-label">Pickup Date:</span>
+          <span id="completed-modal-pickup" class="timeline-value"></span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-label">Shipping Date:</span>
+          <span id="completed-modal-shipping" class="timeline-value"></span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-label">Completed Date:</span>
+          <span id="completed-modal-completed" class="timeline-value"></span>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="quote-modal-row">
+        <span class="quote-modal-label">Notes:</span>
+        <span id="completed-modal-note" class="quote-modal-value note-value"></span>
+      </div>
     </div>
+
+    <!-- Footer Close Button -->
+    <div class="quote-modal-footer">
+      <button id="completed-modal-close" class="quote-modal-btn btn-secondary">Close</button>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -318,10 +320,12 @@ if (items.length > 0) {
     items.forEach(item => {
         const div = document.createElement("div");
         div.classList.add("shirt-item");
-        div.textContent = `${item.shirt_color} - ${item.quantity}`;
-        itemsContainer.appendChild(div);
-
-    });
+        div.innerHTML = `
+          <span class="shirt-color">${item.shirt_color}</span>
+          <span class="shirt-qty">${item.quantity}</span>
+        `;
+        itemsContainer.appendChild(div); // ✅ keep same container variable
+      });
 } else {
     itemsContainer.innerHTML = "<em>No shirt colors added</em>";
 }

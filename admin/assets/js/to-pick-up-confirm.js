@@ -92,10 +92,14 @@ if (itemsData) {
         const shirtItems = JSON.parse(itemsData);
         if (shirtItems.length > 0) {
             shirtItems.forEach(item => {
-                const div = document.createElement('div');
-                div.textContent = `${item.shirt_color} - ${item.quantity}`;
-                shirtItemsContainer.appendChild(div);
-            });
+        const div = document.createElement("div");
+        div.classList.add("shirt-item");
+        div.innerHTML = `
+          <span class="shirt-color">${item.shirt_color}</span>
+          <span class="shirt-qty">${item.quantity}</span>
+        `;
+        shirtItemsContainer.appendChild(div); // ✅ keep same container variable
+      });
         } else {
             shirtItemsContainer.textContent = 'N/A';
         }

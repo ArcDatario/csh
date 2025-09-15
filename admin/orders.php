@@ -312,25 +312,24 @@ if (isset($_SESSION['admin_role'])) {
   }
 }
 
-/* Shirt items layout */
 .shirt-items-container {
-  margin-top: 10px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  overflow: hidden;
+  background: #f9f9f9; /* subtle background */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 5px;
 }
 
 .shirt-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  background-color: #fafafa;
+  padding: 4px 0;
+  border-bottom: 1px dashed #ddd;
+  font-size: 13px;
 }
 
-.shirt-item:nth-child(even) {
-  background-color: #fdfdfd;
+.shirt-item:last-child {
+  border-bottom: none; /* remove last line */
 }
 
 .shirt-color {
@@ -339,9 +338,9 @@ if (isset($_SESSION['admin_role'])) {
 }
 
 .shirt-qty {
-  font-weight: 600;
-  color: #444;
+  color: #555;
 }
+
     </style>
 </head>
 
@@ -541,6 +540,10 @@ if ($items_result && $items_result->num_rows > 0) {
         </div>
         <div class="grouped-item details-column">
           <div class="detail-row">
+            <span class="quote-modal-label">Mobile #:</span>
+            <span id="quote-modal-mobile" class="quote-modal-value"></span>
+          </div>
+          <div class="detail-row">
             <span class="quote-modal-label">Print Type:</span>
             <span id="quote-modal-print-type" class="quote-modal-value"></span>
           </div>
@@ -548,17 +551,13 @@ if ($items_result && $items_result->num_rows > 0) {
             <span class="quote-modal-label">Quantity:</span>
             <span id="quote-modal-quantity" class="quote-modal-value"></span>
           </div>
+          <!-- Shirt Colors & Quantities Section -->
           <div class="detail-row">
-            <span class="quote-modal-label">Mobile #:</span>
-            <span id="quote-modal-mobile" class="quote-modal-value"></span>
+            <span class="quote-modal-label">Items:</span>
+            <div id="quote-modal-shirt-items" class="shirt-items-container">
+            </div>
           </div>
-        </div>
-      </div>
-      
-      <!-- Shirt Colors & Quantities Section -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Shirt Colors & Quantities:</span>
-        <div id="quote-modal-shirt-items" class="shirt-items-container">
+
         </div>
       </div>
 
