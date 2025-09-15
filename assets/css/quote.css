@@ -798,4 +798,23 @@ background-color: #2ecc71; /* Green for Completed */
 /* quote modal design */
 
 
+
+.detail-row {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.detail-row .quote-modal-label {
+  font-weight: 600;
+  color: #444;
+  display: inline-block;
+  min-width: 120px; /* keeps labels aligned */
+}
+
+#quote-modal-quantity {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+
 /* design end */

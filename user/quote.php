@@ -529,7 +529,6 @@ if ($user_id) {
 </div>
 
 <!-- ✅ Details Modal -->
-<!-- ✅ Full Order Details Modal -->
 <div id="detailsModal" class="details-modal">
   <div class="detail-modal-content">
     <span class="detail-modal-close">&times;</span>
@@ -561,6 +560,10 @@ if ($user_id) {
         </div>
         <div class="grouped-item details-column">
           <div class="detail-row">
+            <span class="detail-modal-label">Mobile #:</span>
+            <span id="detail-modal-mobile" class="detail-modal-value"></span>
+          </div>
+          <div class="detail-row">
             <span class="detail-modal-label">Print Type:</span>
             <span id="detail-modal-print-type" class="detail-modal-value"></span>
           </div>
@@ -568,19 +571,13 @@ if ($user_id) {
             <span class="detail-modal-label">Quantity:</span>
             <span id="detail-modal-quantity" class="detail-modal-value"></span>
           </div>
-          <div class="detail-row">
-            <span class="detail-modal-label">Mobile #:</span>
-            <span id="detail-modal-mobile" class="detail-modal-value"></span>
-          </div>
+
         </div>
       </div>
-
-      <!-- Shirt Colors & Quantities Section -->
-      <div class="detail-modal-row">
-        <span class="detail-modal-label">Shirt Colors & Quantities:</span>
-        <div id="detail-modal-shirt-items" class="shirt-items-container"></div>
-      </div>
-
+          <div class="detail-modal-row">
+            <span class="detail-modal-label">Items:</span>
+            <div id="detail-modal-shirt-items" class="shirt-items-container"></div>
+          </div>
       <!-- Note -->
       <div class="detail-modal-row">
         <span class="detail-modal-label">Note:</span>
@@ -1217,25 +1214,24 @@ label {
     }
 }
 
-/* Shirt items layout */
 .shirt-items-container {
-  margin-top: 10px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  overflow: hidden;
+  background: #f9f9f9; /* subtle background */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 5px;
 }
 
 .shirt-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  background-color: #fafafa;
+  padding: 4px 0;
+  border-bottom: 1px dashed #ddd;
+  font-size: 13px;
 }
 
-.shirt-item:nth-child(even) {
-  background-color: #fdfdfd;
+.shirt-item:last-child {
+  border-bottom: none; /* remove last line */
 }
 
 .shirt-color {
@@ -1244,9 +1240,9 @@ label {
 }
 
 .shirt-qty {
-  font-weight: 600;
-  color: #444;
+  color: #555;
 }
+
 </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
     <script src="../assets/js/script.js"></script>
