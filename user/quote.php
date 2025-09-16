@@ -686,30 +686,83 @@ if ($user_id) {
             </div>
             <!-- Replace the quantity input section with this code -->
 <div class="form-group">
-    <label>Shirt Colors & Quantities (Total Minimum: 500)</label>
+    <label>Item & Colors (Total Minimum: 500)</label>
     <div id="shirtItemsContainer">
         <div class="shirt-item-row">
             <div class="form-row">
                <div class="form-col">
-    <select name="shirt_color[]" class="form-control" required>
-        <option value="">Select Color</option>
-        <option value="White">White</option>
-        <option value="Black">Black</option>
-        <option value="Red">Red</option>
-        <option value="Blue">Blue</option>
-        <option value="Green">Green</option>
-        <option value="Yellow">Yellow</option>
-        <option value="Orange">Orange</option>
-        <option value="Purple">Purple</option>
-        <option value="Pink">Pink</option>
-        <option value="Gray">Gray</option>
-        <option value="Brown">Brown</option>
-        <option value="Navy">Navy</option>
-        <option value="Maroon">Maroon</option>
-        <option value="Teal">Teal</option>
-        <option value="Olive">Olive</option>
-        <option value="Other">Other (Specify in notes)</option>
-    </select>
+    <select name="item_color[]" class="form-control" required>
+    <option value="">Select Item & Color</option>
+
+    <!-- Shirt Colors -->
+    <option value="Shirt (White)">Shirt (White)</option>
+    <option value="Shirt (Black)">Shirt (Black)</option>
+    <option value="Shirt (Red)">Shirt (Red)</option>
+    <option value="Shirt (Blue)">Shirt (Blue)</option>
+    <option value="Shirt (Green)">Shirt (Green)</option>
+    <option value="Shirt (Yellow)">Shirt (Yellow)</option>
+    <option value="Shirt (Orange)">Shirt (Orange)</option>
+    <option value="Shirt (Purple)">Shirt (Purple)</option>
+    <option value="Shirt (Pink)">Shirt (Pink)</option>
+    <option value="Shirt (Gray)">Shirt (Gray)</option>
+    <option value="Shirt (Brown)">Shirt (Brown)</option>
+    <option value="Shirt (Navy)">Shirt (Navy)</option>
+    <option value="Shirt (Maroon)">Shirt (Maroon)</option>
+    <option value="Shirt (Teal)">Shirt (Teal)</option>
+    <option value="Shirt (Olive)">Shirt (Olive)</option>
+
+    <!-- Jacket Colors -->
+    <option value="Jacket (White)">Jacket (White)</option>
+    <option value="Jacket (Black)">Jacket (Black)</option>
+    <option value="Jacket (Red)">Jacket (Red)</option>
+    <option value="Jacket (Blue)">Jacket (Blue)</option>
+    <option value="Jacket (Green)">Jacket (Green)</option>
+    <option value="Jacket (Yellow)">Jacket (Yellow)</option>
+    <option value="Jacket (Orange)">Jacket (Orange)</option>
+    <option value="Jacket (Purple)">Jacket (Purple)</option>
+    <option value="Jacket (Pink)">Jacket (Pink)</option>
+    <option value="Jacket (Gray)">Jacket (Gray)</option>
+    <option value="Jacket (Brown)">Jacket (Brown)</option>
+    <option value="Jacket (Navy)">Jacket (Navy)</option>
+    <option value="Jacket (Maroon)">Jacket (Maroon)</option>
+    <option value="Jacket (Teal)">Jacket (Teal)</option>
+    <option value="Jacket (Olive)">Jacket (Olive)</option>
+
+    <!-- Shorts Colors -->
+    <option value="Shorts (White)">Shorts (White)</option>
+    <option value="Shorts (Black)">Shorts (Black)</option>
+    <option value="Shorts (Red)">Shorts (Red)</option>
+    <option value="Shorts (Blue)">Shorts (Blue)</option>
+    <option value="Shorts (Green)">Shorts (Green)</option>
+    <option value="Shorts (Yellow)">Shorts (Yellow)</option>
+    <option value="Shorts (Orange)">Shorts (Orange)</option>
+    <option value="Shorts (Purple)">Shorts (Purple)</option>
+    <option value="Shorts (Pink)">Shorts (Pink)</option>
+    <option value="Shorts (Gray)">Shorts (Gray)</option>
+    <option value="Shorts (Brown)">Shorts (Brown)</option>
+    <option value="Shorts (Navy)">Shorts (Navy)</option>
+    <option value="Shorts (Maroon)">Shorts (Maroon)</option>
+    <option value="Shorts (Teal)">Shorts (Teal)</option>
+    <option value="Shorts (Olive)">Shorts (Olive)</option>
+
+    <!-- Bag Colors -->
+    <option value="Bag (White)">Bag (White)</option>
+    <option value="Bag (Black)">Bag (Black)</option>
+    <option value="Bag (Red)">Bag (Red)</option>
+    <option value="Bag (Blue)">Bag (Blue)</option>
+    <option value="Bag (Green)">Bag (Green)</option>
+    <option value="Bag (Yellow)">Bag (Yellow)</option>
+    <option value="Bag (Orange)">Bag (Orange)</option>
+    <option value="Bag (Purple)">Bag (Purple)</option>
+    <option value="Bag (Pink)">Bag (Pink)</option>
+    <option value="Bag (Gray)">Bag (Gray)</option>
+    <option value="Bag (Brown)">Bag (Brown)</option>
+    <option value="Bag (Navy)">Bag (Navy)</option>
+    <option value="Bag (Maroon)">Bag (Maroon)</option>
+    <option value="Bag (Teal)">Bag (Teal)</option>
+    <option value="Bag (Olive)">Bag (Olive)</option>
+</select>
+
 </div>
                 <div class="form-col">
                     <input type="number" name="shirt_quantity[]" class="form-control shirt-quantity" min="1" placeholder="Qty" required>
@@ -723,7 +776,7 @@ if ($user_id) {
         </div>
     </div>
     <button type="button" id="addShirtItem" class="add-item-btn">
-        <i class="fas fa-plus"></i> Add Another Shirt
+        <i class="fas fa-plus"></i> Add Another
     </button>
     <div class="total-quantity-display">
         Total Quantity: <span id="totalQuantity">0</span>
