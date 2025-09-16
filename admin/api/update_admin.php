@@ -50,40 +50,50 @@ try {
         exit;
     }
 
+    // Check if anything changed
+    $password_changed = !empty($password);
+    $isChanged = $password_changed || $user_name !== $old_data['username'] || $fullname !== $old_data['fullname'] || $role !== $old_data['role'];
+
+    if (!$isChanged) {
+        $response['success'] = false;
+        $response['message'] = 'No changes detected';
+        $response['newUsername'] = $user_name;
+        echo json_encode($response);
+        exit;
+    }
+
     // Update admin
-    if (!empty($password)) {
+    if ($password_changed) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $conn->prepare("UPDATE admins SET username = ?, fullname = ?, role = ?, password = ? WHERE id = ?");
         $stmt->bind_param("ssssi", $user_name, $fullname, $role, $hashedPassword, $id);
-        $password_changed = true;
     } else {
         $stmt = $conn->prepare("UPDATE admins SET username = ?, fullname = ?, role = ? WHERE id = ?");
         $stmt->bind_param("sssi", $user_name, $fullname, $role, $id);
-        $password_changed = false;
     }
 
-if ($stmt->execute()) {
-    // New data for logging
-    $new_data = [
-        'username' => $user_name,
-        'fullname' => $fullname,
-        'role' => $role,
-        'password_changed' => $password_changed
-    ];
+    if ($stmt->execute()) {
+        // New data for logging
+        $new_data = [
+            'username' => $user_name,
+            'fullname' => $fullname,
+            'role' => $role,
+            'password_changed' => $password_changed
+        ];
 
-    // Generate concise human-readable changes
-    $changes = formatChanges($old_data, $new_data, ['username', 'fullname', 'role'], $user_name); 
+        // Generate concise human-readable changes
+        $changes = formatChanges($old_data, $new_data, ['username', 'fullname', 'role'], $user_name); 
 
-    // Log action with admin ID (no actor info)
-    $admin_id = getCurrentAdminId();
-    logAction($admin_id, 'update', 'admin', 0, $changes, 'admin_management');
+        // Log action with admin ID (no actor info)
+        $admin_id = getCurrentAdminId();
+        logAction($admin_id, 'update', 'admin', 0, $changes, 'admin_management');
 
-    $response = [
-        'success' => true,
-        'message' => 'Admin updated successfully',
-        'newUsername' => $user_name
-    ];
-}else {
+        $response = [
+            'success' => true,
+            'message' => 'Admin updated successfully',
+            'newUsername' => $user_name
+        ];
+    } else {
         $response['message'] = 'Database error: ' . $conn->error;
     }
 

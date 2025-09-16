@@ -22,7 +22,7 @@ if ($quantity < 0) {
 }
 
 try {
-    // Get current item data for logging
+    // Get current item data
     $stmt = $conn->prepare("SELECT name, quantity FROM inventory WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -34,24 +34,32 @@ try {
         exit;
     }
 
+    // Check if anything changed
+    $isChanged = $name !== $old_data['name'] || $quantity !== (int)$old_data['quantity'];
+    if (!$isChanged) {
+        $response['success'] = false;
+        $response['message'] = 'No changes detected';
+        echo json_encode($response);
+        exit;
+    }
+
     // Update item
     $update_stmt = $conn->prepare("UPDATE inventory SET name = ?, quantity = ? WHERE id = ?");
     $update_stmt->bind_param("sii", $name, $quantity, $id);
 
     if ($update_stmt->execute()) {
         // Prepare new data for logging
-    $new_data = [
-        'name' => $name,
-        'quantity' => $quantity
-    ];
+        $new_data = [
+            'name' => $name,
+            'quantity' => $quantity
+        ];
 
-    // Generate readable changes
-    $changes = formatChanges($old_data, $new_data, ['name', 'quantity']);
+        // Generate readable changes
+        $changes = formatChanges($old_data, $new_data, ['name', 'quantity']);
 
-    // Log the action
-    $admin_id = getCurrentAdminId();
-    logAction($admin_id, 'update', 'inventory', $id, $changes, 'inventory_management');
-
+        // Log the action
+        $admin_id = getCurrentAdminId();
+        logAction($admin_id, 'update', 'inventory', $id, $changes, 'inventory_management');
 
         $response = [
             'success' => true,
