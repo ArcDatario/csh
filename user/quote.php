@@ -761,7 +761,25 @@ if ($user_id) {
     <option value="Bag (Maroon)">Bag (Maroon)</option>
     <option value="Bag (Teal)">Bag (Teal)</option>
     <option value="Bag (Olive)">Bag (Olive)</option>
+
+    <!-- Jersey Colors -->
+    <option value="Jersey (White)">Jersey (White)</option>
+    <option value="Jersey (Black)">Jersey (Black)</option>
+    <option value="Jersey (Red)">Jersey (Red)</option>
+    <option value="Jersey (Blue)">Jersey (Blue)</option>
+    <option value="Jersey (Green)">Jersey (Green)</option>
+    <option value="Jersey (Yellow)">Jersey (Yellow)</option>
+    <option value="Jersey (Orange)">Jersey (Orange)</option>
+    <option value="Jersey (Purple)">Jersey (Purple)</option>
+    <option value="Jersey (Pink)">Jersey (Pink)</option>
+    <option value="Jersey (Gray)">Jersey (Gray)</option>
+    <option value="Jersey (Brown)">Jersey (Brown)</option>
+    <option value="Jersey (Navy)">Jersey (Navy)</option>
+    <option value="Jersey (Maroon)">Jersey (Maroon)</option>
+    <option value="Jersey (Teal)">Jersey (Teal)</option>
+    <option value="Jersey (Olive)">Jersey (Olive)</option>
 </select>
+
 
 </div>
                 <div class="form-col">

@@ -139,7 +139,12 @@ body {
                     <input type="email" class="form-control" id="loginEmail" name="email" placeholder="Enter your email">
                     
                     <label for="loginPassword" class="form-label mt-3">Password</label>
-                    <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter your password">
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter your password">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Show password">
+                            <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
                     
                     <div class="d-flex justify-content-between mt-2">
                         <div class="form-check">
@@ -183,6 +188,17 @@ body {
  $(document).ready(function() {
     const toast = new bootstrap.Toast(document.getElementById('toast'));
     let isForgotPassword = false;
+    
+    // Toggle password visibility
+    $('#togglePassword').on('click', function () {
+        const $input = $('#loginPassword');
+        const isPassword = $input.attr('type') === 'password';
+        $input.attr('type', isPassword ? 'text' : 'password');
+        $('#togglePasswordIcon')
+            .toggleClass('fa-eye', !isPassword)
+            .toggleClass('fa-eye-slash', isPassword);
+        $(this).attr('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
     
     function showToast(type, message) {
         console.log(`[${type}] ${message}`);
