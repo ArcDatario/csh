@@ -4,36 +4,39 @@
         <h2>CSH</h2>
     </div>
     <div class="nav-links">
+
+                <?php
+            $currentPage = basename($_SERVER['PHP_SELF'], ".php");
+            ?>
         <?php if ($_SESSION['admin_role'] !== 'Field Manager' && $_SESSION['admin_role'] !== 'Designer' && $_SESSION['admin_role'] !== 'Secretary'): ?>
-            <!-- Full menu for other roles -->
+            <!-- Full menu for Owner/GM and other roles -->
             <a href="dashboard" class="nav-link" data-page="dashboard">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
 
-          
-<?php
-    // Determine the correct link and data-page based on role
-    $ordersLink = "orders";
-    $ordersPage = "orders";
-    if ($_SESSION['admin_role'] === 'Field Manager') {
-        $ordersLink = "field-processing-order";
-        $ordersPage = "field-processing-order";
-    } elseif ($_SESSION['admin_role'] === 'General Manager' || $_SESSION['admin_role'] === 'Owner') {
-        $ordersLink = "admintoapprove";
-        $ordersPage = "admintoapprove";
-    } elseif ($_SESSION['admin_role'] === 'Designer') {
-        $ordersLink = "orders";
-        $ordersPage = "orders";
-    }
-    // Secretary handled below
-    $currentPage = basename($_SERVER['PHP_SELF'], ".php");
-    $isActive = ($currentPage === $ordersPage) ? 'active' : '';
-?>
-<a href="<?php echo $ordersLink; ?>" class="nav-link <?php echo $isActive; ?>" data-page="<?php echo $ordersPage; ?>">
-    <i class="fas fa-shopping-cart"></i>
-    <span>Orders</span>
-</a>
+
+
+            <?php if ($_SESSION['admin_role'] === 'General Manager' || $_SESSION['admin_role'] === 'Owner'): ?>
+                <!-- Admin/GM Orders Dropdown -->
+                <div class="nav-link has-submenu <?php echo in_array($currentPage, ['admintoapprove','to-pick-up-orders']) ? 'active open' : ''; ?>">
+                    <button type="button" class="submenu-toggle">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Orders</span>
+                        <i class="fas fa-chevron-down submenu-arrow"></i>
+                    </button>
+                    <div class="submenu">
+                        <a href="admintoapprove" class="submenu-item <?php echo ($currentPage === 'admintoapprove') ? 'active' : ''; ?>" data-page="admintoapprove">To Approve</a>
+                        <a href="to-pick-up-orders" class="submenu-item <?php echo ($currentPage === 'to-pick-up-orders') ? 'active' : ''; ?>" data-page="to-pick-up-orders">To Pick Up</a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Fallback Orders link for other roles (just in case) -->
+                <a href="orders" class="nav-link <?php echo ($currentPage === 'orders') ? 'active' : ''; ?>" data-page="orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+            <?php endif; ?>
 
             <a href="inventory" class="nav-link" data-page="inventory">
                 <i class="fas fa-box"></i>
@@ -50,7 +53,7 @@
 
             <a href="logs" class="nav-link" data-page="logs">
                 <i class="fas fa-file-alt"></i>
-            <span>Logs</span>
+                <span>Logs</span>
             </a>
             
             <div class="nav-section">
@@ -67,34 +70,34 @@
             </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Field Manager'): ?>
-    <!-- Field Manager Menu (Orders, Inventory, and Stock Request) -->
-    <a href="field-processing-order" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'field-processing-order') ? ' active' : ''; ?>" data-page="field-processing-order">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Orders</span>
-    </a>
-    <a href="inventory" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'inventory') ? ' active' : ''; ?>" data-page="inventory">
-        <i class="fas fa-box"></i>
-        <span>Inventory</span>
-    </a>
-    <a href="view-request" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'view-request') ? ' active' : ''; ?>" data-page="view-request">
-        <i class="fas fa-clipboard-list"></i>
-        <span>Stock Request</span>
-    </a>
+            <!-- Field Manager Menu -->
+            <a href="field-processing-order" class="nav-link<?php echo ($currentPage === 'field-processing-order') ? ' active' : ''; ?>" data-page="field-processing-order">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </a>
+            <a href="inventory" class="nav-link<?php echo ($currentPage === 'inventory') ? ' active' : ''; ?>" data-page="inventory">
+                <i class="fas fa-box"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="view-request" class="nav-link<?php echo ($currentPage === 'view-request') ? ' active' : ''; ?>" data-page="view-request">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Stock Request</span>
+            </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Designer'): ?>
-            <!-- Designer Menu (only Orders) -->
-            <a href="orders" class="nav-link" data-page="orders">
+            <!-- Designer Menu -->
+            <a href="orders" class="nav-link<?php echo ($currentPage === 'orders') ? ' active' : ''; ?>" data-page="orders">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Orders</span>
             </a>
             
         <?php elseif ($_SESSION['admin_role'] === 'Secretary'): ?>
-            <!-- Secretary Menu (Dashboard, Orders, Inventory, Admin, and Stock Request) -->
+            <!-- Secretary Menu -->
             <a href="dashboard" class="nav-link" data-page="dashboard">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="to-pick-up-orders" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'to-pick-up-orders') ? ' active' : ''; ?>" data-page="to-pick-up-orders">
+            <a href="to-pick-up-orders" class="nav-link<?php echo ($currentPage === 'to-pick-up-orders') ? ' active' : ''; ?>" data-page="to-pick-up-orders">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Orders</span>
             </a>
@@ -102,7 +105,7 @@
                 <i class="fas fa-box"></i>
                 <span>Inventory</span>
             </a>
-            <a href="stock-request" class="nav-link<?php echo (basename($_SERVER['PHP_SELF'], ".php") === 'stocks-request') ? ' active' : ''; ?>" data-page="stocks-request">
+            <a href="stock-request" class="nav-link<?php echo ($currentPage === 'stocks-request') ? ' active' : ''; ?>" data-page="stocks-request">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Stock Request</span>
             </a>
@@ -122,6 +125,7 @@
         </a>
     </div>
 </aside>
+
 <!-- Confirmation Modal -->
 <div id="logoutConfirmation" class="confirmation-modal">
   <div class="confirmation-modal-content">
@@ -157,5 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentPage === 'view-request' && role === 'Secretary') {
         window.location.href = 'stocks-request';
     }
+});
+
+document.querySelectorAll('.submenu-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        const parent = toggle.closest('.has-submenu');
+        parent.classList.toggle('open');
+    });
 });
 </script>

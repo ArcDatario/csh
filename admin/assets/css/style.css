@@ -218,6 +218,90 @@ body {
     font-weight: 600;
 }
 
+/* Parent nav-link with submenu should behave like normal nav-link */
+.has-submenu {
+    display: flex;
+    flex-direction: column;
+}
+
+/* The toggle behaves exactly like a nav-link */
+.submenu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem 0.75rem 0;
+    border-radius: 0.5rem;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font: inherit;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    transition: 0.3s;
+}
+
+.submenu-toggle:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text);
+}
+
+.has-submenu.active .submenu-toggle {
+    background-color: var(--primary);
+    color: white;
+}
+
+.submenu-toggle i {
+    font-size: 1.1rem;
+}
+
+.submenu-arrow {
+    margin-left: auto;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+}
+
+.has-submenu.open .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+/* Submenu styling */
+.has-submenu .submenu {
+    display: none;
+    flex-direction: column;
+    margin-left: 2.25rem; /* indentation */
+    gap: 0.25rem;
+}
+
+.has-submenu.open .submenu {
+    display: flex;
+}
+
+.submenu-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none; /* remove underline */
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.submenu-item:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text);
+}
+
+.submenu-item.active {
+    background-color: var(--primary);
+    color: white;
+}
+
+
 .theme-toggle {
     display: flex;
     align-items: center;
