@@ -110,7 +110,7 @@ $full_address = trim($address);
 .image-viewer-modal {
   display: none;
   position: fixed;
-  z-index: 1001;
+  z-index: 11111;
   left: 0;
   top: 0;
   width: 100%;
@@ -150,307 +150,178 @@ $full_address = trim($address);
   color: white;
   font-size: 1rem;
 }
-/* Reuse Quote Modal Styles for Details Modal */
+/* ---------- Details Modal Base ---------- */
 .details-modal {
   display: none;
   position: fixed;
-  z-index: 1000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  overflow-y: auto;
+  background-color: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  font-family: 'Arial', sans-serif;
 }
 
 .detail-modal-content {
-  background-color: white;
-  margin: 5% auto;
-  padding: 20px;
-  border-radius: 6px;
-  width: 90%;
-  max-width: 450px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: #fff;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  padding: 20px 25px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
   position: relative;
+  border: 2px dashed #333; /* ticket border style */
 }
 
+/* Close Button */
 .detail-modal-close {
-  color: #999;
   position: absolute;
-  right: 20px;
-  top: 15px;
+  top: 10px;
+  right: 15px;
   font-size: 24px;
-  font-weight: bold;
   cursor: pointer;
-  line-height: 1;
-}
-
-.detail-modal-close:hover {
+  font-weight: bold;
   color: #333;
 }
 
-.detail-modal h2 {
-  font-size: 1.2rem;
-  margin: 0 0 15px 0;
-  color: #333;
-  font-weight: 600;
+/* ---------- Header ---------- */
+.detail-modal-header {
+  text-align: center;
+  margin-bottom: 15px;
 }
 
-.detail-modal-body {
-  margin: 15px 0;
-  font-size: 0.9rem;
+.detail-modal-header h2 {
+  font-size: 20px;
+  margin: 0;
 }
 
-.detail-modal-row {
-  margin-bottom: 12px;
-}
-
-.grouped-row {
-  display: flex;
-  gap: 15px;
-}
-
-.grouped-row-2 {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 15px;
-  margin-bottom: 12px;
-}
-
-.grouped-item {
-  flex: 1;
-}
-
-.details-column {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.detail-modal-label {
-  font-weight: 500;
-  color: #666;
+.detail-modal-header .detail-modal-value {
   display: block;
-  margin-bottom: 2px;
-  font-size: 0.85rem;
+  font-size: 14px;
+  color: #555;
+  margin-top: 5px;
 }
 
-.detail-modal-value {
-  color: #333;
-  word-break: break-word;
-  font-size: 0.9rem;
-  line-height: 1.4;
+.status-label {
+  display: inline-block;
+  margin-top: 5px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #28a745; /* approved green */
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
-/* Design section with buttons */
+/* Change color based on status if needed */
+.status-label[data-status="pending"] {
+  background-color: #ffc107;
+}
+.status-label[data-status="rejected"] {
+  background-color: #dc3545;
+}
+
+/* ---------- Design Info ---------- */
+.design-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
 .design-image-container {
+  flex: 0 0 80px;
   position: relative;
-  margin-bottom: 8px;
 }
 
 .design-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  border: 1px solid #eee;
-  max-width: 120px;
-  height: auto;
-  display: block;
 }
 
 .design-buttons {
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.view-design-btn,
-.download-design-btn{
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  flex: 1;
-}
-
-.view-design-btn {
-  background-color: #2196F3;
-  color: white;
-}
-
-.view-design-btn:hover {
-  background-color: #0b7dda;
-}
-
-.download-design-btn {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.download-design-btn:hover {
-  background-color: #45a049;
-}
-
-/* Special value styles */
-.note-value {
-  display: inline-block;
-  padding: 6px 8px;
-  background-color: #f8f8f8;
-  border-radius: 3px;
-  width: 100%;
-  font-style: italic;
-}
-
-.address-value {
-  display: inline-block;
-  padding: 6px 8px;
-  background-color: #f5f9ff;
-  border-radius: 3px;
-  width: 100%;
-  white-space: pre-wrap;
-}
-
-/* Subtotal */
-.subtotal-text {
-  display: inline-block;
-  padding: 8px;
-  background-color: #f0f8f0;
-  border-radius: 4px;
-  font-weight: 500;
-  width: 100%;
+  flex-direction: column;
+  gap: 5px;
   margin-top: 5px;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 480px) {
-  .detail-modal-content {
-    padding: 15px;
-    margin: 10% auto;
-    width: 95%;
-  }
-
-  .grouped-row {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .grouped-row-2 {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .design-image {
-    max-width: 100px;
-  }
-}
-
-
-.details-btn {
-  background-color: #f59e0b; /* amber-500 */
-  color: white;
-  border: none;
-  padding: 5px 8px;
-  border-radius: 6px;
-  font-size: 11.2px;
+.design-buttons button {
+  font-size: 10px;
+  padding: 3px 5px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background-color 0.2s ease;
+  border: none;
+  border-radius: 3px;
+  background-color: #007bff;
+  color: #fff;
 }
 
-.details-btn:hover {
-  background-color: #d97706; /* amber-600 */
+.design-details {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
-.details-btn i {
+/* ---------- Items Table ---------- */
+.items-section {
+  margin-top: 10px;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 14px;
 }
 
-.details-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
-}
-
-.details-modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.details-close {
-  float: right;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-.details-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 10px 0;
-}
-.details-table th, .details-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-.details-table th {
-  background: #f5f5f5;
+.items-table th,
+.items-table td {
   text-align: left;
-  width: 30%;
-}
-.design-preview {
-  margin-top: 10px;
-}
-.design-preview img {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ccc;
 }
 
-  .shirt-item-row {
-    margin-bottom: 8px;
-    padding: 8px 0;
-}
-
-
-/* Shirt items layout */
-.shirt-items-container {
-  margin-top: 10px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  overflow: hidden;
+.items-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
 }
 
 .shirt-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  background-color: #fafafa;
 }
 
-.shirt-item:nth-child(even) {
-  background-color: #fdfdfd;
+.card-content {
+    position: relative; /* allow absolute positioning inside */
+    padding-bottom: 30px; /* space for icon */
 }
 
-.shirt-color {
-  font-weight: 500;
-  color: #333;
+.bottom-right-details-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 18px;
+    color: #000; /* black icon */
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
 }
 
-.shirt-qty {
-  font-weight: 600;
-  color: #444;
+.bottom-right-details-icon:hover {
+    color: #333; /* subtle darken on hover */
+    transform: scale(1.2);
 }
 
+/* ---------- Ticket Lines ---------- */
+hr {
+  border: none;
+  border-top: 1px dashed #999;
+  margin: 10px 0;
+}
     </style>
 </head>
 <body>
@@ -609,19 +480,41 @@ if ($user_id) {
                     <div class="quote-card animate__animated animate__fadeInUp" data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>">
                         <img src="<?= $thumbnail ?>" alt="Design" class="card-image">
                         <span class="card-status status-approved"><?= htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8') ?></span>
-                        <div class="card-content">
-                            <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
-                            <div class="card-details">
-                                <div class="card-detail">
-                                    <span class="detail-label">Quantity</span>
-                                    <span class="detail-value"><?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?></span>
-                                </div>
-                                <div class="card-detail">
-                                    <span class="detail-label">Ticket #</span>
-                                    <span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span>
-                                </div>
-                            </div>
-                                <span class="quote-date"><?= $createdAt ?></span>
+<div class="card-content">
+    <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
+
+    <div class="card-details">
+        <div class="card-detail">
+            <span class="detail-label">Quantity</span>
+            <span class="detail-value"><?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?></span>
+        </div>
+
+        <div class="card-detail">
+            <span class="detail-label">Ticket #</span>
+            <span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span>
+        </div>
+    </div>
+
+    <span class="quote-date"><?= $createdAt ?></span>
+
+    <!-- Bottom-right details icon -->
+    <i class="fa fa-info-circle bottom-right-details-icon"
+       title="Click to see full order details"
+       onclick="openDetailsModalFromCard(this)"
+       data-id="<?= $order['id'] ?>"
+       data-user-id="<?= $order['user_id'] ?>"
+       data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES) ?>"
+       data-design="<?= htmlspecialchars($order['design_file'], ENT_QUOTES) ?>"
+       data-mobile="<?= htmlspecialchars($order['phone_number'], ENT_QUOTES) ?>"
+       data-name="<?= htmlspecialchars($order['name'], ENT_QUOTES) ?>"
+       data-print-type="<?= htmlspecialchars($order['print_type'], ENT_QUOTES) ?>"
+       data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES) ?>"
+       data-date="<?= htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES) ?>"
+       data-status="<?= htmlspecialchars($order['status'], ENT_QUOTES) ?>"
+       data-note="<?= htmlspecialchars($order['note'], ENT_QUOTES) ?>"
+       data-address="<?= htmlspecialchars($order['address'], ENT_QUOTES) ?>"
+       data-items='<?= json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
+    </i>
                             <div class="card-actions">
                                 <div class="button-group">
                                     <button class="view-details-btn approved-order-btn" 
@@ -635,26 +528,6 @@ if ($user_id) {
                                         data-admin-approved-date="<?= htmlspecialchars($order['admin_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
                                     >
                                         <i class="fas fa-eye"></i> View
-                                    </button>
-
-                                    <button class="details-btn"
-                                        data-id="<?= $order['id'] ?>"
-                                        data-user-id="<?= $order['user_id'] ?>"
-                                        data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES) ?>"
-                                        data-design="<?= htmlspecialchars($order['design_file'], ENT_QUOTES) ?>"
-                                        data-mobile="<?= htmlspecialchars($order['phone_number'], ENT_QUOTES) ?>"
-                                        data-name="<?= htmlspecialchars($order['name'], ENT_QUOTES) ?>"
-                                        data-print-type="<?= htmlspecialchars($order['print_type'], ENT_QUOTES) ?>"
-                                        data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES) ?>"
-                                        data-date="<?= htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES) ?>"
-                                        data-status="<?= htmlspecialchars($order['status'], ENT_QUOTES) ?>"
-                                        data-note="<?= htmlspecialchars($order['note'], ENT_QUOTES) ?>"
-                                        data-address="<?= htmlspecialchars($order['address'], ENT_QUOTES) ?>"
-                                        data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES) ?>"
-                                        data-subtotal="<?= htmlspecialchars($order['subtotal'], ENT_QUOTES) ?>"
-                                        data-items='<?= json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'
->
-                                    <i class="fa fa-info-circle"></i>Details
                                     </button>
 
                                     <a href="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" 
@@ -736,102 +609,60 @@ if ($user_id) {
         <div class="toast-message" id="toastMessage"></div>
     </div>
 
-    <!-- ✅ Details Modal -->
+<!-- ✅ Details Modal -->
 <div id="detailsModal" class="details-modal">
   <div class="detail-modal-content">
     <span class="detail-modal-close">&times;</span>
-    <h2>Order Details</h2>
-    <div class="detail-modal-body">
-      <!-- Group 1: Ticket and Customer in one row -->
-      <div class="detail-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="detail-modal-label">Ticket #:</span>
-          <span id="detail-modal-ticket" class="detail-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="detail-modal-label">Customer:</span>
-          <span id="detail-modal-name" class="detail-modal-value"></span>
-        </div>
-      </div>
 
-      <!-- Group 2: Image with buttons and details -->
-      <div class="detail-modal-row grouped-row-2">
-        <div class="grouped-item">
-          <span class="detail-modal-label">Design:</span>
-          <div class="design-image-container">
-            <img id="detail-modal-design" src="" alt="Design" class="design-image">
-            <div class="design-buttons">
-              <button class="view-design-btn">View</button>
-              <button class="download-design-btn">Download</button>
-            </div>
-          </div>
-        </div>
-        <div class="grouped-item details-column">
-          <div class="detail-row">
-            <span class="detail-modal-label">Print Type:</span>
-            <span id="detail-modal-print-type" class="detail-modal-value"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-modal-label">Quantity:</span>
-            <span id="detail-modal-quantity" class="detail-modal-value"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-modal-label">Mobile #:</span>
-            <span id="detail-modal-mobile" class="detail-modal-value"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Shirt Colors & Quantities Section -->
-      <div class="detail-modal-row">
-        <span class="detail-modal-label">Items:</span>
-        <div id="detail-modal-shirt-items" class="shirt-items-container"></div>
-      </div>
-
-      <!-- Note -->
-      <div class="detail-modal-row">
-        <span class="detail-modal-label">Note:</span>
-        <span id="detail-modal-note" class="detail-modal-value note-value"></span>
-      </div>
-
-      <!-- Group 3: Date and Status -->
-      <div class="detail-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="detail-modal-label">Date:</span>
-          <span id="detail-modal-date" class="detail-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="detail-modal-label">Status:</span>
-          <span id="detail-modal-status" class="detail-modal-value"></span>
-        </div>
-      </div>
-
-      <!-- Address -->
-      <div class="detail-modal-row">
-        <span class="detail-modal-label">Address:</span>
-        <span id="detail-modal-address" class="detail-modal-value address-value"></span>
-      </div>
-
-      <!-- Price & Subtotal -->
-      <!-- <div class="detail-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="detail-modal-label">Price per pcs:</span>
-          <span id="detail-modal-price" class="detail-modal-price-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="detail-modal-label">Subtotal:</span>
-          <span id="detail-modal-subtotal" class="detail-modal-subtotal-value"></span>
-        </div>
-      </div> -->
-
-      <!-- Hidden values if needed for JS -->
-      <input type="hidden" id="subtotal-value" name="subtotal">
-      <input type="hidden" id="pricing-value" name="pricing">
-      <input type="hidden" id="user_id" name="user_id">
-      <input type="hidden" id="ticket-value-input" name="ticket-value-input">
+    <!-- Header: Ticket & Date -->
+    <div class="detail-modal-header">
+      <h2>Ticket #<span id="detail-modal-ticket"></span></h2>
+      <span id="detail-modal-date" class="detail-modal-value"></span>
+      <span class="status-label">Status: <span id="detail-modal-status"></span></span>
     </div>
+
+    <hr>
+
+    <!-- Design & Print Info -->
+    <div class="detail-modal-section design-info">
+      <div class="design-image-container">
+        <img id="detail-modal-design" src="" alt="Design" class="design-image">
+        <div class="design-buttons">
+          <button class="view-design-btn">View</button>
+          <button class="download-design-btn">Download</button>
+        </div>
+      </div>
+      <div class="design-details">
+        <div><strong>Print Type:</strong> <span id="detail-modal-print-type"></span></div>
+        <div><strong>Total Quantity:</strong> <span id="detail-modal-quantity"></span></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Items Table -->
+    <div class="detail-modal-section items-section">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+          </tr>
+        </thead>
+        <tbody id="detail-modal-shirt-items">
+          <!-- Shirt items will populate here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Hidden fields for JS (kept as is) -->
+    <input type="hidden" id="subtotal-value" name="subtotal">
+    <input type="hidden" id="pricing-value" name="pricing">
+    <input type="hidden" id="user_id" name="user_id">
+    <input type="hidden" id="ticket-value-input" name="ticket-value-input">
   </div>
 </div>
+
 
 <!-- Image Viewer Modal -->
 <div id="userImageViewerModal" class="image-viewer-modal" style="display:none;">
@@ -845,71 +676,74 @@ if ($user_id) {
     <script src="../assets/js/quote.js"></script>
 
    <script>
+
+    function openDetailsModalFromCard(element) {
+    // If the element itself is the icon, use it
+    const button = element.tagName === "I" ? element : element.querySelector('i.details-icon');
+    
+    if (button) {
+        openDetailsModal({ currentTarget: button });
+    }
+}
       // Grab the modal
-  const detailsModal = document.getElementById('detailsModal');
-  
-  // Open Details Modal
-  function openDetailsModal(event) {
-      const button = event.currentTarget;
-      const id = button.getAttribute("data-id");
-      const userId = button.getAttribute("data-user-id");
-      const ticket = button.getAttribute("data-ticket");
-      const design = button.getAttribute("data-design");
-      const mobile = button.getAttribute("data-mobile");
-      const name = button.getAttribute("data-name");
-      const printType = button.getAttribute("data-print-type");
-      const quantity = button.getAttribute("data-quantity");
-      const date = button.getAttribute("data-date");
-      const status = button.getAttribute("data-status");
-      const note = button.getAttribute("data-note");
-      const address = button.getAttribute("data-address");
-      const items = JSON.parse(button.getAttribute("data-items") || "[]");
+// Grab the modal
+const detailsModal = document.getElementById('detailsModal');
 
-      // Determine correct design image
-      const fileExtension = design.split('.').pop().toLowerCase();
-      let imageSrc = ['psd','pdf','ai'].includes(fileExtension)
-                      ? fileExtension === 'psd' ? '../photoshop.png'
-                        : fileExtension === 'pdf' ? '../pdf.png'
-                        : '../illustrator.png'
-                      : '../user/' + design;
+// Open Details Modal
+function openDetailsModal(event) {
+    const button = event.currentTarget;
+    const id = button.getAttribute("data-id");
+    const userId = button.getAttribute("data-user-id");
+    const ticket = button.getAttribute("data-ticket");
+    const design = button.getAttribute("data-design");
+    const printType = button.getAttribute("data-print-type");
+    const quantity = button.getAttribute("data-quantity");
+    const date = button.getAttribute("data-date");
+    const status = button.getAttribute("data-status");
+    const items = JSON.parse(button.getAttribute("data-items") || "[]");
 
-      // Populate modal fields
-      document.getElementById("detail-modal-ticket").textContent = ticket;
-      document.getElementById("detail-modal-name").textContent = name;
-      document.getElementById("detail-modal-design").src = imageSrc;
-      document.getElementById("detail-modal-print-type").textContent = printType;
-      document.getElementById("detail-modal-quantity").textContent = quantity;
-      document.getElementById("detail-modal-date").textContent = date;
-      document.getElementById("detail-modal-status").textContent = status;
-      document.getElementById("detail-modal-note").textContent = note || "N/A";
-      document.getElementById("detail-modal-address").textContent = address || "N/A";
-      document.getElementById("detail-modal-mobile").textContent = mobile || "N/A";
-      document.getElementById("user_id").value = userId;
-      document.getElementById("ticket-value-input").value = ticket;
+    // Determine correct design image
+    const fileExtension = design.split('.').pop().toLowerCase();
+    let imageSrc = ['psd','pdf','ai'].includes(fileExtension)
+                    ? fileExtension === 'psd' ? '../photoshop.png'
+                      : fileExtension === 'pdf' ? '../pdf.png'
+                      : '../illustrator.png'
+                    : '../user/' + design;
 
-      // Populate shirt items
-      const itemsContainer = document.getElementById("detail-modal-shirt-items");
-      itemsContainer.innerHTML = "";
-      if (items.length > 0) {
-          items.forEach(item => {
-              const div = document.createElement("div");
-              div.classList.add("shirt-item");
-              div.innerHTML = `<span class="shirt-color">${item.shirt_color}</span> 
-                               <span class="shirt-qty">${item.quantity}</span>`;
-              itemsContainer.appendChild(div);
-          });
-      } else {
-          itemsContainer.innerHTML = "<em>No shirt colors added</em>";
-      }
+    // Populate modal fields
+    document.getElementById("detail-modal-ticket").textContent = ticket;
+    document.getElementById("detail-modal-design").src = imageSrc;
+    document.getElementById("detail-modal-print-type").textContent = printType;
+    document.getElementById("detail-modal-quantity").textContent = quantity;
+    document.getElementById("detail-modal-date").textContent = date;
+    document.getElementById("detail-modal-status").textContent = status;
+    document.getElementById("user_id").value = userId;
+    document.getElementById("ticket-value-input").value = ticket;
 
-      // Show the modal
-      detailsModal.style.display = "flex";
-      detailsModal.setAttribute('data-design-file', design);
-      detailsModal.setAttribute(
-          'data-is-viewable',
-          ['jpg','jpeg','png','gif','webp'].includes(fileExtension)
-      );
-  }
+    // Populate shirt items (for table tbody)
+    const itemsContainer = document.getElementById("detail-modal-shirt-items");
+    itemsContainer.innerHTML = "";
+    if (items.length > 0) {
+        items.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${item.shirt_color}</td><td>${item.quantity}</td>`;
+            itemsContainer.appendChild(tr);
+        });
+    } else {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="2"><em>No shirt colors added</em></td>`;
+        itemsContainer.appendChild(tr);
+    }
+
+    // Show the modal
+    detailsModal.style.display = "flex";
+    detailsModal.setAttribute('data-design-file', design);
+    detailsModal.setAttribute(
+        'data-is-viewable',
+        ['jpg','jpeg','png','gif','webp'].includes(fileExtension)
+    );
+}
+
 
   // Close Details Modal
   function closeDetailsModal() {
