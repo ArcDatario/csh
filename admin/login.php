@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | Secure Access</title>
+    <link rel="icon" href="assets/images/analysis.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -49,20 +50,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--light);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            background-image: 
-                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.1) 0px, transparent 50%);
-            transition: var(--transition);
-        }
+       body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--light);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background-image: url('../csh-login.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: var(--transition);
+}
 
         .login-container {
             width: 100%;
@@ -87,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             position: relative;
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             color: white;
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+            
         }
 
         .login-header h1 {
@@ -141,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .login-form {
+             background-color: white;
             padding: 2rem;
             position: relative;
             margin-top: -1.5rem;

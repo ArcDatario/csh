@@ -25,7 +25,8 @@ redirectToUserHomeIfLoggedIn();
 }
 
 body {
-    background: linear-gradient(135deg, #f8f9fa 0%, #a1c6ea 100%);
+    background: url('csh-login.png') no-repeat center center fixed;
+    background-size: cover;
     min-height: 100vh;
     display: flex;
     align-items: center;

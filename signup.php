@@ -18,14 +18,15 @@
             --light-color: #f8f9fa;
             --dark-color: #212529;
         }
-        body {
-            background: linear-gradient(135deg, #f8f9fa 0%, #a1c6ea 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+       body {
+    background: url('csh-login.png') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
         .verification-container {
             max-width: 500px;
             width: 100%;

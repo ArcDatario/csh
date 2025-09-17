@@ -126,7 +126,7 @@ redirectIfNotLoggedIn();
             <p>Explore our wide range of cloth printing techniques to find the perfect solution for your needs.</p>
         </div>
         <div class="services-grid">
-        <?php
+       <?php
 require '../db_connection.php'; // Include your database connection
 
 // Fetch data from the services table
@@ -134,14 +134,19 @@ $query = "SELECT service_name, description, image FROM services"; // Adjust colu
 $result = $conn->query($query);
 
 if ($result->num_rows > 0):
-    while ($row = $result->fetch_assoc()): ?>
+    while ($row = $result->fetch_assoc()): 
+        // Clean up any escaped characters
+        $service_name = stripslashes(htmlspecialchars($row['service_name']));
+        $description = stripslashes(htmlspecialchars($row['description']));
+        $image = htmlspecialchars($row['image']);
+        ?>
         <div class="service-card">
             <div class="service-image">
-                <img src="../admin/<?php echo htmlspecialchars($row['image']); ?>" alt="<?php echo htmlspecialchars($row['service_name']); ?>">
+                <img src="../admin/<?php echo $image; ?>" alt="<?php echo $service_name; ?>">
             </div>
             <div class="service-content">
-                <h3><?php echo htmlspecialchars($row['service_name']); ?></h3>
-                <p><?php echo htmlspecialchars($row['description']); ?></p>
+                <h3><?php echo $service_name; ?></h3>
+                <p><?php echo $description; ?></p>
             </div>
         </div>
     <?php endwhile;
