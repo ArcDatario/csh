@@ -114,7 +114,7 @@ redirectIfNotLoggedIn();
             <div class="hero-content">
                 <h1>CSH Enterprises Printing Solutions</h1>
                 <p>Transform your ideas into wearable art with our cutting-edge printing technology. From small batches to large orders, we deliver quality and creativity.</p>
-                <a href="quote" class="cta-button">Get Quote</a>
+                <a href="..login" class="cta-button">Get Quote</a>
             </div>
         </div>
     </section>
