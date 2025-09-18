@@ -97,7 +97,7 @@ redirectIfNotLoggedIn();
     <header>
         <div class="header-container">
             <a href="#" class="logo">
-                 <img src="../csh-logo.png" alt="" style="height: 45px; width: 100%;">
+                 <img src="../csh-logo.png" alt="" style="height: 55px; width: 100%;">
                
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
