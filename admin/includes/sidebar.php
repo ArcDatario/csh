@@ -1,7 +1,6 @@
 <aside class="sidebar" id="sidebar">
     <div class="logo">
-        <i class="fa-solid fa-chart-simple"></i>
-        <h2>CSH</h2>
+        <img src="../csh-logo.png" alt="" style="height: 55px; width: 100%;">
     </div>
     <div class="nav-links">
 

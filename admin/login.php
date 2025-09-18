@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --primary-hover: #4f46e5;
             --secondary: #10b981;
             --dark: #1e293b;
-            --light: #f8            --border: #e2e8f0;
+            --light: #e2e8f0;
             --error: #ef4444;
             --success: #10b981;
             --text: #334155;

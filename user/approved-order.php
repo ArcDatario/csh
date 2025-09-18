@@ -336,8 +336,7 @@ hr {
     <header>
         <div class="header-container">
             <a href="#" class="logo">
-                 <img src="../assets/images/icons/shirt1.png" alt="" style="height: 45px; width: 35px;">
-                CSH
+                <img src="../csh-logo.png" alt="" style="height: 55px; width: 100%;">
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>

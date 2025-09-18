@@ -117,7 +117,8 @@ nav ul li {
 nav ul li a {
     color: var(--text);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 700;
+    font-size: 20px;
     transition: color 0.3s;
     position: relative;
 }
@@ -261,19 +262,19 @@ nav ul li a.active::after {
 
 /* Services Section */
 .services {
-    padding: 100px 20px;
+    padding: 10px 20px;
     background-color: var(--light);
 }
 
 .section-title {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 .section-title h2 {
     font-size: 36px;
     color: var(--primary);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .section-title p {
@@ -285,16 +286,34 @@ nav ul li a.active::after {
 
 /* Services Section - Revised */
 .services {
-    padding: 100px 20px;
+    padding: 40px 20px;
     background-color: var(--light);
 }
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
+}
+@media (max-width: 1200px) {
+    .services-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 900px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    .service-image {
+        height: 200px;
+    }
 }
 
 .service-card {
@@ -352,23 +371,8 @@ nav ul li a.active::after {
 }
 
 /* Responsive adjustments for services grid only */
-@media (max-width: 1200px) {
-    .services-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 900px) {
-    .services-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
+/* Responsive adjustments for services grid to match gallery */
 @media (max-width: 600px) {
-    .services-grid {
-        grid-template-columns: 1fr;
-    }
-    
     .service-image {
         height: 200px;
     }
@@ -388,7 +392,7 @@ nav ul li a.active::after {
 
 /* Gallery Section */
 .gallery {
-    padding: 80px 20px;
+    padding: 10px 20px;
     background-color: var(--secondary);
 }
 
@@ -456,7 +460,7 @@ nav ul li a.active::after {
 
 /* Contact Section */
 .contact {
-    padding: 100px 20px;
+    padding: 30px 20px;
     background-color: var(--light);
 }
 
