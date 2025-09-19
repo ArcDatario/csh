@@ -1,5 +1,4 @@
 <?php
-
 require_once '../db_connection.php';
 require_once '../auth_check.php';
 
@@ -25,7 +24,7 @@ try {
     $totalQuantity = $_POST['total_quantity'] ?? 0;
     $note = $_POST['note'] ?? '';
     $address = $_POST['address'] ?? '';
-    $shirtColors = $_POST['shirt_color'] ?? [];
+    $shirtColors = $_POST['item_color'] ?? []; // Changed from shirt_color to item_color
     $shirtQuantities = $_POST['shirt_quantity'] ?? [];
 
     // Generate a unique 6-digit ticket number
@@ -60,7 +59,8 @@ try {
     $stmt->bind_param("isissis", $userId, $printType, $totalQuantity, $note, $designFile, $ticket, $address);
     
     if ($stmt->execute()) {
-        $orderId = $stmt->insert_id; // Get the inserted order's ID
+        $orderId = $conn->insert_id; // Use connection's insert_id instead of statement's
+        $stmt->close(); // Close the statement before proceeding
         
         // Insert shirt items into items table
         if (!empty($shirtColors) && !empty($shirtQuantities)) {
@@ -91,9 +91,8 @@ try {
         $notificationStmt->close();
     } else {
         echo json_encode(['success' => false, 'message' => 'Database error: ' . $stmt->error]);
+        $stmt->close();
     }
-    
-    $stmt->close();
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }

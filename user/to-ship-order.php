@@ -379,6 +379,7 @@ hr {
     <a href="processing-order" class="tab-button">Processing</a>
     <a href="to-ship-order" class="tab-button active">To Ship</a>
     <a href="completed-order" class="tab-button">Completed</a>
+    <a href="cancelled-orders" class="tab-button">Cancelled</a>
 </div>
 
         <style>
