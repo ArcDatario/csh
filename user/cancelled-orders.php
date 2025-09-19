@@ -430,7 +430,7 @@ hr {
 
         <div class="quotes-container cancelled-orders-container" id="cancelled-orders-container" style="display:block;">
             <?php
-            include '../db_connection.php';
+            
 
             // Fetch cancelled orders for the logged-in user
             $user_id = $_SESSION['user_id'] ?? null;
