@@ -23,6 +23,16 @@
                                 <input type="date" id="endDate" class="form-control" required>
                             </div>
                             <div class="form-group">
+                                <label for="statusFilter" class="form-label">Order Status</label>
+                                <select id="statusFilter" class="form-control" required>
+                                    <option value="all">All</option>
+                                    <option value="completed">Completed (Total Revenue)</option>
+                                    <option value="active">Active Orders (Processing, To Pick-up, To Ship)</option>
+                                    <option value="approved">Approved Quotes (Awaiting Client Acceptance)</option>
+                                    <option value="pending">Pending Quotes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="reportType" class="form-label">Report Type</label>
                                 <select id="reportType" class="form-control" required>
                                     <option value="pdf">PDF</option>
@@ -63,7 +73,9 @@
                     }
                     
                     // Generate the report
-                    window.open(`generate_report.php?start_date=${startDate}&end_date=${endDate}&type=${reportType}`, '_blank');
+                    const status = document.getElementById('statusFilter').value;
+                    window.open(`generate_report.php?start_date=${startDate}&end_date=${endDate}&status=${status}&type=${reportType}`, '_blank');
+
                     
                     // Close the modal
                     document.getElementById('reportModal').classList.remove('active');

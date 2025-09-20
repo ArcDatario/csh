@@ -73,8 +73,8 @@ try {
 
     // 4. Pending Orders (this month, not completed or rejected)
     $query = "SELECT COUNT(*) as pending_orders FROM orders 
-              WHERE status NOT IN ('completed', 'rejected') 
-              AND MONTH(created_at) = ? AND YEAR(created_at) = ?";
+    WHERE status IN ('pending', 'approved', 'processing', 'to-pick-up', 'to_ship') 
+            AND MONTH(created_at) = ? AND YEAR(created_at) = ?";
     $result = executeQuery($conn, $query, [$currentMonth, $currentYear], "ii");
     $pendingOrders = $result->fetch_assoc()['pending_orders'] ?? 0;
 

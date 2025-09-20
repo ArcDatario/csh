@@ -92,7 +92,7 @@ $usersTrendIcon = $usersChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
 
 // 4. Pending Orders (this month, not completed or rejected)
 $query = "SELECT COUNT(*) as pending_orders FROM orders 
-          WHERE status NOT IN ('completed', 'rejected') 
+          WHERE status IN ('pending', 'approved', 'processing', 'to-pick-up', 'to_ship') 
           AND MONTH(created_at) = ? AND YEAR(created_at) = ?";
 $result = executeQuery($conn, $query, [$currentMonth, $currentYear], "ii");
 $pendingOrders = $result->fetch_assoc()['pending_orders'] ?? 0;
@@ -214,7 +214,7 @@ $servicePercentages = array_map(function($count) use ($totalServices) {
                 
                 <div class="card slide-in" style="animation-delay: 0.3s;">
                     <div class="card-header">
-                        <span class="card-title">Pending Orders</span>
+                        <span class="card-title">Open Orders</span>
                         <div class="card-icon warning">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
