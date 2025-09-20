@@ -276,9 +276,9 @@ if (isset($_SESSION['admin_role'])) {
       </div>
     </div>
     <div class="quote-modal-footer">
-      <input type="number" id="quote-modal-input" placeholder="Update Price per pcs" name="price">
-
-      <button id="quote-modal-save" class="quote-modal-btn">Approved</button>
+  <input type="number" id="quote-modal-input" placeholder="Update Price per pcs" name="price">
+  <button id="quote-modal-cancel" class="quote-modal-btn btn-danger" style="margin-right:8px;">Cancel</button>
+  <button id="quote-modal-save" class="quote-modal-btn">Approved</button>
     </div>
   </div>
 </div>
@@ -298,6 +298,49 @@ if (isset($_SESSION['admin_role'])) {
 
 
 <script>
+// Modal Cancel button handler
+const cancelBtn = document.getElementById('quote-modal-cancel');
+cancelBtn.addEventListener('click', function() {
+  const id = quoteModal.getAttribute('data-current-id');
+  const userId = document.getElementById('user_id').value;
+  const ticket = document.getElementById('ticket-value-input').value;
+  const reason = prompt('Please enter the reason for cancellation:');
+  if (reason === null) return;
+  if (!reason.trim()) {
+    showToast('Error', 'Cancellation reason is required.', 'error');
+    return;
+  }
+  cancelBtn.disabled = true;
+  cancelBtn.textContent = 'Cancelling...';
+  const formData = new FormData();
+  formData.append('id', id);
+  formData.append('user_id', userId);
+  formData.append('ticket', ticket);
+  formData.append('action', 'cancel');
+  formData.append('cancellation_reason', reason);
+  fetch('functions/approved_pricing.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Success', data.message, 'success');
+      quoteModal.style.display = 'none';
+      refreshDesignersTable();
+    } else {
+      showToast('Error', data.message, 'error');
+    }
+  })
+  .catch(error => {
+    showToast('Error', 'An error occurred while cancelling the order', 'error');
+    console.error('Error:', error);
+  })
+  .finally(() => {
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = 'Cancel';
+  });
+});
 // Get DOM elements
 const quoteModal = document.getElementById('quoteModal');
 const quoteModalClose = document.querySelector('.quote-modal-close');
