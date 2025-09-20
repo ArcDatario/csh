@@ -1568,6 +1568,5 @@ userImageViewerModal.onclick = function(e) {
 }
     </script>
 
-
 </body>
 </html>

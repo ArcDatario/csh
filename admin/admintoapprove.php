@@ -270,7 +270,6 @@ if (isset($_SESSION['admin_role'])) {
       <input type="number" id="user_id" class="user_id" name="user_id" hidden>
 
       <input type="number" id="ticket-value-input" class="ticket-value-input" name="ticket-value-input" hidden>
-
       
         <span id="subtotal-text" class="subtotal-text">Updated: ₱</span>
       </div>
