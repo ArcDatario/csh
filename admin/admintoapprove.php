@@ -277,7 +277,7 @@ if (isset($_SESSION['admin_role'])) {
     </div>
     <div class="quote-modal-footer">
   <input type="number" id="quote-modal-input" placeholder="Update Price per pcs" name="price">
-  <button id="quote-modal-cancel" class="quote-modal-btn btn-danger" style="margin-right:8px;">Cancel</button>
+  <button id="quote-modal-cancel" class="quote-modal-btn btn-danger" style="margin-right:8px; background-color:#e53935; color:#fff; border:none;">Cancel</button>
   <button id="quote-modal-save" class="quote-modal-btn">Approved</button>
     </div>
   </div>
