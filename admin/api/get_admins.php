@@ -1,67 +1,60 @@
 <?php
 require_once '../../db_connection.php';
-session_start();
 header('Content-Type: application/json');
 
-$response = ['success' => false, 'data' => []];
+$response = ['success' => false, 'data' => [], 'pagination' => []];
 
-// Get current admin's ID and role from session (using your exact session variable names)
-$current_admin_id = $_SESSION['admin_id'] ?? null;
-$current_admin_role = $_SESSION['admin_role'] ?? null;
+try {
+    // Get parameters
+    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $items_per_page = 6;
 
-if (!$current_admin_id || !$current_admin_role) {
-    $response['message'] = 'Unauthorized access - session not set';
-    echo json_encode($response);
-    exit;
-}
+    // Calculate offset
+    $offset = ($page - 1) * $items_per_page;
 
-// Base query - always exclude current admin
-$query = "SELECT id, username, fullname, role FROM admins WHERE id != ?";
-
-// Add role-specific conditions
-if ($current_admin_role === 'Owner') {
-    // Owner sees all admins except themselves (already handled in base query)
-} elseif ($current_admin_role === 'General Manager') {
-    // GM sees all except Owner and themselves
-    $query .= " AND role != 'Owner'";
-} elseif ($current_admin_role === 'Secretary') {
-    // Secretary sees all except Owner, General Manager, and themselves
-    $query .= " AND role NOT IN ('Owner', 'General Manager')";
-} else {
-    // Default for other roles: hide Owner and General Manager
-    $query .= " AND role NOT IN ('Owner', 'General Manager')";
-}
-
-// Prepare and execute the query
-$stmt = $conn->prepare($query);
-if (!$stmt) {
-    $response['message'] = 'Database error: ' . $conn->error;
-    echo json_encode($response);
-    exit;
-}
-
-$stmt->bind_param("i", $current_admin_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result) {
-    $admins = [];
-    while ($row = $result->fetch_assoc()) {
-        $admins[] = [
-            'id' => $row['id'],
-            'username' => $row['username'],
-            'fullname' => $row['fullname'],
-            'role' => $row['role']
-        ];
+    // Build query
+    $base_query = "FROM admins WHERE 1=1";
+    
+    // Add search condition if provided
+    if (!empty($search)) {
+        $search_term = $conn->real_escape_string($search);
+        $base_query .= " AND (username LIKE '%$search_term%' OR fullname LIKE '%$search_term%' OR role LIKE '%$search_term%')";
     }
-    $response = [
-        'success' => true,
-        'data' => $admins
-    ];
-} else {
-    $response['message'] = 'Database error: ' . $conn->error;
+
+    // Get total count
+    $count_query = "SELECT COUNT(*) as total " . $base_query;
+    $count_result = $conn->query($count_query);
+    $total_items = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
+    $total_pages = ceil($total_items / $items_per_page);
+
+    // Get paginated results
+    $select_query = "SELECT id, username, fullname, role " . $base_query . " ORDER BY username ASC LIMIT $offset, $items_per_page";
+    $result = $conn->query($select_query);
+    
+    if ($result) {
+        $admins = [];
+        while ($row = $result->fetch_assoc()) {
+            $admins[] = $row;
+        }
+        
+        $response = [
+            'success' => true,
+            'data' => $admins,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $total_pages,
+                'total_items' => $total_items,
+                'items_per_page' => $items_per_page
+            ]
+        ];
+    } else {
+        $response['message'] = 'Database error: ' . $conn->error;
+    }
+
+} catch (Exception $e) {
+    $response['message'] = 'Error: ' . $e->getMessage();
 }
 
-$stmt->close();
 echo json_encode($response);
 ?>

@@ -11,7 +11,31 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
     !in_array($current_page, ['inventory.php', 'field-processing-order.php'])) {
     header('Location: field-processing-order.php');
     exit();
-}?>
+}
+
+// --- Pagination setup ---
+$logs_per_page = 6; // items per page
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $logs_per_page;
+
+// --- Count total inventory items ---
+$count_query = "SELECT COUNT(*) as total FROM inventory";
+$count_result = $conn->query($count_query);
+$total_items = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
+
+// --- Calculate total pages ---
+$total_pages = ceil($total_items / $logs_per_page);
+
+// --- Fetch items for current page ---
+$items_query = "SELECT * FROM inventory LIMIT $offset, $logs_per_page";
+$items_result = $conn->query($items_query);
+$items = [];
+if ($items_result) {
+    while ($row = $items_result->fetch_assoc()) {
+        $items[] = $row;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -24,6 +48,55 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
     <?php include "includes/link-css.php";?>
 
     <link rel="stylesheet" href="assets/css/inventory.css">
+    <link rel="stylesheet" href="assets/css/admintoapprove.css">
+    
+    <style>
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            color: #6c757d;
+            z-index: 1;
+        }
+        
+        .search-input {
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+        
+        .table-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .no-items {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -40,7 +113,7 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
         <!-- Main Content -->
         <main class="main">
         <header class="header">
-                <h1 class="header-dashboard">Dashboard</h1>
+                <h1 class="header-dashboard">Inventory</h1>
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle" style="display:none;">
@@ -61,10 +134,6 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                 <div class="table-header">
                     <h3 class="table-title">Inventory Items</h3>
                     <div class="table-actions">
-                        <button class="btn btn-outline">
-                            <i class="fas fa-filter"></i>
-                            <span>Filter</span>
-                        </button>
                         <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
                         <button class="btn btn-primary" id="requestStocksBtn" disabled>
                             <i class="fas fa-paper-plane"></i>
@@ -92,8 +161,16 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                         </thead>
                         <tbody id="inventoryTableBody">
                             <!-- Items will be loaded here via JavaScript -->
+                            <tr>
+                                <td colspan="<?= ($_SESSION['admin_role'] === "Field Manager") ? 4 : 3 ?>" class="text-center">
+                                    Loading inventory items...
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
+                    <div class="pagination" id="paginationContainer">
+                        <!-- Pagination will be loaded via JavaScript -->
+                    </div>
                 </div>
                 
             </section>
@@ -185,9 +262,12 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
         const inventoryTableBody = document.getElementById('inventoryTableBody');
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const requestItemsContainer = document.getElementById('requestItemsContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
 
         // Selected items array
         let selectedItems = [];
+        let currentPage = 1;
+        let currentSearch = '';
 
         // Modal Functions
         function openModal(modal) {
@@ -268,9 +348,11 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
             }
         }
 
-        // Load Items
-        function loadItems() {
-            fetch('api/get_items.php')
+        // Load Items with search and pagination
+        function refreshInventoryTable(searchTerm = '', page = 1) {
+            const url = `api/get_items.php?page=${page}` + (searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : '');
+            
+            fetch(url)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -279,49 +361,8 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                 })
                 .then(data => {
                     if (data.success) {
-                        inventoryTableBody.innerHTML = '';
-                        data.data.forEach(item => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
-                                <td><input type="checkbox" class="item-checkbox" value="${item.id}"></td>
-                                <?php endif; ?>
-                                <td>${item.name}</td>
-                                <td>${item.quantity}</td>
-                                <td class="actions">
-                                    <button class="btn-icon edit-item" data-id="${item.id}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn-icon delete-item" data-id="${item.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            `;
-                            inventoryTableBody.appendChild(row);
-                        });
-
-                        // Add event listeners
-                        document.querySelectorAll('.edit-item').forEach(btn => {
-                            btn.addEventListener('click', function() {
-                                const itemId = this.getAttribute('data-id');
-                                editItem(itemId);
-                            });
-                        });
-
-                        document.querySelectorAll('.delete-item').forEach(btn => {
-                            btn.addEventListener('click', function() {
-                                const itemId = this.getAttribute('data-id');
-                                document.getElementById('deleteId').value = itemId;
-                                openModal(deleteModal);
-                            });
-                        });
-
-                        // Add checkbox event listeners for Field Manager
-                        if (document.querySelectorAll('.item-checkbox')) {
-                            document.querySelectorAll('.item-checkbox').forEach(checkbox => {
-                                checkbox.addEventListener('change', updateSelectedItems);
-                            });
-                        }
+                        renderInventoryItems(data.data);
+                        renderPagination(data.pagination);
                     } else {
                         showToast('Error', data.message || 'Failed to load items', 'error');
                     }
@@ -330,6 +371,154 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                     console.error('Error:', error);
                     showToast('Error', 'Failed to load items', 'error');
                 });
+        }
+
+        // Render inventory items to the table
+        function renderInventoryItems(items) {
+            inventoryTableBody.innerHTML = '';
+            
+            if (items.length === 0) {
+                inventoryTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="<?= ($_SESSION['admin_role'] === "Field Manager") ? 4 : 3 ?>" class="no-items">
+                            No items found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
+                    <td><input type="checkbox" class="item-checkbox" value="${item.id}"></td>
+                    <?php endif; ?>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td class="actions">
+                        <button class="btn-icon edit-item" data-id="${item.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon delete-item" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                inventoryTableBody.appendChild(row);
+            });
+
+            // Add event listeners to the newly created elements
+            addEventListenersToItems();
+            updateSelectedItems();
+        }
+
+        // Render pagination
+        function renderPagination(pagination) {
+            if (!pagination) return;
+            
+            const { current_page, total_pages } = pagination;
+            currentPage = current_page;
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            if (current_page > 1) {
+                paginationHTML += `<a href="#" class="btn btn-outline" data-page="${current_page - 1}">&laquo; Prev</a>`;
+            }
+            
+            // First page
+            paginationHTML += `<a href="#" class="btn ${current_page == 1 ? 'btn-primary' : 'btn-outline'}" data-page="1">1</a>`;
+            
+            // Dots before current page
+            if (current_page > 3) {
+                paginationHTML += `<span class="dots">...</span>`;
+            }
+            
+            // Pages around current
+            for (let i = Math.max(2, current_page - 2); i <= Math.min(total_pages - 1, current_page + 2); i++) {
+                paginationHTML += `<a href="#" class="btn ${i == current_page ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i}</a>`;
+            }
+            
+            // Dots after current page
+            if (current_page < total_pages - 2) {
+                paginationHTML += `<span class="dots">...</span>`;
+            }
+            
+            // Last page (if different from first page)
+            if (total_pages > 1) {
+                paginationHTML += `<a href="#" class="btn ${current_page == total_pages ? 'btn-primary' : 'btn-outline'}" data-page="${total_pages}">${total_pages}</a>`;
+            }
+            
+            // Next button
+            if (current_page < total_pages) {
+                paginationHTML += `<a href="#" class="btn btn-outline" data-page="${current_page + 1}">Next &raquo;</a>`;
+            }
+            
+            paginationContainer.innerHTML = paginationHTML;
+            
+            // Add event listeners to pagination buttons
+            document.querySelectorAll('#paginationContainer a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    refreshInventoryTable(currentSearch, page);
+                });
+            });
+        }
+
+        // Add event listeners to inventory items
+        function addEventListenersToItems() {
+            // Edit item buttons
+            document.querySelectorAll('.edit-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const itemId = this.getAttribute('data-id');
+                    editItem(itemId);
+                });
+            });
+
+            // Delete item buttons
+            document.querySelectorAll('.delete-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const itemId = this.getAttribute('data-id');
+                    document.getElementById('deleteId').value = itemId;
+                    openModal(deleteModal);
+                });
+            });
+
+            // Checkbox event listeners for Field Manager
+            if (document.querySelectorAll('.item-checkbox')) {
+                document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', updateSelectedItems);
+                });
+            }
+        }
+
+        // Search functionality
+        function setupInventorySearch() {
+            const searchInput = document.createElement('input');
+            searchInput.setAttribute('type', 'text');
+            searchInput.setAttribute('placeholder', 'Search items...');
+            searchInput.classList.add('search-input');
+            
+            // Add search icon
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'search-container';
+            searchContainer.innerHTML = '<i class="fas fa-search search-icon"></i>';
+            searchContainer.appendChild(searchInput);
+            
+            // Add search input to the table actions
+            const tableActions = document.querySelector('.table-actions');
+            tableActions.insertBefore(searchContainer, tableActions.firstChild);
+            
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentSearch = e.target.value.trim();
+                    refreshInventoryTable(currentSearch, 1);
+                }, 500);
+            });
         }
 
         // Submit Stock Request
@@ -369,6 +558,8 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                             checkbox.checked = false;
                         });
                         updateSelectedItems();
+                        // Refresh the table
+                        refreshInventoryTable(currentSearch, currentPage);
                     } else {
                         showToast('Error', data.message, 'error');
                     }
@@ -440,7 +631,8 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                 if (data.success) {
                     showToast('Success', data.message, 'success');
                     closeModal(itemModal);
-                    loadItems();
+                    // Refresh the table without reloading the page
+                    refreshInventoryTable(currentSearch, currentPage);
                 } else {
                     showToast('Error', data.message, 'error');
                 }
@@ -472,7 +664,8 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
                 if (data.success) {
                     showToast('Success', data.message, 'success');
                     closeModal(deleteModal);
-                    loadItems();
+                    // Refresh the table without reloading the page
+                    refreshInventoryTable(currentSearch, currentPage);
                 } else {
                     showToast('Error', data.message, 'error');
                 }
@@ -485,7 +678,8 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            loadItems();
+            refreshInventoryTable();
+            setupInventorySearch();
         });
     </script>
 

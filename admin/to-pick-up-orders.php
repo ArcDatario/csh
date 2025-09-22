@@ -327,7 +327,7 @@ $orders = array_slice($all_orders, $offset, $orders_per_page);
         <!-- Main Content -->
         <main class="main">
             <header class="header">
-                <h1 class="header-dashboard">Orders</h1>
+                <h1 class="header-dashboard">Order Management</h1>
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle" style="display:none;">

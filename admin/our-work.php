@@ -5,6 +5,21 @@ if (!isLoggedIn()) {
     header('Location: login.php');
     exit();
 }
+// --- Pagination setup ---
+$orders_per_page = 6;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $orders_per_page;
+
+// --- Maximum default orders ---
+$default_limit = 100;
+
+// --- Count total orders (with filters) ---
+$count_query = "SELECT COUNT(*) as total FROM work";
+$count_result = $conn->query($count_query);
+$total_orders = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
+
+$total_pages = ceil($total_orders / $orders_per_page);
+
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -12,6 +27,7 @@ if (!isLoggedIn()) {
     
 
    <?php include "includes/link-css.php";?>
+   <link rel="stylesheet" href="assets/css/admintoapprove.css">
     
     <style>
          .image-preview {
@@ -95,7 +111,7 @@ if (!isLoggedIn()) {
         <!-- Main Content -->
         <main class="main">
             <header class="header">
-                <h1 class="header-dashboard">Dashboard</h1>
+                <h1 class="header-dashboard">Works</h1>
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle" style="display:none;">
@@ -119,12 +135,8 @@ if (!isLoggedIn()) {
             <!-- Table -->
             <section class="table-card fade-in">
     <div class="table-header">
-        <h3 class="table-title">Recent Works</h3>
+        <h3 class="table-title">Work Entries</h3>
         <div class="table-actions">
-            <button class="btn btn-outline">
-                <i class="fas fa-filter"></i>
-                <span>Filter</span>
-            </button>
             <button class="btn btn-primary" id="addWorkBtn">
                 <i class="fas fa-plus"></i>
                 <span>Add Work</span>
@@ -145,6 +157,43 @@ if (!isLoggedIn()) {
                 <!-- Works will be loaded here -->
             </tbody>
         </table>
+                        <!-- Pagination -->
+                <div class="pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+                    <?php endif; ?>
+
+                    <!-- Always show first page -->
+                    <a href="?page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+
+                    <!-- Dots -->
+                    <?php if ($page > 3): ?>
+                        <span class="dots">...</span>
+                    <?php endif; ?>
+
+                    <!-- Pages around current -->
+                    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
+                        <a href="?page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <!-- Dots -->
+                    <?php if ($page < $total_pages - 2): ?>
+                        <span class="dots">...</span>
+                    <?php endif; ?>
+
+                    <!-- Always show last page -->
+                    <?php if ($total_pages > 1): ?>
+                        <a href="?page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
+                            <?= $total_pages ?>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($page < $total_pages): ?>
+                        <a href="?page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+                    <?php endif; ?>
+                </div>
     </div>
 </section>
         </main>
