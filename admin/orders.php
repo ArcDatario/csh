@@ -6,7 +6,7 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Safely check for Field Manager role and redirect
+// Role-based redirect (Field Manager, Designer restrictions)
 if (isset($_SESSION['admin_role'])) {
     $current_page = basename($_SERVER['PHP_SELF']);
     
@@ -20,11 +20,83 @@ if (isset($_SESSION['admin_role'])) {
         exit();
     }
 }
+
+// Include database connection
+require_once '../db_connection.php';
+
+// --- Filter setup ---
+$filter_print  = isset($_GET['print_type']) ? trim($_GET['print_type']) : '';
+$filter_start  = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$filter_end    = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+$filter_search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// --- Build WHERE clauses ---
+$where_clauses = [];
+$where_clauses[] = "o.status = 'pending'"; // always pending
+
+if ($filter_print !== '') {
+    $where_clauses[] = "o.print_type = '" . $conn->real_escape_string($filter_print) . "'";
+}
+if ($filter_start !== '' && $filter_end !== '') {
+    $where_clauses[] = "DATE(o.created_at) BETWEEN '" . $conn->real_escape_string($filter_start) . "' 
+                        AND '" . $conn->real_escape_string($filter_end) . "'";
+}
+if ($filter_search !== '') {
+    $search = $conn->real_escape_string($filter_search);
+    $where_clauses[] = "(o.ticket LIKE '%$search%' OR u.name LIKE '%$search%')";
+}
+
+$where_sql = '';
+if (!empty($where_clauses)) {
+    $where_sql = "WHERE " . implode(" AND ", $where_clauses);
+}
+
+// --- Pagination setup ---
+$orders_per_page = 6;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $orders_per_page;
+
+// --- Maximum default orders ---
+$default_limit = 100;
+
+// --- Count total orders (with filters) ---
+$count_query = "SELECT COUNT(*) as total 
+                FROM orders o
+                INNER JOIN users u ON o.user_id = u.id
+                $where_sql";
+$count_result = $conn->query($count_query);
+$total_orders = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
+
+// Apply default limit if no filters
+if (empty($filter_print) && empty($filter_start) && empty($filter_end) && empty($filter_search) && $total_orders > $default_limit) {
+    $total_orders = $default_limit;
+}
+$total_pages = ceil($total_orders / $orders_per_page);
+
+// --- Fetch orders ---
+$query = "SELECT o.* 
+          FROM orders o 
+          INNER JOIN users u ON o.user_id = u.id
+          $where_sql
+          ORDER BY o.created_at DESC";
+
+// Apply default limit only if no filters
+if (empty($_GET['print_type']) && empty($_GET['start_date']) && empty($_GET['end_date']) && empty($_GET['search'])) {
+    $query .= " LIMIT $default_limit";
+}
+
+
+$result = $conn->query($query);
+
+$all_orders = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
+// Slice orders for current page
+$orders = array_slice($all_orders, $offset, $orders_per_page);
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    
+    <link rel="stylesheet" href="assets/css/admintoapprove.css">
 
    <?php include "includes/link-css.php";?>
 
@@ -357,7 +429,7 @@ if (isset($_SESSION['admin_role'])) {
         <!-- Main Content -->
         <main class="main">
             <header class="header">
-                <h1 class="header-dashboard">Dashboard</h1>
+                <h1 class="header-dashboard">Orders</h1>
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle">
@@ -378,17 +450,44 @@ if (isset($_SESSION['admin_role'])) {
             
             <!-- Table -->
             <section class="table-card fade-in">
-                <div class="table-header">
-                    <h3 class="table-title">Recent Orders</h3>
-                    <div class="table-actions">
-                        <button class="btn btn-outline">
-                            <i class="fas fa-filter"></i>
-                            <span>Filter</span>
-                        </button>
-                        
-                    </div>
-                </div>
-                
+              <div class="table-header">
+                  <h3 class="table-title">
+                      Pending Orders 
+                      <span class="badge"><?= $total_orders ?></span>
+                  </h3>
+                  <div class="table-actions">
+                      <!-- FILTER FORM -->
+                      <form method="GET" class="filter-form">
+                          <!-- Print Type -->
+                          <select name="print_type">
+                              <option value="">All Print Types</option>
+                              <option value="Direct to Film Print" <?= ($_GET['print_type'] ?? '') === 'Direct to Film Print' ? 'selected' : '' ?>>Direct to Film Print</option>
+                              <option value="Screen Printing" <?= ($_GET['print_type'] ?? '') === 'Screen Printing' ? 'selected' : '' ?>>Screen Printing</option>
+                              <option value="Emboss Print" <?= ($_GET['print_type'] ?? '') === 'Emboss Print' ? 'selected' : '' ?>>Emboss Print</option>
+                              <option value="Hi-Density Print" <?= ($_GET['print_type'] ?? '') === 'Hi-Density Print' ? 'selected' : '' ?>>Hi-Density Print</option>
+                              <option value="Glitters Print" <?= ($_GET['print_type'] ?? '') === 'Glitters Print' ? 'selected' : '' ?>>Glitters Print</option>
+                              <option value="Silk Screen Print" <?= ($_GET['print_type'] ?? '') === 'Silk Screen Print' ? 'selected' : '' ?>>Silk Screen Print</option>
+                          </select>
+
+                          <!-- Date Range -->
+                          <input type="date" name="start_date" value="<?= htmlspecialchars($filter_start) ?>">
+                          <input type="date" name="end_date" value="<?= htmlspecialchars($filter_end) ?>">
+
+                          <!-- Search -->
+                          <input type="text" name="search" placeholder="Search by ticket or name" value="<?= htmlspecialchars($filter_search) ?>">
+
+                          <!-- Styled Buttons -->
+                          <button type="submit" class="btn btn-outline">
+                              <i class="fas fa-filter"></i>
+                              <span>Filter</span>
+                          </button>
+                          <a href="admintoapprove.php" class="btn btn-outline">
+                              <i class="fas fa-undo"></i>
+                              <span>Reset</span>
+                          </a>
+                      </form>
+                  </div>
+              </div>
                 <div class="table-responsive">
                 <table id="designers-table">
     <thead>
@@ -504,6 +603,43 @@ if ($items_result && $items_result->num_rows > 0) {
     <?php endif; ?>
 </tbody>
 </table>
+                </div>
+                                <!-- Pagination -->
+                <div class="pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+                    <?php endif; ?>
+
+                    <!-- Always show first page -->
+                    <a href="?page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+
+                    <!-- Dots -->
+                    <?php if ($page > 3): ?>
+                        <span class="dots">...</span>
+                    <?php endif; ?>
+
+                    <!-- Pages around current -->
+                    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
+                        <a href="?page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <!-- Dots -->
+                    <?php if ($page < $total_pages - 2): ?>
+                        <span class="dots">...</span>
+                    <?php endif; ?>
+
+                    <!-- Always show last page -->
+                    <?php if ($total_pages > 1): ?>
+                        <a href="?page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
+                            <?= $total_pages ?>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($page < $total_pages): ?>
+                        <a href="?page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+                    <?php endif; ?>
                 </div>
             </section>
         </main>
@@ -777,7 +913,8 @@ function handleWindowClick(event) {
 
 // Table refresh functionality
 function refreshDesignersTable() {
-    fetch('functions/get_designer_orders.php')
+        const params = new URLSearchParams(new FormData(document.querySelector('.filter-form')));
+    fetch('functions/get_designer_orders.php?' + params.toString())
         .then(response => response.text())
         .then(data => {
             document.getElementById('designers-table-body').innerHTML = data;

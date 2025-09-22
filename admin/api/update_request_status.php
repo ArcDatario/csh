@@ -1,6 +1,7 @@
 <?php
 require_once '../../db_connection.php';
 require_once '../../auth_check.php';
+require_once '../../log_helper.php';
 
 $response = ['success' => false, 'message' => ''];
 
@@ -16,6 +17,14 @@ if (!$id || !$status) {
 try {
     // Begin transaction
     $conn->begin_transaction();
+
+    // Get current request details before update for logging
+    $stmt_before = $conn->prepare("SELECT item_name, quantity_requested, status FROM stock_requests WHERE id = ?");
+    $stmt_before->bind_param("i", $id);
+    $stmt_before->execute();
+    $result_before = $stmt_before->get_result();
+    $request_before = $result_before->fetch_assoc();
+    $stmt_before->close();
 
     // Build the query and types for binding
     $query = "UPDATE stock_requests SET status = ?";
@@ -87,6 +96,19 @@ try {
 
     // Commit transaction
     $conn->commit();
+
+    // Log the status update action - UNIFORM FORMAT
+    $changes = "Changed Status for stock request #{$id} from '{$request_before['status']}' to '{$status}'";
+
+    $admin_id = $_SESSION['admin_id'];
+    logAction(
+        $admin_id,
+        'update',
+        'stock_request',
+        $id,
+        $changes,
+        'stock_management'
+    );
 
     $response['success'] = true;
     $response['message'] = 'Status updated successfully';

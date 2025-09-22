@@ -13,7 +13,7 @@ if (!isLoggedIn()) {
     <?php include "includes/link-css.php";?>
 
     <link rel="stylesheet" href="assets/css/admin.css">
-
+    <link rel="stylesheet" href="assets/css/admintoapprove.css">
     <style>
         .search-container {
             position: relative;

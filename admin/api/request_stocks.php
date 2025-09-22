@@ -1,5 +1,6 @@
 <?php
 require_once '../../db_connection.php';
+require_once '../../log_helper.php';
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
@@ -14,12 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-$field_manager_id = $_POST['field_manager_id'];
 $item_ids = $_POST['item_ids'];
 $quantities = $_POST['quantities'];
 
 try {
     $conn->begin_transaction();
+    
+    $requested_items = [];
     
     // Insert each requested item
     for ($i = 0; $i < count($item_ids); $i++) {
@@ -37,8 +39,11 @@ try {
         $stmt = $conn->prepare("INSERT INTO stock_requests 
                                (field_manager_id, item_id, item_name, quantity_requested, status, is_prepairing, is_for_delivery) 
                                VALUES (?, ?, ?, ?, 'pending', 'no', 'no')");
-        $stmt->bind_param("iisi", $field_manager_id, $item_id, $item['name'], $quantity);
+        $stmt->bind_param("iisi", $_SESSION['admin_id'], $item_id, $item['name'], $quantity);
         $stmt->execute();
+        
+        // Store item info for logging
+        $requested_items[] = "{$item['name']} (Qty: {$quantity})";
     }
     
     // Insert notification
@@ -51,6 +56,19 @@ try {
     $stmt->execute();
     
     $conn->commit();
+    
+    // Log the stock request action - FOLLOWING THE EXACT FORMAT
+    $changes = "Requested stocks: " . implode(", ", $requested_items);
+
+    $admin_id = $_SESSION['admin_id'];
+    logAction(
+        $admin_id,           // actor/admin
+        'request',           // action type
+        'stock_request',     // entity type
+        $conn->insert_id,    // entity ID (using the last insert ID)
+        $changes,            // human-readable log
+        'stock_management'   // module/category
+    );
     
     echo json_encode(['success' => true, 'message' => 'Stock request submitted successfully']);
 } catch (Exception $e) {

@@ -107,7 +107,7 @@
                 <i class="fas fa-box"></i>
                 <span>Inventory</span>
             </a>
-            <a href="stock-request" class="nav-link<?php echo ($currentPage === 'stocks-request') ? ' active' : ''; ?>" data-page="stocks-request">
+            <a href="stock-request" class="nav-link<?php echo ($currentPage === 'stock-request') ? ' active' : ''; ?>" data-page="stock-request">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Stock Request</span>
             </a>
@@ -157,11 +157,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const role = "<?php echo $_SESSION['admin_role']; ?>";
     const currentPage = "<?php echo basename($_SERVER['PHP_SELF'], '.php'); ?>";
-    if (currentPage === 'stocks-request' && role === 'Field Manager') {
+    if (currentPage === 'stock-request' && role === 'Field Manager') {
         window.location.href = 'view-request';
     }
     if (currentPage === 'view-request' && role === 'Secretary') {
-        window.location.href = 'stocks-request';
+        window.location.href = 'stock-request';
     }
 });
 
