@@ -1,16 +1,40 @@
 <?php
 include '../../db_connection.php'; // Your database connection file
 
-$sql = "SELECT orders.id, orders.user_id, orders.ticket, orders.design_file, orders.print_type, 
-               orders.note, orders.address, orders.quantity, orders.created_at, orders.status, 
-               orders.pricing, orders.subtotal, orders.processing_date,
-               users.name, users.phone_number, users.email 
+
+// Read filters from GET
+$filter_print  = $_GET['print_type'] ?? '';
+$filter_start  = $_GET['start_date'] ?? '';
+$filter_end    = $_GET['end_date'] ?? '';
+$filter_search = $_GET['search'] ?? '';
+
+
+$where_clauses = [
+    "orders.status = 'processing'",
+    "orders.is_for_processing = 'yes'"
+];
+
+if ($filter_print !== '') {
+    $where_clauses[] = "orders.print_type = '" . $conn->real_escape_string($filter_print) . "'";
+}
+if ($filter_start !== '' && $filter_end !== '') {
+    $where_clauses[] = "DATE(orders.created_at) BETWEEN '" . $conn->real_escape_string($filter_start) . "' 
+                        AND '" . $conn->real_escape_string($filter_end) . "'";
+}
+if ($filter_search !== '') {
+    $search = $conn->real_escape_string($filter_search);
+    $where_clauses[] = "(orders.ticket LIKE '%$search%' OR users.name LIKE '%$search%')";
+}
+
+$where_sql = !empty($where_clauses) ? "WHERE " . implode(" AND ", $where_clauses) : "";
+
+$query = "SELECT orders.*, users.name, users.email, users.phone_number
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
-        WHERE orders.is_for_processing = 'yes' AND orders.status = 'processing'
-        ORDER BY orders.processing_date DESC";
+          $where_sql
+          ORDER BY orders.created_at DESC";
 
-$result = $conn->query($sql);
+$result = $conn->query($query);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {

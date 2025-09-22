@@ -166,8 +166,6 @@ if ($roles_result) {
     pointer-events: none;
 }
 
-        .filter-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-        .filter-form select, .filter-form input[type="date"] { padding: 5px; }
     </style>
 </head>
 <body>

@@ -272,13 +272,20 @@ function handleWindowClick(event) {
 
 // Table refresh functionality
 function refreshPickupTable() {
-    fetch('functions/get_pickup_orders.php')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('pickup-table-body').innerHTML = data;
-            attachEventListeners(); // Reattach event listeners after refresh
-        })
-        .catch(error => console.error('Error refreshing table:', error));
+
+        // Get all filter values from the form
+    const printType = document.querySelector('select[name="print_type"]').value;
+    const startDate = document.querySelector('input[name="start_date"]').value;
+    const endDate = document.querySelector('input[name="end_date"]').value;
+    const search = document.querySelector('input[name="search"]').value;
+    const params = new URLSearchParams(new FormData(document.querySelector('.filter-form')));
+   fetch('functions/get_pickup_orders.php?' + params.toString())
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('pickup-table-body').innerHTML = data;
+        attachEventListeners(); // Reattach event listeners after refresh
+    })
+    .catch(error => console.error('Error refreshing table:', error));
 }
 
 // Toast function (FIXED VERSION)

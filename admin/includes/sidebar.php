@@ -18,15 +18,18 @@
 
             <?php if ($_SESSION['admin_role'] === 'General Manager' || $_SESSION['admin_role'] === 'Owner'): ?>
                 <!-- Admin/GM Orders Dropdown -->
-                <div class="nav-link has-submenu <?php echo in_array($currentPage, ['admintoapprove','to-pick-up-orders']) ? 'active open' : ''; ?>">
+                <div class="nav-link has-submenu <?php echo in_array($currentPage, ['admintoapprove','to-pick-up-orders','field-processing-order']) ? 'active open' : ''; ?>">
                     <button type="button" class="submenu-toggle">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Orders</span>
                         <i class="fas fa-chevron-down submenu-arrow"></i>
                     </button>
                     <div class="submenu">
-                        <a href="admintoapprove" class="submenu-item <?php echo ($currentPage === 'admintoapprove') ? 'active' : ''; ?>" data-page="admintoapprove">To Approve</a>
-                        <a href="to-pick-up-orders" class="submenu-item <?php echo ($currentPage === 'to-pick-up-orders') ? 'active' : ''; ?>" data-page="to-pick-up-orders">To Pick Up</a>
+                        <div class="submenu">
+                            <a href="admintoapprove" class="submenu-item <?php echo ($currentPage === 'admintoapprove') ? 'active' : ''; ?>" data-page="admintoapprove">Pending</a>
+                            <a href="to-pick-up-orders" class="submenu-item <?php echo ($currentPage === 'to-pick-up-orders') ? 'active' : ''; ?>" data-page="to-pick-up-orders">Active</a>
+                            <a href="field-processing-order" class="submenu-item <?php echo ($currentPage === 'field-processing-order') ? 'active' : ''; ?>" data-page="field-processing-order">Field </a>
+                        </div>
                     </div>
                 </div>
             <?php else: ?>

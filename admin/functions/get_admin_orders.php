@@ -1,17 +1,45 @@
 <?php
 require '../../db_connection.php';
 
-$sql = "SELECT orders.*, users.name, users.phone_number, users.email 
-        FROM orders 
-        INNER JOIN users ON orders.user_id = users.id 
-        WHERE orders.status = 'pending' 
+// --- Filter setup ---
+$filter_print  = isset($_GET['print_type']) ? trim($_GET['print_type']) : '';
+$filter_start  = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$filter_end    = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+$filter_search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// --- Build WHERE clauses ---
+$where_clauses = [];
+$where_clauses[] = "orders.status = 'pending'"; // always pending
+
+if ($filter_print !== '') {
+    $where_clauses[] = "orders.print_type = '" . $conn->real_escape_string($filter_print) . "'";
+}
+if ($filter_start !== '' && $filter_end !== '') {
+    $where_clauses[] = "DATE(orders.created_at) BETWEEN '" . $conn->real_escape_string($filter_start) . "'
+                        AND '" . $conn->real_escape_string($filter_end) . "'";
+}
+if ($filter_search !== '') {
+    $search = $conn->real_escape_string($filter_search);
+    $where_clauses[] = "(orders.ticket LIKE '%$search%' OR users.name LIKE '%$search%')";
+}
+
+$where_sql = '';
+if (!empty($where_clauses)) {
+    $where_sql = "WHERE " . implode(" AND ", $where_clauses);
+}
+
+// --- Query orders ---
+$sql = "SELECT orders.*, users.name, users.phone_number, users.email
+        FROM orders
+        INNER JOIN users ON orders.user_id = users.id
+        $where_sql
         ORDER BY orders.created_at DESC";
+
 $result = $conn->query($sql);
 
-if ($result->num_rows > 0) {
+if ($result && $result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {
-
-        // ✅ Fetch shirt items for this order
+        // Fetch shirt items
         $items_sql = "SELECT shirt_color, quantity 
                       FROM items 
                       WHERE order_id = " . intval($order['id']);
@@ -24,25 +52,21 @@ if ($result->num_rows > 0) {
             }
         }
 
-        // Determine the appropriate thumbnail based on file extension
+        // Determine thumbnail
         $designFile = $order['design_file'];
         $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
-
-        $imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+        $imageFormats = ['jpg','jpeg','png','gif','bmp','webp'];
         $isViewable = in_array($fileExtension, $imageFormats);
 
         if ($isViewable) {
             $thumbnail = "../user/" . htmlspecialchars($designFile, ENT_QUOTES, 'UTF-8');
         } else {
-            if ($fileExtension === 'psd') {
-                $thumbnail = "../photoshop.png";
-            } elseif ($fileExtension === 'pdf') {
-                $thumbnail = "../pdf.png";
-            } elseif ($fileExtension === 'ai') {
-                $thumbnail = "../illustrator.png";
-            } else {
-                $thumbnail = "../file.png";
-            }
+            $icons = [
+                'psd' => "../photoshop.png",
+                'pdf' => "../pdf.png",
+                'ai'  => "../illustrator.png"
+            ];
+            $thumbnail = $icons[$fileExtension] ?? "../file.png";
         }
 
         echo '<tr>
@@ -57,12 +81,10 @@ if ($result->num_rows > 0) {
                 <td>'.htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8').'</td>
                 <td>'.htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES, 'UTF-8').'</td>
                 <td>
-                    <span class="status status-warning">
-                        '.htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8').'
-                    </span>
+                    <span class="status status-warning">'.htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8').'</span>
                 </td>
                 <td>
-                    <button class="btn btn-outline view-quote-modal" 
+                    <button class="btn btn-outline view-quote-modal"
                             data-id="'.htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8').'"
                             data-user-id="'.htmlspecialchars($order['user_id'], ENT_QUOTES, 'UTF-8').'"
                             data-ticket="'.htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8').'"
@@ -83,7 +105,7 @@ if ($result->num_rows > 0) {
                         View
                     </button>
                 </td>
-            </tr>';
+              </tr>';
     }
 } else {
     echo '<tr><td colspan="7" class="text-center">No orders found</td></tr>';

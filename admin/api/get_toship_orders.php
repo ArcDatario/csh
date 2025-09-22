@@ -1,13 +1,39 @@
 <?php
 require_once '../../db_connection.php';
 
-$sql = "SELECT orders.*, users.name, users.email, users.phone_number as mobile, users.address 
-        FROM orders 
-        INNER JOIN users ON orders.user_id = users.id 
-        WHERE orders.status = 'to_ship'
-        ORDER BY orders.shipping_date DESC";
+// Read filters from GET
+$filter_print  = $_GET['print_type'] ?? '';
+$filter_start  = $_GET['start_date'] ?? '';
+$filter_end    = $_GET['end_date'] ?? '';
+$filter_search = $_GET['search'] ?? '';
 
-$result = $conn->query($sql);
+
+$where_clauses = [
+    "orders.status = 'to_ship'",
+
+];
+
+if ($filter_print !== '') {
+    $where_clauses[] = "orders.print_type = '" . $conn->real_escape_string($filter_print) . "'";
+}
+if ($filter_start !== '' && $filter_end !== '') {
+    $where_clauses[] = "DATE(orders.created_at) BETWEEN '" . $conn->real_escape_string($filter_start) . "' 
+                        AND '" . $conn->real_escape_string($filter_end) . "'";
+}
+if ($filter_search !== '') {
+    $search = $conn->real_escape_string($filter_search);
+    $where_clauses[] = "(orders.ticket LIKE '%$search%' OR users.name LIKE '%$search%')";
+}
+
+$where_sql = !empty($where_clauses) ? "WHERE " . implode(" AND ", $where_clauses) : "";
+
+$query = "SELECT orders.*, users.name, users.email, users.phone_number as mobile, users.address 
+          FROM orders
+          INNER JOIN users ON orders.user_id = users.id
+          $where_sql
+          ORDER BY orders.created_at DESC";
+
+$result = $conn->query($query);
 
 if ($result->num_rows > 0) {
     while ($order = $result->fetch_assoc()) {

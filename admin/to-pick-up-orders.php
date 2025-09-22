@@ -1,31 +1,198 @@
 <?php
 require_once 'auth_check.php';
+require_once '../db_connection.php';
 
+// Protect login
 if (!isLoggedIn()) {
-    header('Location: login.php');
+    header("Location: login.php");
     exit();
 }
 
-// Safely check for Field Manager role and redirect
+// Role restrictions
 if (isset($_SESSION['admin_role'])) {
     $current_page = basename($_SERVER['PHP_SELF']);
-    
     if ($_SESSION['admin_role'] === "Field Manager" && $current_page != 'inventory.php') {
-        header('Location: inventory.php');
+        header("Location: inventory.php");
         exit();
     }
-    
     if ($_SESSION['admin_role'] === "Designer" && $current_page != 'orders.php') {
-        header('Location: orders.php');
+        header("Location: orders.php");
         exit();
     }
 }
+
+// Determine which tab is active
+$active_tab = $_GET['tab'] ?? 'to-pickup';
+
+$tab_titles = [
+    'to-pickup' => 'To Pickup Orders',
+    'on-pickup' => 'On Pickup Orders', 
+    'to-ship' => 'To Ship Orders',
+    'completed' => 'Completed Orders',
+    'cancel' => 'Cancelled Orders'
+];
+
+// Then update your switch statement to use this array
+$title = $tab_titles[$active_tab] ?? 'To Pickup Orders';
+
+// Set status, pickup flag, and title based on active tab
+$is_for_pickup = null; // default null
+switch ($active_tab) {
+    case 'on-pickup':
+        $status_filter = "to-pick-up";
+        $is_for_pickup = "yes";
+        $title = "On Pickup Orders";
+        break;
+    case 'to-ship':
+        $status_filter = "to_ship";
+        $title = "To Ship Orders";
+        break;
+    case 'completed':
+        $status_filter = "completed";
+        $title = "Completed Orders";
+        break;
+    case 'cancel':
+        $status_filter = "cancelled";
+        $title = "Cancelled Orders";
+        break;
+    default: // to-pickup
+        $status_filter = "to-pick-up";
+        $is_for_pickup = "no";
+        $title = "To Pickup Orders";
+        break;
+}
+
+// Calculate counts for all tabs
+$tab_counts = [
+    'to-pickup' => 0,
+    'on-pickup' => 0,
+    'to-ship' => 0,
+    'completed' => 0,
+    'cancel' => 0
+];
+
+foreach ($tab_counts as $tab => $count) {
+    $tab_status_filter = "";
+    $tab_is_for_pickup = null;
+    
+    switch ($tab) {
+        case 'on-pickup':
+            $tab_status_filter = "to-pick-up";
+            $tab_is_for_pickup = "yes";
+            break;
+        case 'to-ship':
+            $tab_status_filter = "to_ship";
+            break;
+        case 'completed':
+            $tab_status_filter = "completed";
+            break;
+        case 'cancel':
+            $tab_status_filter = "cancelled";
+            break;
+        default: // to-pickup
+            $tab_status_filter = "to-pick-up";
+            $tab_is_for_pickup = "no";
+            break;
+    }
+    
+    // Build WHERE clause for this tab
+    $tab_where_clauses = ["o.status = '" . $conn->real_escape_string($tab_status_filter) . "'"];
+    
+    if ($tab_is_for_pickup !== null) {
+        $tab_where_clauses[] = "o.is_for_pickup = '" . $conn->real_escape_string($tab_is_for_pickup) . "'";
+    }
+    
+    $tab_where_sql = !empty($tab_where_clauses) ? "WHERE " . implode(" AND ", $tab_where_clauses) : "";
+    
+    // Count query for this tab
+    $tab_count_query = "SELECT COUNT(*) as total 
+                       FROM orders o
+                       INNER JOIN users u ON o.user_id = u.id
+                       $tab_where_sql";
+    
+    $tab_count_result = $conn->query($tab_count_query);
+    $tab_counts[$tab] = $tab_count_result ? intval($tab_count_result->fetch_assoc()['total']) : 0;
+}
+
+// Output the counts as JavaScript variables
+echo '<script>';
+echo 'const tabCounts = ' . json_encode($tab_counts) . ';';
+echo '</script>';
+
+// -----------------------------
+// FILTER + PAGINATION LOGIC
+// -----------------------------
+$filter_print  = $_GET['print_type'] ?? '';
+$filter_start  = $_GET['start_date'] ?? '';
+$filter_end    = $_GET['end_date'] ?? '';
+$filter_search = $_GET['search'] ?? '';
+
+// Build WHERE clause
+$where_clauses = [
+    "o.status = '" . $conn->real_escape_string($status_filter) . "'"
+];
+
+// Only include is_for_pickup if set
+if ($is_for_pickup !== null) {
+    $where_clauses[] = "o.is_for_pickup = '" . $conn->real_escape_string($is_for_pickup) . "'";
+}
+
+if ($filter_print !== '') {
+    $where_clauses[] = "o.print_type = '" . $conn->real_escape_string($filter_print) . "'";
+}
+if ($filter_start !== '' && $filter_end !== '') {
+    $where_clauses[] = "DATE(o.created_at) BETWEEN '" . $conn->real_escape_string($filter_start) . "' 
+                        AND '" . $conn->real_escape_string($filter_end) . "'";
+}
+if ($filter_search !== '') {
+    $search = $conn->real_escape_string($filter_search);
+    $where_clauses[] = "(o.ticket LIKE '%$search%' OR u.name LIKE '%$search%')";
+}
+
+$where_sql = !empty($where_clauses) ? "WHERE " . implode(" AND ", $where_clauses) : "";
+
+// Pagination
+$orders_per_page = 6;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $orders_per_page;
+$default_limit = 100;
+
+// build $where_clauses as you already have, then count total:
+$count_query = "SELECT COUNT(*) as total 
+                FROM orders o 
+                INNER JOIN users u ON o.user_id = u.id
+                WHERE " . implode(" AND ", $where_clauses);
+$count_result = $conn->query($count_query);
+$total_orders = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
+
+if (empty($filter_print) && empty($filter_start) && empty($filter_end) && empty($filter_search) && $total_orders > $default_limit) {
+    $total_orders = $default_limit;
+}
+$total_pages = ceil($total_orders / $orders_per_page);
+
+// Fetch orders
+$query = "SELECT o.*, u.name, u.email, u.phone_number 
+          FROM orders o 
+          INNER JOIN users u ON o.user_id = u.id
+          $where_sql
+          ORDER BY o.created_at DESC";
+
+if (empty($filter_print) && empty($filter_start) && empty($filter_end) && empty($filter_search)) {
+    $query .= " LIMIT $default_limit";
+}
+
+$result = $conn->query($query);
+$all_orders = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+$orders = array_slice($all_orders, $offset, $orders_per_page);
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <?php include "includes/link-css.php";?>
     <link rel="stylesheet" href="assets/css/quote-modal.css">
+    <link rel="stylesheet" href="assets/css/admintoapprove.css">
    
 <style>
     /* Apply to all modal close buttons, regardless of class */
@@ -160,7 +327,7 @@ if (isset($_SESSION['admin_role'])) {
         <!-- Main Content -->
         <main class="main">
             <header class="header">
-                <h1 class="header-dashboard">Dashboard</h1>
+                <h1 class="header-dashboard">Orders</h1>
                 
                 <div class="user-menu">
                 <div class="theme-toggle" id="themeToggle" style="display:none;">
@@ -176,23 +343,53 @@ if (isset($_SESSION['admin_role'])) {
                 </div>
             </header>
             <div class="table-tabs">
-        <button class="tab-btn active" data-tab="to-pickup">To Pickup</button>
-        <button class="tab-btn" data-tab="on-pickup">On Pickup</button>
-        <button class="tab-btn" data-tab="to-ship">To Ship</button>
-         <button class="tab-btn" data-tab="completed">Completed</button>
-         <button class="tab-btn" data-tab="cancel">Cancelled</button>
-    </div>
+                <button class="tab-btn <?= $active_tab === 'to-pickup' ? 'active' : '' ?>" data-tab="to-pickup">To Pickup</button>
+                <button class="tab-btn <?= $active_tab === 'on-pickup' ? 'active' : '' ?>" data-tab="on-pickup">On Pickup</button>
+                <button class="tab-btn <?= $active_tab === 'to-ship' ? 'active' : '' ?>" data-tab="to-ship">To Ship</button>
+                <button class="tab-btn <?= $active_tab === 'completed' ? 'active' : '' ?>" data-tab="completed">Completed</button>
+                <button class="tab-btn <?= $active_tab === 'cancel' ? 'active' : '' ?>" data-tab="cancel">Cancelled</button>
+            </div>
             <!-- Table -->
             <section class="table-card fade-in">
-               <div class="table-header">
-    
-    <div class="table-actions">
-        <!-- <button class="btn btn-outline">
-            <i class="fas fa-filter"></i>
-            <span>Filter</span>
-        </button> -->
-    </div>
-</div>
+              <div class="table-header">
+                <h3 class="table-title" id="table-title">
+                    <?= $title ?>
+                    <span class="badge"><?= $total_orders ?></span>
+                </h3>
+                  <div class="table-actions">
+                      <!-- FILTER FORM -->
+                      <form method="GET" class="filter-form">
+                        <input type="hidden" name="tab" value="<?= htmlspecialchars($active_tab) ?>">
+                          <!-- Print Type -->
+                          <select name="print_type">
+                              <option value="">All Print Types</option>
+                              <option value="Direct to Film Print" <?= ($_GET['print_type'] ?? '') === 'Direct to Film Print' ? 'selected' : '' ?>>Direct to Film Print</option>
+                              <option value="Screen Printing" <?= ($_GET['print_type'] ?? '') === 'Screen Printing' ? 'selected' : '' ?>>Screen Printing</option>
+                              <option value="Emboss Print" <?= ($_GET['print_type'] ?? '') === 'Emboss Print' ? 'selected' : '' ?>>Emboss Print</option>
+                              <option value="Hi-Density Print" <?= ($_GET['print_type'] ?? '') === 'Hi-Density Print' ? 'selected' : '' ?>>Hi-Density Print</option>
+                              <option value="Glitters Print" <?= ($_GET['print_type'] ?? '') === 'Glitters Print' ? 'selected' : '' ?>>Glitters Print</option>
+                              <option value="Silk Screen Print" <?= ($_GET['print_type'] ?? '') === 'Silk Screen Print' ? 'selected' : '' ?>>Silk Screen Print</option>
+                          </select>
+
+                          <!-- Date Range -->
+                          <input type="date" name="start_date" value="<?= htmlspecialchars($filter_start) ?>">
+                          <input type="date" name="end_date" value="<?= htmlspecialchars($filter_end) ?>">
+
+                          <!-- Search -->
+                          <input type="text" name="search" placeholder="Search by ticket or name" value="<?= htmlspecialchars($filter_search) ?>">
+
+                          <!-- Styled Buttons -->
+                          <button type="submit" class="btn btn-outline">
+                              <i class="fas fa-filter"></i>
+                              <span>Filter</span>
+                          </button>
+                          <a href="to-pick-up-orders.php" class="btn btn-outline">
+                              <i class="fas fa-undo"></i>
+                              <span>Reset</span>
+                          </a>
+                      </form>
+                  </div>
+              </div>
                 
                 <div id="to-pickup-table" class="table-responsive tab-content active">
     <table id="pickup-table">
@@ -276,6 +473,52 @@ if (isset($_SESSION['admin_role'])) {
     <?php endif; ?>
 </tbody>
     </table>
+    <div class="pagination">
+    <?php 
+    // Build base URL with all parameters except page
+    $base_url = "?tab=" . urlencode($active_tab);
+    if (!empty($filter_print)) $base_url .= "&print_type=" . urlencode($filter_print);
+    if (!empty($filter_start)) $base_url .= "&start_date=" . urlencode($filter_start);
+    if (!empty($filter_end)) $base_url .= "&end_date=" . urlencode($filter_end);
+    if (!empty($filter_search)) $base_url .= "&search=" . urlencode($filter_search);
+    ?>
+    
+    <?php if ($page > 1): ?>
+        <a href="<?= $base_url ?>&page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+    <?php endif; ?>
+
+    <!-- Always show first page -->
+    <a href="<?= $base_url ?>&page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+
+    <!-- Dots -->
+    <?php if ($page > 3): ?>
+        <span class="dots">...</span>
+    <?php endif; ?>
+
+    <!-- Pages around current -->
+    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
+        <a href="<?= $base_url ?>&page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
+            <?= $i ?>
+        </a>
+    <?php endfor; ?>
+
+    <!-- Dots -->
+    <?php if ($page < $total_pages - 2): ?>
+        <span class="dots">...</span>
+    <?php endif; ?>
+
+    <!-- Always show last page -->
+    <?php if ($total_pages > 1): ?>
+        <a href="<?= $base_url ?>&page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
+            <?= $total_pages ?>
+        </a>
+    <?php endif; ?>
+
+    <?php if ($page < $total_pages): ?>
+        <a href="<?= $base_url ?>&page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+    <?php endif; ?>
+</div>
+
 </div>
 
 <!-- On Pickup Table -->
