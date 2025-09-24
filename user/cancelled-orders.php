@@ -78,343 +78,32 @@ $full_address = trim($address);
     <a href="completed-order" class="tab-button ">Completed</a>
     <a href="cancelled-orders" class="tab-button active">Cancelled</a>
 </div>
-        <style>
-         .quote-date{
-            font-size:12px;
-            margin-left:7px;
-        }
 
-        /* Align to right and make it responsive */
-        .search-wrapper {
-          display: flex;
-          justify-content: flex-end;
-          padding: 0.6rem;
-        }
+<!-- Desktop Sidebar (hidden on mobile) -->
+<div class="orders-sidebar">
+    <a href="quote" class="sidebar-item">
+        <i class="fas fa-clock"></i> Pending
+    </a>
+    <a href="approved-order" class="sidebar-item">
+        <i class="fas fa-check-circle"></i> Approved
+    </a>
+    <a href="to-pickup-order" class="sidebar-item">
+        <i class="fas fa-box"></i> To Pick Up
+    </a>
+    <a href="processing-order" class="sidebar-item">
+        <i class="fas fa-cog"></i> Processing
+    </a>
+    <a href="to-ship-order" class="sidebar-item">
+        <i class="fas fa-shipping-fast"></i> To Ship
+    </a>
+    <a href="completed-order" class="sidebar-item">
+        <i class="fas fa-flag-checkered"></i> Completed
+    </a>
+    <a href="cancelled-orders" class="sidebar-item active">
+        <i class="fas fa-times-circle"></i> Cancelled
+    </a>
+</div>
 
-        /* Container with icon */
-        .search-container {
-          position: relative;
-          width: 100%;
-          max-width: 250px;
-        }
-
-        /* Modern input field */
-        .search-input {
-          width: 100%;
-          padding: 0.6rem 0.5rem 0.6rem 2.5rem; /* space for icon */
-          border: 1px solid #ccc;
-          border-radius: 999px;
-          background-color: #f1f3f5;
-          font-size: 0.8rem;
-          transition: 0.2s all ease-in-out;
-          outline: none;
-        }
-
-        .search-input:focus {
-          background-color: #fff;
-          border-color: #339af0;
-          box-shadow: 0 0 0 3px rgba(51, 154, 240, 0.2);
-        }
-
-        /* Search icon inside input */
-        .search-icon {
-          position: absolute;
-          top: 50%;
-          left: 0.9rem;
-          transform: translateY(-50%);
-          color: #888;
-          font-size: 0.85rem;
-          pointer-events: none;
-        }
-        
-        @media (max-width: 576px) {
-          .search-wrapper {
-            justify-content: center;
-          }
-        }
-        
-        /* Add style for hidden cards */
-        .quote-card.hidden {
-            display: none !important;
-        }
-
-        
-                
-/* Image Viewer Modal */
-.image-viewer-modal {
-  display: none;
-  position: fixed;
-  z-index: 11111;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  text-align: center;
-}
-
-.image-viewer-content {
-  margin: auto;
-  display: block;
-  max-width: 90%;
-  max-height: 80vh;
-  margin-top: 10vh;
-}
-
-.close-viewer {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  color: #f1f1f1;
-  font-size: 35px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.close-viewer:hover {
-  color: #bbb;
-}
-
-.viewer-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 1rem;
-}
-/* ---------- Details Modal Base ---------- */
-.details-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  font-family: 'Arial', sans-serif;
-}
-
-.detail-modal-content {
-  background: #fff;
-  border-radius: 10px;
-  width: 400px;
-  max-width: 90%;
-  padding: 20px 25px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-  position: relative;
-  border: 2px dashed #333; /* ticket border style */
-}
-
-/* Close Button */
-.detail-modal-close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
-  cursor: pointer;
-  font-weight: bold;
-  color: #333;
-}
-
-/* ---------- Header ---------- */
-.detail-modal-header {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.detail-modal-header h2 {
-  font-size: 20px;
-  margin: 0;
-}
-
-.detail-modal-header .detail-modal-value {
-  display: block;
-  font-size: 14px;
-  color: #555;
-  margin-top: 5px;
-}
-
-.status-label {
-  display: inline-block;
-  margin-top: 5px;
-  font-weight: bold;
-  color: #fff;
-  background-color: #28a745; /* approved green */
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-/* Change color based on status if needed */
-.status-label[data-status="pending"] {
-  background-color: #ffc107;
-}
-.status-label[data-status="rejected"] {
-  background-color: #dc3545;
-}
-
-/* ---------- Design Info ---------- */
-.design-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.design-image-container {
-  flex: 0 0 80px;
-  position: relative;
-}
-
-.design-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.design-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 5px;
-}
-
-.design-buttons button {
-  font-size: 10px;
-  padding: 3px 5px;
-  cursor: pointer;
-  border: none;
-  border-radius: 3px;
-  background-color: #007bff;
-  color: #fff;
-}
-
-.design-details {
-  flex: 1;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* ---------- Items Table ---------- */
-.items-section {
-  margin-top: 10px;
-}
-
-.items-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.items-table th,
-.items-table td {
-  text-align: left;
-  padding: 6px 8px;
-  border-bottom: 1px solid #ccc;
-}
-
-.items-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-}
-
-.shirt-item {
-  display: flex;
-  justify-content: space-between;
-}
-
-.card-content {
-    position: relative; /* allow absolute positioning inside */
-    padding-bottom: 30px; /* space for icon */
-}
-
-.bottom-right-details-icon {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 18px;
-    color: #000; /* black icon */
-    cursor: pointer;
-    transition: transform 0.2s, color 0.2s;
-}
-
-.bottom-right-details-icon:hover {
-    color: #333; /* subtle darken on hover */
-    transform: scale(1.2);
-}
-
-/* ---------- Price & Subtotal Section ---------- */
-.price-section {
-    margin-top: 15px;
-    padding: 10px 0;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-}
-
-.price-section .price-detail {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.price-section .detail-modal-label {
-    font-weight: bold;
-    color: #555;
-}
-
-.price-section .detail-modal-price-value,
-.price-section .detail-modal-subtotal-value {
-    color: #333;
-    font-weight: bold;
-}
-
-/* ---------- Ticket Lines ---------- */
-hr {
-  border: none;
-  border-top: 1px dashed #999;
-  margin: 10px 0;
-}
-        </style>
-<style>
-        .orders-tabs {
-            display: flex;
-            border-bottom: 2px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        .tab-button {
-            padding: 12px 24px;
-            text-decoration: none;
-            color: #555;
-            font-weight: 500;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-        }
-
-        .tab-button:hover {
-            color: #2196F3;
-            background-color: #f8f9fa;
-        }
-
-        .tab-button.active {
-            color: #2196F3;
-            border-bottom: 3px solid #2196F3;
-            font-weight: 600;
-        }
-        </style>
         <div class="search-wrapper">
             <div class="search-container">
                 <!-- Cancelled Orders Search -->
@@ -424,147 +113,169 @@ hr {
                            class="search-input"
                            placeholder="Search by Ticket #">
                     <span class="search-icon">&#128269;</span>
+                    <button type="button" id="clearCancelledSearch" class="clear-search-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="quotes-container cancelled-orders-container" id="cancelled-orders-container" style="display:block;">
-            <?php
-            
+<div class="quotes-container cancelled-orders-container" id="cancelled-orders-container" style="display:block;">
+    <?php
+    include '../db_connection.php';
 
-            // Fetch cancelled orders for the logged-in user
-            $user_id = $_SESSION['user_id'] ?? null;
-            $has_orders = false;
-            $orders = [];
+    $user_id = $_SESSION['user_id'] ?? null;
 
-            if ($user_id) {
-            $sql = "SELECT o.*, u.name, u.phone_number
-              FROM orders o
-              JOIN users u ON o.user_id = u.id
-              WHERE o.user_id = ? 
-              AND o.status = 'cancelled'
-              ORDER BY o.cancelled_date DESC;";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
+    if ($user_id) {
+        // Pagination setup
+        $limit = 8; // orders per page
+        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+        $offset = ($page - 1) * $limit;
 
-            if ($result && $result->num_rows > 0) {
-                $has_orders = true;
+        // Count total cancelled orders
+        $count_sql = "SELECT COUNT(*) AS total FROM orders WHERE user_id = ? AND status = 'cancelled'";
+        $count_stmt = $conn->prepare($count_sql);
+        $count_stmt->bind_param("i", $user_id);
+        $count_stmt->execute();
+        $total_orders = $count_stmt->get_result()->fetch_assoc()['total'];
+        $total_pages = ceil($total_orders / $limit);
+        $count_stmt->close();
 
-                while ($order = $result->fetch_assoc()) {
-                    // Fetch shirt items for this order
-                    $items_sql = "SELECT shirt_color, quantity FROM items WHERE order_id = ?";
-                    $items_stmt = $conn->prepare($items_sql);
-                    $items_stmt->bind_param("i", $order['id']);
-                    $items_stmt->execute();
-                    $items_result = $items_stmt->get_result();
+        // Fetch paginated orders
+        $sql = "SELECT orders.*, users.name, users.phone_number 
+                FROM orders 
+                INNER JOIN users ON orders.user_id = users.id 
+                WHERE orders.user_id = ? AND orders.status = 'cancelled' 
+                ORDER BY orders.cancelled_date DESC 
+                LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iii", $user_id, $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-                    $shirtItems = [];
-                    if ($items_result && $items_result->num_rows > 0) {
-                        while ($item = $items_result->fetch_assoc()) {
-                            $shirtItems[] = $item;
-                        }
-                    }
+        if ($result->num_rows === 0) {
+            echo '<div class="no-orders">No cancelled orders found</div>';
+        } else {
+            while ($order = $result->fetch_assoc()) {
+                // fetch items
+                $items_sql = "SELECT shirt_color, quantity FROM items WHERE order_id = ?";
+                $items_stmt = $conn->prepare($items_sql);
+                $items_stmt->bind_param("i", $order['id']);
+                $items_stmt->execute();
+                $items_result = $items_stmt->get_result();
 
-                    // Attach shirt items to the order array
-                    $order['shirtItems'] = $shirtItems;
-                    $orders[] = $order;
-
-                    $items_stmt->close();
+                $shirtItems = [];
+                while ($item = $items_result->fetch_assoc()) {
+                    $shirtItems[] = $item;
                 }
-            }
-            $stmt->close();
-        }
-            ?>
+                $items_stmt->close();
 
-            <?php if (!$user_id): ?>
-                <div class="no-orders">No user ID found. Please log in.</div>
-            <?php elseif (!$has_orders): ?>
-                <div class="no-orders">No cancelled orders found</div>
-            <?php else: ?>
-                <?php foreach ($orders as $order): 
-          $createdAt = date('M d, Y', strtotime($order['created_at']));
-          $cancelledAt = date('M d, Y', strtotime($order['cancelled_date']));
-          $subtotal = $order['pricing'] * $order['quantity'];
-          $cancellationReason = $order['cancellation_reason'] ?? '';
-          // Determine the appropriate thumbnail based on file extension
-          $designFile = $order['design_file'];
-          $fileExtension = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
-          if ($fileExtension === 'psd') {
-            $thumbnail = "../photoshop.png";
-          } elseif ($fileExtension === 'pdf') {
-            $thumbnail = "../pdf.png";
-          } elseif ($fileExtension === 'ai') {
-            $thumbnail = "../illustrator.png";
-          } else {
-            // For image files, use the actual file
-            $thumbnail = htmlspecialchars($designFile, ENT_QUOTES, 'UTF-8');
-          }
+                $createdAt = date('M d, Y', strtotime($order['created_at']));
+                $cancelledAt = date('M d, Y', strtotime($order['cancelled_date']));
+                $cancellationReason = $order['cancellation_reason'] ?? '';
+                $designFile = $order['design_file'];
+                $ext = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
+                $thumbnail = ($ext === 'psd') ? "../photoshop.png" : (($ext === 'pdf') ? "../pdf.png" : (($ext === 'ai') ? "../illustrator.png" : htmlspecialchars($designFile)));
                 ?>
-                    <div class="quote-card animate__animated animate__fadeInUp" data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>">
-                        <img src="<?= $thumbnail ?>" alt="Design" class="card-image">
-                        <span class="card-status status-cancelled"><?= htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8') ?></span>
-                        <div class="card-content">
-                            <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
-                            <div class="card-details">
-                                <div class="card-detail">
-                                    <span class="detail-label">Quantity</span>
-                                    <span class="detail-value"><?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?></span>
-                                </div>
-                                <div class="card-detail">
-                                    <span class="detail-label">Ticket #</span>
-                                    <span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span>
-                                </div>
-                            </div>
-                            <div class="card-details">
-                                <div class="card-detail">
-                                    <span class="detail-label">Order Date</span>
-                                    <span class="detail-value"><?= $createdAt ?></span>
-                                </div>
-                                <div class="card-detail">
-                                    <span class="detail-label">Cancelled Date</span>
-                                    <span class="detail-value"><?= $cancelledAt ?></span>
-                                </div>
-                            </div>
-
-                            <!-- Bottom-right details icon -->
-                            <i class="fa fa-info-circle bottom-right-details-icon"
-                                title="Click to see full order details"
-                                onclick="openDetailsModalFromCard(this)"
-                                data-id="<?= $order['id'] ?>"
-                                data-user-id="<?= $order['user_id'] ?>"
-                                data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES) ?>"
-                                data-design="<?= htmlspecialchars($order['design_file'], ENT_QUOTES) ?>"
-                                data-mobile="<?= htmlspecialchars($order['phone_number'], ENT_QUOTES) ?>"
-                                data-name="<?= htmlspecialchars($order['name'], ENT_QUOTES) ?>"
-                                data-print-type="<?= htmlspecialchars($order['print_type'], ENT_QUOTES) ?>"
-                                data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES) ?>"
-                                data-date="<?= htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES) ?>"
-                                data-status="<?= htmlspecialchars($order['status'], ENT_QUOTES) ?>"
-                                data-note="<?= htmlspecialchars($order['note'], ENT_QUOTES) ?>"
-                                data-address="<?= htmlspecialchars($order['address'], ENT_QUOTES) ?>"
-                                data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES) ?>"
-                                data-subtotal="<?= htmlspecialchars($order['subtotal'], ENT_QUOTES) ?>"
-                                data-cancellation-reason="<?= htmlspecialchars($cancellationReason, ENT_QUOTES) ?>"
-                                data-items='<?= json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'
-                              >
-                            </i>
-                            <div class="card-actions">
-                                <div class="button-group">
-                                    <a href="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" 
-                                    class="download-btn" 
-                                    download 
-                                    title="Download design file">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                </div>
+                <div class="quote-card animate__animated animate__fadeInUp" data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>">
+                    <img src="<?= $thumbnail ?>" alt="Design" class="card-image">
+                    <span class="card-status status-cancelled"><?= htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8') ?></span>
+                    <div class="card-content">
+                        <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
+                        <div class="card-details">
+                            <div class="card-detail"><span class="detail-label">Quantity</span><span class="detail-value"><?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?></span></div>
+                            <div class="card-detail"><span class="detail-label">Ticket #</span><span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span></div>
+                        </div>
+                        <div class="card-details">
+                            <div class="card-detail"><span class="detail-label">Order Date</span><span class="detail-value"><?= $createdAt ?></span></div>
+                            <div class="card-detail"><span class="detail-label">Cancelled Date</span><span class="detail-value"><?= $cancelledAt ?></span></div>
+                        </div>
+                        <i class="fa fa-info-circle bottom-right-details-icon"
+                            title="Click to see full order details"
+                            onclick="openDetailsModalFromCard(this)"
+                            data-id="<?= $order['id'] ?>"
+                            data-user-id="<?= $order['user_id'] ?>"
+                            data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES) ?>"
+                            data-design="<?= htmlspecialchars($order['design_file'], ENT_QUOTES) ?>"
+                            data-mobile="<?= htmlspecialchars($order['phone_number'], ENT_QUOTES) ?>"
+                            data-name="<?= htmlspecialchars($order['name'], ENT_QUOTES) ?>"
+                            data-print-type="<?= htmlspecialchars($order['print_type'], ENT_QUOTES) ?>"
+                            data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES) ?>"
+                            data-date="<?= htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES) ?>"
+                            data-status="<?= htmlspecialchars($order['status'], ENT_QUOTES) ?>"
+                            data-note="<?= htmlspecialchars($order['note'], ENT_QUOTES) ?>"
+                            data-address="<?= htmlspecialchars($order['address'], ENT_QUOTES) ?>"
+                            data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES) ?>"
+                            data-subtotal="<?= htmlspecialchars($order['subtotal'], ENT_QUOTES) ?>"
+                            data-cancellation-reason="<?= htmlspecialchars($cancellationReason, ENT_QUOTES) ?>"
+                            data-items='<?= json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
+                        </i>
+                        <div class="card-actions">
+                            <div class="button-group">
+                                <a href="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" 
+                                class="download-btn" 
+                                download 
+                                title="Download design file">
+                                    <i class="fas fa-download"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+                </div>
+            <?php }
+        }
+        $stmt->close();
+
+        // Pagination Controls
+        if ($total_pages > 0) {
+            echo '<div class="pagination">';
+            
+            // Previous button
+            if ($page > 1) {
+                echo '<a href="?page='.($page-1).'" class="page-btn prev-next">‹ Prev</a>';
+            } else {
+                echo '<span class="page-btn prev-next disabled">‹ Prev</span>';
+            }
+            
+            // First page
+            if ($page > 3) {
+                echo '<a href="?page=1" class="page-btn">1</a>';
+                if ($page > 4) {
+                    echo '<span class="page-dots">...</span>';
+                }
+            }
+            
+            // Page numbers around current page
+            $startPage = max(2, $page - 1);
+            $endPage = min($total_pages - 1, $page + 1);
+            
+            for ($i = $startPage; $i <= $endPage; $i++) {
+                $active = ($i == $page) ? 'active' : '';
+                echo '<a href="?page='.$i.'" class="page-btn '.$active.'">'.$i.'</a>';
+            }
+            
+            // Last page
+            if ($page < $total_pages - 2) {
+                if ($page < $total_pages - 3) {
+                    echo '<span class="page-dots">...</span>';
+                }
+                echo '<a href="?page='.$total_pages.'" class="page-btn">'.$total_pages.'</a>';
+            }
+            
+            // Next button
+            if ($page < $total_pages) {
+                echo '<a href="?page='.($page+1).'" class="page-btn prev-next">Next ›</a>';
+            } else {
+                echo '<span class="page-btn prev-next disabled">Next ›</span>';
+            }
+            
+            echo '</div>';
+        }
+    } else {
+        echo '<div class="no-orders">No user ID found. Please log in.</div>';
+    }
+    ?>
+</div>
     </main>
 
     <!-- ✅ Details Modal -->
@@ -732,26 +443,227 @@ document.getElementById("ticket-value-input").value = ticket;
         if (e.target === detailsModal) closeDetailsModal();
     });
 
-    // Search functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('CancelledSearchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.trim().toLowerCase();
-                const cards = document.querySelectorAll('.quote-card[data-ticket]');
-                
-                cards.forEach(card => {
-                    const ticketNumber = card.getAttribute('data-ticket').toLowerCase();
-                    
-                    if (searchTerm === '' || ticketNumber.includes(searchTerm)) {
-                        card.classList.remove('hidden');
-                    } else {
-                        card.classList.add('hidden');
-                    }
-                });
-            });
-        }
+
+    // Cancelled Orders Search Functionality (AJAX-based)
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('CancelledSearchInput');
+    const clearSearchBtn = document.getElementById('clearCancelledSearch');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.trim();
+            if (clearSearchBtn) {
+                clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+            }
+            
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+            
+            // Set new timeout to avoid too many requests
+            searchTimeout = setTimeout(() => {
+                searchCancelledOrders(searchTerm, 1);
+            }, 500); // 500ms delay
+        });
+    }
+    
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            searchCancelledOrders('', 1);
+        });
+    }
+});
+
+function searchCancelledOrders(searchTerm = '', page = 1) {
+    const container = document.getElementById('cancelled-orders-container');
+    
+    if (!container) {
+        console.error('Cancelled orders container not found');
+        return;
+    }
+    
+    // Show loading state
+    container.innerHTML = '<div class="no-orders">Searching...</div>';
+    
+    // Build URL with parameters
+    const params = new URLSearchParams();
+    if (searchTerm) params.append('search', searchTerm);
+    params.append('page', page);
+    
+    const searchUrl = 'functions/search_cancelled_orders.php?' + params.toString();
+    
+    console.log('Searching cancelled orders with URL:', searchUrl);
+    
+    fetch(searchUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Cancelled orders search response:', data);
+            
+            if (data.error) {
+                container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
+                return;
+            }
+            
+            if (data.success === false) {
+                container.innerHTML = `<div class="no-orders">${data.error || 'Search failed'}</div>`;
+                return;
+            }
+            
+            displayCancelledSearchResults(data, searchTerm, page);
+        })
+        .catch(error => {
+            console.error('Cancelled orders search error:', error);
+            container.innerHTML = '<div class="no-orders">Search failed: ' + error.message + '</div>';
+        });
+}
+
+function displayCancelledSearchResults(data, searchTerm, currentPage) {
+    const container = document.getElementById('cancelled-orders-container');
+    const orders = data.orders || [];
+    const totalPages = data.total_pages || 1;
+    
+    if (orders.length === 0) {
+        const message = searchTerm 
+            ? `No cancelled orders found for ticket "${searchTerm}"`
+            : 'No cancelled orders found';
+        container.innerHTML = `<div class="no-orders">${message}</div>`;
+        return;
+    }
+    
+    let html = '';
+    
+    orders.forEach(order => {
+        // Use the thumbnail path from the server response
+        const thumbnail = order.thumbnail || order.design_file;
+        const statusClass = 'status-cancelled';
+        const statusText = 'Cancelled';
+        const cancellationReason = order.cancellation_reason || '';
+        
+        html += `
+            <div class="quote-card animate__animated animate__fadeInUp" data-ticket="${escapeHtml(order.ticket)}">
+                <img src="${thumbnail}" alt="Design" class="card-image" onerror="this.src='../image-placeholder.png'">
+                <span class="card-status ${statusClass}">${statusText}</span>
+                <div class="card-content">
+                    <h3 class="card-title">${escapeHtml(order.print_type)}</h3>
+                    <div class="card-details">
+                        <div class="card-detail"><span class="detail-label">Quantity</span><span class="detail-value">${escapeHtml(order.quantity)}</span></div>
+                        <div class="card-detail"><span class="detail-label">Ticket #</span><span class="detail-value">${escapeHtml(order.ticket)}</span></div>
+                    </div>
+                    <div class="card-details">
+                        <div class="card-detail"><span class="detail-label">Order Date</span><span class="detail-value">${order.created_at_formatted}</span></div>
+                        <div class="card-detail"><span class="detail-label">Cancelled Date</span><span class="detail-value">${order.cancelled_date_formatted}</span></div>
+                    </div>
+                    <i class="fa fa-info-circle bottom-right-details-icon"
+                        title="Click to see full order details"
+                        onclick="openDetailsModalFromCard(this)"
+                        data-id="${order.id}"
+                        data-user-id="${order.user_id}"
+                        data-ticket="${escapeHtml(order.ticket)}"
+                        data-design="${escapeHtml(order.design_file)}"
+                        data-mobile="${escapeHtml(order.phone_number)}"
+                        data-name="${escapeHtml(order.name)}"
+                        data-print-type="${escapeHtml(order.print_type)}"
+                        data-quantity="${escapeHtml(order.quantity)}"
+                        data-date="${escapeHtml(order.created_at_formatted)}"
+                        data-status="${escapeHtml(order.status)}"
+                        data-note="${escapeHtml(order.note || '')}"
+                        data-address="${escapeHtml(order.address)}"
+                        data-pricing="${escapeHtml(order.pricing)}"
+                        data-subtotal="${escapeHtml(order.subtotal)}"
+                        data-cancellation-reason="${escapeHtml(cancellationReason)}"
+                        data-items='${JSON.stringify(order.items).replace(/'/g, "&#39;")}'>
+                    </i>
+                    <div class="card-actions">
+                        <div class="button-group">
+                            <a href="${escapeHtml(order.design_file)}" class="download-btn" download title="Download design file">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     });
+    
+    if (totalPages > 0) {
+        html += '<div class="pagination" id="cancelled-search-pagination">';
+        
+        // Previous button
+        if (currentPage > 1) {
+            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${currentPage - 1})">‹ Prev</a>`;
+        } else {
+            html += `<span class="page-btn prev-next disabled">‹ Prev</span>`;
+        }
+        
+        // First page
+        if (currentPage > 3) {
+            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', 1)">1</a>`;
+            if (currentPage > 4) {
+                html += `<span class="page-dots">...</span>`;
+            }
+        }
+        
+        // Page numbers around current page
+        const startPage = Math.max(2, currentPage - 1);
+        const endPage = Math.min(totalPages - 1, currentPage + 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                html += `<span class="page-btn active">${i}</span>`;
+            } else {
+                html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${i})">${i}</a>`;
+            }
+        }
+        
+        // Last page
+        if (currentPage < totalPages - 2) {
+            if (currentPage < totalPages - 3) {
+                html += `<span class="page-dots">...</span>`;
+            }
+            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${totalPages})">${totalPages}</a>`;
+        }
+        
+        // Next button
+        if (currentPage < totalPages) {
+            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${currentPage + 1})">Next ›</a>`;
+        } else {
+            html += `<span class="page-btn prev-next disabled">Next ›</span>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+// Clear cancelled search functionality
+function clearCancelledSearch() {
+    const searchInput = document.getElementById('CancelledSearchInput');
+    const clearSearchBtn = document.getElementById('clearCancelledSearch');
+    
+    if (searchInput) {
+        searchInput.value = '';
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = 'none';
+        }
+        // Reload the original page content
+        window.location.href = 'cancelled-orders?page=1';
+    }
+}
+
+// Helper function to escape HTML (reuse from your existing code)
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
     // Image viewer functionality
     const userImageViewerModal = document.getElementById('userImageViewerModal');
