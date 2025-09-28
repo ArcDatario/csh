@@ -30,9 +30,17 @@ $filter_start  = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $filter_end    = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $filter_search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// --- Build WHERE clauses ---
+// --- Pagination setup ---
+$orders_per_page = 7;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $orders_per_page;
+
+// --- Maximum default orders ---
+$default_limit = 100;
+
+// --- Build WHERE clauses (your existing code is fine) ---
 $where_clauses = [];
-$where_clauses[] = "o.status = 'pending'"; // always pending
+$where_clauses[] = "o.status = 'pending'";
 
 if ($filter_print !== '') {
     $where_clauses[] = "o.print_type = '" . $conn->real_escape_string($filter_print) . "'";
@@ -51,19 +59,12 @@ if (!empty($where_clauses)) {
     $where_sql = "WHERE " . implode(" AND ", $where_clauses);
 }
 
-// --- Pagination setup ---
-$orders_per_page = 6;
-$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$offset = ($page - 1) * $orders_per_page;
 
-// --- Maximum default orders ---
-$default_limit = 100;
-
-// --- Count total orders (with filters) ---
+// --- Simple count ---
 $count_query = "SELECT COUNT(*) as total 
                 FROM orders o
                 INNER JOIN users u ON o.user_id = u.id
-                $where_sql";
+                WHERE o.status = 'pending'";
 $count_result = $conn->query($count_query);
 $total_orders = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
 
@@ -73,25 +74,16 @@ if (empty($filter_print) && empty($filter_start) && empty($filter_end) && empty(
 }
 $total_pages = ceil($total_orders / $orders_per_page);
 
-// --- Fetch orders ---
+// --- Simple query - let get_admin_orders.php handle pagination ---
 $query = "SELECT o.* 
           FROM orders o 
           INNER JOIN users u ON o.user_id = u.id
-          $where_sql
-          ORDER BY o.created_at DESC";
-
-// Apply default limit only if no filters
-if (empty($_GET['print_type']) && empty($_GET['start_date']) && empty($_GET['end_date']) && empty($_GET['search'])) {
-    $query .= " LIMIT $default_limit";
-}
-
+          WHERE o.status = 'pending'
+          ORDER BY o.created_at DESC
+          LIMIT 6"; // Just get first 6 for initial load
 
 $result = $conn->query($query);
-
-$all_orders = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-
-// Slice orders for current page
-$orders = array_slice($all_orders, $offset, $orders_per_page);
+$orders = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 ?>
 
 
@@ -236,13 +228,24 @@ $orders = array_slice($all_orders, $offset, $orders_per_page);
                 </div>
 
                 <!-- Pagination -->
-                <div class="pagination">
-                    <?php if ($page > 1): ?>
-                        <a href="?page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+                <div class="pagination" id="paginationContainer">
+                    <?php 
+                    // Build pagination links with preserved filters
+                    $query_params = [];
+                    if (!empty($filter_print)) $query_params['print_type'] = $filter_print;
+                    if (!empty($filter_start)) $query_params['start_date'] = $filter_start;
+                    if (!empty($filter_end)) $query_params['end_date'] = $filter_end;
+                    if (!empty($filter_search)) $query_params['search'] = $filter_search;
+                    
+                    if ($page > 1): 
+                        $query_params['page'] = $page - 1;
+                    ?>
+                        <a href="?<?= http_build_query($query_params) ?>" class="btn btn-outline">&laquo; Prev</a>
                     <?php endif; ?>
 
                     <!-- Always show first page -->
-                    <a href="?page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+                    <?php $query_params['page'] = 1; ?>
+                    <a href="?<?= http_build_query($query_params) ?>" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
 
                     <!-- Dots -->
                     <?php if ($page > 3): ?>
@@ -250,8 +253,10 @@ $orders = array_slice($all_orders, $offset, $orders_per_page);
                     <?php endif; ?>
 
                     <!-- Pages around current -->
-                    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
-                        <a href="?page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
+                    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): 
+                        $query_params['page'] = $i;
+                    ?>
+                        <a href="?<?= http_build_query($query_params) ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
                             <?= $i ?>
                         </a>
                     <?php endfor; ?>
@@ -262,14 +267,18 @@ $orders = array_slice($all_orders, $offset, $orders_per_page);
                     <?php endif; ?>
 
                     <!-- Always show last page -->
-                    <?php if ($total_pages > 1): ?>
-                        <a href="?page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
+                    <?php if ($total_pages > 1): 
+                        $query_params['page'] = $total_pages;
+                    ?>
+                        <a href="?<?= http_build_query($query_params) ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
                             <?= $total_pages ?>
                         </a>
                     <?php endif; ?>
 
-                    <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+                    <?php if ($page < $total_pages): 
+                        $query_params['page'] = $page + 1;
+                    ?>
+                        <a href="?<?= http_build_query($query_params) ?>" class="btn btn-outline">Next &raquo;</a>
                     <?php endif; ?>
                 </div>
             </section>
@@ -619,19 +628,71 @@ $orders = array_slice($all_orders, $offset, $orders_per_page);
         }
     }
 
-    // Table refresh functionality
-    function refreshDesignersTable() {
-        const params = new URLSearchParams(new FormData(document.querySelector('.filter-form')));
-        fetch('functions/get_admin_orders.php?' + params.toString())
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('admins-table-body').innerHTML = data;
-                attachEventListeners();
-            })
-            .catch(error => console.error('Error refreshing table:', error));
+// Table refresh functionality with pagination
+function refreshDesignersTable(page = null) {
+    const currentPage = page || getCurrentPageFromURL();
+    const params = new URLSearchParams(window.location.search);
+    
+    // Remove existing page parameter and set new one
+    params.delete('page');
+    if (currentPage > 1) {
+        params.set('page', currentPage);
     }
+    
+    fetch('functions/get_admin_orders.php?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+            // Update table body
+            document.getElementById('admins-table-body').innerHTML = data.table;
+            
+            // Update pagination
+            document.getElementById('paginationContainer').innerHTML = data.pagination;
+            
+            // Update the badge count
+            document.querySelector('.table-title .badge').textContent = data.total_orders;
+            
+            attachEventListeners();
+        })
+        .catch(error => console.error('Error refreshing table:', error));
+}
 
+// Get current page from URL
+function getCurrentPageFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return parseInt(urlParams.get('page')) || 1;
+}
 
+// Handle pagination clicks
+function handlePaginationClicks() {
+    document.addEventListener('click', function(e) {
+        const paginationLink = e.target.closest('.pagination a');
+        if (paginationLink) {
+            e.preventDefault();
+            const url = new URL(paginationLink.href);
+            const page = url.searchParams.get('page') || 1;
+            
+            // Update URL without reloading the entire page
+            window.history.pushState({}, '', url.toString());
+            
+            refreshDesignersTable(page);
+        }
+    });
+}
+
+// Update your init function
+function init() {
+    attachEventListeners();
+    handlePaginationClicks();
+    refreshDesignersTable();
+    
+    // Set up periodic refresh (every 5 seconds)
+    setInterval(refreshDesignersTable, 5000);
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function() {
+        refreshDesignersTable();
+    });
+}
     // Attach all event listeners
     function attachEventListeners() {
         // Price calculation
@@ -650,14 +711,7 @@ $orders = array_slice($all_orders, $offset, $orders_per_page);
         saveBtn.addEventListener('click', handleSaveQuote);
     }
 
-    // Initialize
-    function init() {
-        attachEventListeners();
-        refreshDesignersTable();
-        
-        // Set up periodic refresh (every 5 seconds)
-        setInterval(refreshDesignersTable, 5000);
-    }
+
 
     // Start the application
     document.addEventListener('DOMContentLoaded', init);
