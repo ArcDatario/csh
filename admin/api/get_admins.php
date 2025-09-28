@@ -8,7 +8,7 @@ try {
     // Get parameters
     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-    $items_per_page = 6;
+    $items_per_page = 7;
 
     // Calculate offset
     $offset = ($page - 1) * $items_per_page;
