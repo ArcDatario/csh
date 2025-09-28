@@ -3,6 +3,7 @@ require_once '../db_connection.php';
 
 header('Content-Type: application/json');
 
+// Remove pagination - get ALL works
 $sql = "SELECT id, work_name, image FROM work ORDER BY id DESC";
 $result = $conn->query($sql);
 

@@ -3,6 +3,7 @@ require_once '../db_connection.php';
 
 header('Content-Type: application/json');
 
+// Remove pagination - get ALL services
 $sql = "SELECT id, service_name, description, image FROM services ORDER BY id DESC";
 $result = $conn->query($sql);
 

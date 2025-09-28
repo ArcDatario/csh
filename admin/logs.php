@@ -49,7 +49,7 @@ if (!empty($where_clauses)) {
 }
 
 // --- Pagination setup ---
-$logs_per_page = 6;
+$logs_per_page = 7;
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $offset = ($page - 1) * $logs_per_page;
 
@@ -191,6 +191,8 @@ if ($roles_result) {
                 <h3 class="table-title">System Activity Logs</h3>
                 <div class="table-actions">
                     <form method="GET" class="filter-form">
+                            <!-- Add this hidden input to preserve current page -->
+                            <input type="hidden" name="page" value="1">
                         <select name="role">
                             <option value="">All Roles</option>
                             <?php foreach ($roles as $role_option): ?>
@@ -269,12 +271,23 @@ if ($roles_result) {
             </div>
             
 <div class="pagination">
+    <?php 
+    // Build query parameters for pagination links
+    $query_params = [];
+    if (!empty($filter_role)) $query_params['role'] = $filter_role;
+    if (!empty($filter_category)) $query_params['category'] = $filter_category;
+    if (!empty($filter_start)) $query_params['start_date'] = $filter_start;
+    if (!empty($filter_end)) $query_params['end_date'] = $filter_end;
+    ?>
+    
     <?php if ($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+        <?php $query_params['page'] = $page - 1; ?>
+        <a href="?<?= http_build_query($query_params) ?>" class="btn btn-outline">&laquo; Prev</a>
     <?php endif; ?>
 
     <!-- Always show first page -->
-    <a href="?page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+    <?php $query_params['page'] = 1; ?>
+    <a href="?<?= http_build_query($query_params) ?>" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
 
     <!-- Dots -->
     <?php if ($page > 3): ?>
@@ -283,7 +296,8 @@ if ($roles_result) {
 
     <!-- Pages around current -->
     <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
-        <a href="?page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
+        <?php $query_params['page'] = $i; ?>
+        <a href="?<?= http_build_query($query_params) ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
             <?= $i ?>
         </a>
     <?php endfor; ?>
@@ -295,16 +309,17 @@ if ($roles_result) {
 
     <!-- Always show last page -->
     <?php if ($total_pages > 1): ?>
-        <a href="?page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
+        <?php $query_params['page'] = $total_pages; ?>
+        <a href="?<?= http_build_query($query_params) ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
             <?= $total_pages ?>
         </a>
     <?php endif; ?>
 
     <?php if ($page < $total_pages): ?>
-        <a href="?page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+        <?php $query_params['page'] = $page + 1; ?>
+        <a href="?<?= http_build_query($query_params) ?>" class="btn btn-outline">Next &raquo;</a>
     <?php endif; ?>
 </div>
-
 
         </section>
     </main>

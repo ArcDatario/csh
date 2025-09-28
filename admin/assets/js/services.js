@@ -1,10 +1,24 @@
-// Function to fetch and display services
+// Function to fetch and display services with client-side pagination
 function refreshServicesTable() {
+    // Get current page from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = parseInt(urlParams.get('page')) || 1;
+    const itemsPerPage = 7;
+    
     fetch('get_services.php')
         .then(response => response.json())
-        .then(services => {
+        .then(allServices => {
             const tableBody = document.getElementById('servicesTableBody');
             tableBody.innerHTML = ''; // Clear current rows
+            
+            // Calculate pagination
+            const totalItems = allServices.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            // Get services for current page
+            const services = allServices.slice(startIndex, endIndex);
             
             if (services.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="4" class="text-center">No services found</td></tr>';
@@ -54,6 +68,9 @@ function refreshServicesTable() {
                 tableBody.appendChild(row);
             });
             
+            // Update pagination display
+            updatePaginationDisplay(currentPage, totalPages);
+            
             // Attach event listeners to the new buttons
             attachServiceButtonEvents();
         })
@@ -61,6 +78,12 @@ function refreshServicesTable() {
             console.error('Error loading services:', error);
             showToast('Error', 'Failed to load services', 'error');
         });
+}
+
+// Function to update pagination display
+function updatePaginationDisplay(currentPage, totalPages) {
+    // You can update the pagination UI here if needed
+    console.log(`Page ${currentPage} of ${totalPages}`);
 }
 
 // Function to show the edit service modal
@@ -494,7 +517,28 @@ function deleteService(serviceId) {
     .then(data => {
         if (data.success) {
             showToast('Success', 'Service deleted successfully', 'success');
+            
+            // Get current page and total items to determine if we need to go back a page
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentPage = parseInt(urlParams.get('page')) || 1;
+            
+            // Refresh the table first to see how many items are left
             refreshServicesTable();
+            
+            // Check if current page is empty after deletion
+            setTimeout(() => {
+                const tableBody = document.getElementById('servicesTableBody');
+                const hasRecords = tableBody.querySelector('tr td.text-center') === null;
+                
+                if (!hasRecords && currentPage > 1) {
+                    // If no records on current page and it's not page 1, go to previous page
+                    window.location.href = `?page=${currentPage - 1}`;
+                } else {
+                    // Otherwise just reload to refresh the data
+                    window.location.reload();
+                }
+            }, 100);
+            
         } else {
             showToast('Error', data.message || 'Failed to delete service', 'error');
         }
@@ -553,6 +597,3 @@ function showToast(title, message, type = 'info') {
         }, 300);
     });
 }
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', refreshServicesTable);

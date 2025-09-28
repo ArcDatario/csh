@@ -5,20 +5,29 @@ if (!isLoggedIn()) {
     header('Location: login.php');
     exit();
 }
+
 // --- Pagination setup ---
-$orders_per_page = 6;
+$items_per_page = 7;
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$offset = ($page - 1) * $orders_per_page;
 
-// --- Maximum default orders ---
-$default_limit = 100;
-
-// --- Count total orders (with filters) ---
+// --- Count total works ---
 $count_query = "SELECT COUNT(*) as total FROM work";
 $count_result = $conn->query($count_query);
-$total_orders = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
+$total_items = $count_result ? intval($count_result->fetch_assoc()['total']) : 0;
 
-$total_pages = ceil($total_orders / $orders_per_page);
+$total_pages = ceil($total_items / $items_per_page);
+
+// If current page is greater than total pages and there are items, redirect to last page
+if ($total_items > 0 && $page > $total_pages) {
+    header('Location: our-work.php?page=' . $total_pages);
+    exit();
+}
+
+// If no items and page is not 1, redirect to page 1
+if ($total_items === 0 && $page !== 1) {
+    header('Location: our-work.php?page=1');
+    exit();
+}
 
 ?>
 <!DOCTYPE html>
@@ -30,6 +39,15 @@ $total_pages = ceil($total_orders / $orders_per_page);
    <link rel="stylesheet" href="assets/css/admintoapprove.css">
     
     <style>
+
+        .table-fixed {
+    table-layout: fixed;
+    width: 100%;
+    }
+    .col-image { width: 30%; }
+    .col-name { width: 50%; }
+    .col-action { width: 20%; }
+
          .image-preview {
         margin-bottom: 20px;
         text-align: center;
@@ -144,13 +162,14 @@ $total_pages = ceil($total_orders / $orders_per_page);
         </div>
     </div>
     
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Work Name</th>
-                    <th>Action</th>
+<div class="table-responsive">
+    <table class="table-fixed">
+        <thead>
+            <tr>
+                <th class="col-image">Image</th>
+                <th class="col-name">Work Name</th>
+                <th class="col-action">Action</th>
+            </tr>Action</th>
                 </tr>
             </thead>
             <tbody id="worksTableBody">
@@ -158,42 +177,45 @@ $total_pages = ceil($total_orders / $orders_per_page);
             </tbody>
         </table>
                         <!-- Pagination -->
-                <div class="pagination">
-                    <?php if ($page > 1): ?>
-                        <a href="?page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
-                    <?php endif; ?>
+<!-- Pagination -->
+<?php if ($total_pages > 0): ?>
+<div class="pagination">
+    <?php if ($page > 1): ?>
+        <a href="our-work.php?page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+    <?php endif; ?>
 
-                    <!-- Always show first page -->
-                    <a href="?page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+    <!-- Always show first page -->
+    <a href="our-work.php?page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
 
-                    <!-- Dots -->
-                    <?php if ($page > 3): ?>
-                        <span class="dots">...</span>
-                    <?php endif; ?>
+    <!-- Dots -->
+    <?php if ($page > 3): ?>
+        <span class="dots">...</span>
+    <?php endif; ?>
 
-                    <!-- Pages around current -->
-                    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
-                        <a href="?page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
-                            <?= $i ?>
-                        </a>
-                    <?php endfor; ?>
+    <!-- Pages around current -->
+    <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
+        <a href="our-work.php?page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
+            <?= $i ?>
+        </a>
+    <?php endfor; ?>
 
-                    <!-- Dots -->
-                    <?php if ($page < $total_pages - 2): ?>
-                        <span class="dots">...</span>
-                    <?php endif; ?>
+    <!-- Dots -->
+    <?php if ($page < $total_pages - 2): ?>
+        <span class="dots">...</span>
+    <?php endif; ?>
 
-                    <!-- Always show last page -->
-                    <?php if ($total_pages > 1): ?>
-                        <a href="?page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
-                            <?= $total_pages ?>
-                        </a>
-                    <?php endif; ?>
+    <!-- Always show last page -->
+    <?php if ($total_pages > 1): ?>
+        <a href="our-work.php?page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
+            <?= $total_pages ?>
+        </a>
+    <?php endif; ?>
 
-                    <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
-                    <?php endif; ?>
-                </div>
+    <?php if ($page < $total_pages): ?>
+        <a href="our-work.php?page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
     </div>
 </section>
         </main>
@@ -376,6 +398,7 @@ imageInput.addEventListener('change', function() {
 });
 
 // Save work - using AJAX to submit the form
+// Save work - using AJAX to submit the form
 saveWork.addEventListener('click', (e) => {
     e.preventDefault();
     
@@ -394,8 +417,8 @@ saveWork.addEventListener('click', (e) => {
                 workForm.reset();
                 imagePreviewContainer.style.display = 'none';
                 
-                // Refresh the works table
-                refreshWorksTable();
+                // Redirect to refresh the page with pagination
+                window.location.href = 'our-work.php?page=1';
             } else {
                 showToast('Error', data.message || 'Failed to add work', 'error');
             }
@@ -410,12 +433,27 @@ saveWork.addEventListener('click', (e) => {
 });
 
 // Function to refresh works table
+// Function to refresh works table with client-side pagination
 function refreshWorksTable() {
+    // Get current page from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = parseInt(urlParams.get('page')) || 1;
+    const itemsPerPage = 7;
+    
     fetch('get_works.php')
         .then(response => response.json())
-        .then(works => {
+        .then(allWorks => {
             const tableBody = document.getElementById('worksTableBody');
             tableBody.innerHTML = ''; // Clear current rows
+            
+            // Calculate pagination
+            const totalItems = allWorks.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            // Get works for current page
+            const works = allWorks.slice(startIndex, endIndex);
             
             if (works.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="3" class="text-center">No works found</td></tr>';
@@ -861,7 +899,28 @@ function deleteWork(workId) {
     .then(data => {
         if (data.success) {
             showToast('Success', 'Work deleted successfully', 'success');
+            
+            // Get current page and total items to determine if we need to go back a page
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentPage = parseInt(urlParams.get('page')) || 1;
+            
+            // Refresh the table first to see how many items are left
             refreshWorksTable();
+            
+            // Check if current page is empty after deletion
+            setTimeout(() => {
+                const tableBody = document.getElementById('worksTableBody');
+                const hasRecords = tableBody.querySelector('tr td.text-center') === null;
+                
+                if (!hasRecords && currentPage > 1) {
+                    // If no records on current page and it's not page 1, go to previous page
+                    window.location.href = `our-work.php?page=${currentPage - 1}`;
+                } else {
+                    // Otherwise just reload to refresh the data
+                    window.location.reload();
+                }
+            }, 100);
+            
         } else {
             showToast('Error', data.message || 'Failed to delete work', 'error');
         }
@@ -872,9 +931,9 @@ function deleteWork(workId) {
     });
 }
 
+// Initialize when DOM is loaded// Initialize when DOM is loaded
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', refreshWorksTable);
-
 
 </script>
 
