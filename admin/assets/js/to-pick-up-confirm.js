@@ -1,3 +1,8 @@
+// ============================
+// GLOBALS / SHARED
+// ============================
+let activeFiltersPickup = null; // stores current filters if applied
+
 // Get DOM elements
 const pickupModal = document.getElementById('pickupModal');
 const pickupModalClose = document.querySelector('.quote-modal-close');
@@ -5,69 +10,127 @@ const confirmPickupBtn = document.getElementById('pickup-modal-confirm');
 const closePickupBtn = document.getElementById('pickup-modal-close');
 
 
-function attachEventListeners() {
-    // View buttons
+// ============================
+// 1. REFRESH HANDLER (Pickup only)
+// ============================
+function updatePickupTable() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = urlParams.get('page_pickup') || 1;
+
+    if (activeFiltersPickup) {
+        activeFiltersPickup.delete('page');
+        if (currentPage > 1) activeFiltersPickup.set('page', currentPage);
+        applyPickupFilters(activeFiltersPickup);
+    } else {
+        const params = new URLSearchParams();
+        if (currentPage > 1) params.set('page', currentPage);
+
+        fetch('functions/get_pickup_orders.php?' + params.toString())
+            .then(res => res.json())
+            .then(data => renderPickupTable(data))
+            .catch(err => console.error('Error refreshing pickup table:', err));
+    }
+}
+
+// ============================
+// 2. FILTERS (Pickup only)
+// ============================
+function applyPickupFilters(params) {
+    fetch('functions/get_pickup_orders.php?' + params.toString())
+        .then(res => res.json())
+        .then(data => renderPickupTable(data))
+        .catch(err => console.error('Error applying pickup filters:', err));
+}
+
+// ============================
+// 3. INITIAL LOAD / MANUAL FILTER
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+    const filterForm = document.querySelector('.filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+            activeFiltersPickup = params;
+            applyPickupFilters(params);
+        });
+    }
+
+    const resetBtn = document.querySelector('.reset-filters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            activeFiltersPickup = null;
+            updatePickupTable();
+        });
+    }
+
+    attachPickupEventListeners();
+    updatePickupTable();
+});
+
+// ============================
+// 4. RENDER TABLE + PAGINATION
+// ============================
+function renderPickupTable(data) {
+    const tbody = document.getElementById('pickup-table-body');
+    const pagination = document.querySelector('#to-pickup-table .pagination');
+
+    if (!tbody || !pagination) return;
+
+    if (data.total_records === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center">No orders currently for pickup</td></tr>`;
+        pagination.innerHTML = '';
+    } else {
+        tbody.innerHTML = data.table;
+        pagination.innerHTML = data.pagination;
+    }
+
+    attachPickupViewButtonListeners();
+    attachPickupPaginationListeners();
+}
+
+// ============================
+// 5. PAGINATION HANDLER
+// ============================
+function attachPickupPaginationListeners() {
+    document.querySelectorAll('#to-pickup-table .pagination a').forEach(link => {
+        link.removeEventListener('click', handlePickupPageClick);
+        link.addEventListener('click', handlePickupPageClick);
+    });
+}
+
+function handlePickupPageClick(e) {
+    e.preventDefault();
+    const url = new URL(this.href);
+    const page = url.searchParams.get('page') || 1;
+
+    const params = activeFiltersPickup ? new URLSearchParams(activeFiltersPickup) : new URLSearchParams();
+    params.set('page', page);
+
+    fetch('functions/get_pickup_orders.php?' + params.toString())
+        .then(res => res.json())
+        .then(data => renderPickupTable(data))
+        .catch(err => console.error('Error paginating pickup:', err));
+
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('tab', 'to-pickup');
+    newUrl.searchParams.set('page_pickup', page);
+    window.history.replaceState({}, '', newUrl);
+}
+
+// ============================
+// 6. VIEW BUTTONS
+// ============================
+function attachPickupViewButtonListeners() {
     document.querySelectorAll('.view-pickup-modal').forEach(button => {
-        // Remove old listener to avoid duplicates
         button.removeEventListener('click', handlePickupViewButtonClick);
         button.addEventListener('click', handlePickupViewButtonClick);
     });
-
-    // Download & view design buttons inside modal
-    const downloadButtons = document.querySelectorAll('.download-design-btn');
-    downloadButtons.forEach(button => {
-        button.removeEventListener('click', handleDownloadDesign);
-        button.addEventListener('click', handleDownloadDesign);
-    });
-
-    const viewButtons = document.querySelectorAll('.view-design-btn');
-    viewButtons.forEach(button => {
-        button.removeEventListener('click', handleViewDesign);
-        button.addEventListener('click', handleViewDesign);
-    });
-
-    // Modal close
-    pickupModalClose.addEventListener('click', closePickupModal);
-    closePickupBtn.addEventListener('click', closePickupModal);
-    window.addEventListener('click', handleWindowClick);
-
-    const imageViewerClose = document.querySelector('.close-viewer');
-    if (imageViewerClose) {
-        imageViewerClose.addEventListener('click', () => {
-            const imageViewerModal = document.getElementById('imageViewerModal');
-            imageViewerModal.style.display = 'none';
-        });
-    }
-    // Confirm button
-    confirmPickupBtn.addEventListener('click', handleConfirmPickup);
 }
 
-// Helper function to get thumbnail path
-function getThumbnailPath(designFilePath) {
-    const filename = designFilePath.split('/').pop();
-    const fileExtension = filename.split('.').pop().toLowerCase();
-    
-    if (fileExtension === 'psd') {
-        return "../photoshop.png";
-    } else if (fileExtension === 'pdf') {
-        return "../pdf.png";
-    } else if (fileExtension === 'ai') {
-        return "../illustrator.png";
-    } else {
-        return "../user/" + designFilePath;
-    }
-}
-
-// Check if file is an image
-function isImageFile(designFilePath) {
-    const filename = designFilePath.split('/').pop();
-    const fileExtension = filename.split('.').pop().toLowerCase();
-    return !['psd', 'pdf', 'ai'].includes(fileExtension);
-}
-
-// View button click handler
 function handlePickupViewButtonClick() {
-    const id = this.getAttribute('data-id');
+  const id = this.getAttribute('data-id');
     const userId = this.getAttribute('data-user-id');
     const ticket = this.getAttribute('data-ticket');
     const design = this.getAttribute('data-design');
@@ -144,7 +207,28 @@ if (itemsData) {
     pickupModal.style.display = 'block';
 }
 
-// Download design file handler
+// ============================
+// 7. MODAL ACTIONS & CLOSE
+// ============================
+// Modal close handlers
+function closePickupModal() {
+    pickupModal.style.display = 'none';
+}
+
+function handleWindowClick(event) {
+    const imageViewerModal = document.getElementById('imageViewerModal');
+
+    // Close pickup modal if clicking outside
+    if (event.target === pickupModal) {
+        closePickupModal();
+    }
+
+    // Close image viewer modal if clicking outside
+    if (imageViewerModal && event.target === imageViewerModal) {
+        imageViewerModal.style.display = 'none';
+    }
+}
+
 function handleDownloadDesign(event) {
     event.stopPropagation(); // Prevent event from bubbling
     
@@ -199,7 +283,7 @@ function handleViewDesign(event) {
     }
 }
 
-// Confirm pickup handler
+
 function handleConfirmPickup() {
     const id = pickupModal.getAttribute('data-current-id');
     const userId = document.getElementById('pickup-modal-user-id').value;
@@ -236,7 +320,7 @@ function handleConfirmPickup() {
         if (data.success) {
             showToast('Success', data.message, 'success');
             pickupModal.style.display = 'none';
-            refreshPickupTable(); // Refresh table after successful confirmation
+            updatePickupTable(); // Refresh table after successful confirmation
         } else {
             showToast('Error', data.message, 'error');
         }
@@ -251,108 +335,59 @@ function handleConfirmPickup() {
     });
 }
 
-// Modal close handlers
-function closePickupModal() {
-    pickupModal.style.display = 'none';
-}
-
-function handleWindowClick(event) {
-    const imageViewerModal = document.getElementById('imageViewerModal');
-
-    // Close pickup modal if clicking outside
-    if (event.target === pickupModal) {
-        closePickupModal();
-    }
-
-    // Close image viewer modal if clicking outside
-    if (imageViewerModal && event.target === imageViewerModal) {
-        imageViewerModal.style.display = 'none';
-    }
-}
-
-// Table refresh functionality
-function refreshPickupTable() {
-
-        // Get all filter values from the form
-    const printType = document.querySelector('select[name="print_type"]').value;
-    const startDate = document.querySelector('input[name="start_date"]').value;
-    const endDate = document.querySelector('input[name="end_date"]').value;
-    const search = document.querySelector('input[name="search"]').value;
-    const params = new URLSearchParams(new FormData(document.querySelector('.filter-form')));
-   fetch('functions/get_pickup_orders.php?' + params.toString())
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById('pickup-table-body').innerHTML = data;
-        attachEventListeners(); // Reattach event listeners after refresh
-    })
-    .catch(error => console.error('Error refreshing table:', error));
-}
-
-// Toast function (FIXED VERSION)
-function showToast(title, message, type = 'info') {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toastContainer';
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    
-    toast.innerHTML = `
-        <div class="toast-icon">
-            <i class="fas ${type === 'success' ? 'fa-check' : 
-                              type === 'error' ? 'fa-times' : 
-                              type === 'warning' ? 'fa-exclamation' : 
-                              'fa-info'}"></i>
-        </div>
-        <div class="toast-content">
-            <h4 class="toast-title">${title}</h4>
-            <p class="toast-message">${message}</p>
-        </div>
-        <button class="toast-close">&times;</button>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // Trigger animation
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 100);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 5000);
-    
-    // Close button handler
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', () => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
+// ============================
+// 8. ATTACH LISTENERS
+// ============================
+function attachPickupEventListeners() {
+    // View order buttons
+    document.querySelectorAll('.view-pickup-modal').forEach(button => {
+        button.removeEventListener('click', handlePickupViewButtonClick);
+        button.addEventListener('click', handlePickupViewButtonClick);
     });
+
+    // Download design buttons
+    document.querySelectorAll('.download-design-btn').forEach(button => {
+        button.removeEventListener('click', handleDownloadDesign);
+        button.addEventListener('click', handleDownloadDesign);
+    });
+
+    // View design buttons
+    document.querySelectorAll('.view-design-btn').forEach(button => {
+        button.removeEventListener('click', handleViewDesign);
+        button.addEventListener('click', handleViewDesign);
+    });
+
+    // Close modal
+    const closePickupBtn = document.getElementById('pickup-modal-close');
+    if (closePickupBtn) closePickupBtn.addEventListener('click', closePickupModal);
+
+    // Confirm button
+    const confirmPickupBtn = document.getElementById('pickup-modal-confirm');
+    if (confirmPickupBtn) confirmPickupBtn.addEventListener('click', handleConfirmPickup);
+
+    // Window click for closing modal
+    window.addEventListener('click', handleWindowClick);
 }
 
-// Initialize
-function init() {
-    attachEventListeners();
-    refreshPickupTable();
-
-    // Set up periodic refresh (every 5 seconds)
-    setInterval(refreshPickupTable, 5000);
+// Helper function to get thumbnail path
+function getThumbnailPath(designFilePath) {
+    const filename = designFilePath.split('/').pop();
+    const fileExtension = filename.split('.').pop().toLowerCase();
+    
+    if (fileExtension === 'psd') {
+        return "../photoshop.png";
+    } else if (fileExtension === 'pdf') {
+        return "../pdf.png";
+    } else if (fileExtension === 'ai') {
+        return "../illustrator.png";
+    } else {
+        return "../user/" + designFilePath;
+    }
 }
 
-// Start the application
-document.addEventListener('DOMContentLoaded', init);
+// Check if file is an image
+function isImageFile(designFilePath) {
+    const filename = designFilePath.split('/').pop();
+    const fileExtension = filename.split('.').pop().toLowerCase();
+    return !['psd', 'pdf', 'ai'].includes(fileExtension);
+}

@@ -15,252 +15,298 @@
             <!-- Content will be loaded via JavaScript -->
         </tbody>
     </table>
-        <div class="pagination">
-            <?php 
-            // Build base URL with all parameters except page
-            $base_url = "?tab=" . urlencode($active_tab);
-            if (!empty($filter_print)) $base_url .= "&print_type=" . urlencode($filter_print);
-            if (!empty($filter_start)) $base_url .= "&start_date=" . urlencode($filter_start);
-            if (!empty($filter_end)) $base_url .= "&end_date=" . urlencode($filter_end);
-            if (!empty($filter_search)) $base_url .= "&search=" . urlencode($filter_search);
-            ?>
-            
-            <?php if ($page > 1): ?>
-                <a href="<?= $base_url ?>&page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
-            <?php endif; ?>
 
-            <!-- Always show first page -->
-            <a href="<?= $base_url ?>&page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+    <!-- Pagination -->
+    <div class="pagination">
+        <?php 
+        $base_url = "?tab=" . urlencode($active_tab);
+        if (!empty($filter_print)) $base_url .= "&print_type=" . urlencode($filter_print);
+        if (!empty($filter_start)) $base_url .= "&start_date=" . urlencode($filter_start);
+        if (!empty($filter_end)) $base_url .= "&end_date=" . urlencode($filter_end);
+        if (!empty($filter_search)) $base_url .= "&search=" . urlencode($filter_search);
+        ?>
+        
+        <?php if ($page > 1): ?>
+            <a href="<?= $base_url ?>&page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+        <?php endif; ?>
 
-            <!-- Dots -->
-            <?php if ($page > 3): ?>
-                <span class="dots">...</span>
-            <?php endif; ?>
+        <a href="<?= $base_url ?>&page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
 
-            <!-- Pages around current -->
-            <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
-                <a href="<?= $base_url ?>&page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
-                    <?= $i ?>
-                </a>
-            <?php endfor; ?>
+        <?php if ($page > 3): ?><span class="dots">...</span><?php endif; ?>
 
-            <!-- Dots -->
-            <?php if ($page < $total_pages - 2): ?>
-                <span class="dots">...</span>
-            <?php endif; ?>
+        <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
+            <a href="<?= $base_url ?>&page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>"><?= $i ?></a>
+        <?php endfor; ?>
 
-            <!-- Always show last page -->
-            <?php if ($total_pages > 1): ?>
-                <a href="<?= $base_url ?>&page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
-                    <?= $total_pages ?>
-                </a>
-            <?php endif; ?>
+        <?php if ($page < $total_pages - 2): ?><span class="dots">...</span><?php endif; ?>
 
-            <?php if ($page < $total_pages): ?>
-                <a href="<?= $base_url ?>&page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
-            <?php endif; ?>
-        </div>
+        <?php if ($total_pages > 1): ?>
+            <a href="<?= $base_url ?>&page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>"><?= $total_pages ?></a>
+        <?php endif; ?>
+
+        <?php if ($page < $total_pages): ?>
+            <a href="<?= $base_url ?>&page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+        <?php endif; ?>
+    </div>
 </div>
 
-<!-- Toast Container (ADDED THIS ELEMENT) -->
+<!-- Toast Container -->
 <div id="toastContainer" class="toast-container"></div>
 
 <!-- To Ship Modal -->
 <div id="toShipModal" class="quote-modal">
-  <div class="quote-modal-content">
-    <span class="toship-modal-close">&times;</span>
-    <h2>Order Details</h2>
-    <div class="quote-modal-body">
-      <!-- Ticket -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Ticket #:</span>
-        <span id="toship-modal-ticket" class="quote-modal-value"></span>
-      </div>
-      
-      <!-- Customer Info -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Customer:</span>
-        <span id="toship-modal-name" class="quote-modal-value"></span>
-      </div>
-      
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Email:</span>
-        <span id="toship-modal-email" class="quote-modal-value"></span>
-      </div>
-      
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Mobile:</span>
-        <span id="toship-modal-mobile" class="quote-modal-value"></span>
-      </div>
-      
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Address:</span>
-        <span id="toship-modal-address" class="quote-modal-value address-value"></span>
-      </div>
-      
-      <!-- Design with buttons -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Design:</span>
-        <div class="design-image-container">
-          <img id="toship-modal-design" src="" alt="Design" class="design-image">
-          <div class="design-buttons">
-            <button class="download-design-btn">Download</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Print Type -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Print Type:</span>
-        <span id="toship-modal-print-type" class="quote-modal-value"></span>
-      </div>
-      
-      <!-- Quantity -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Quantity:</span>
-        <span id="toship-modal-quantity" class="quote-modal-value"></span>
-      </div>
-
-                    <!-- Shirt Colors & Quantities Section -->
-    <div class="quote-modal-row">
-            <span class="quote-modal-label">Items:</span>
-            <div id="quote-modal-shirt-items" class="shirt-items-container">
-                <!-- JS will populate this dynamically -->
+    <div class="quote-modal-content">
+        <span class="toship-modal-close">&times;</span>
+        <h2>Order Details</h2>
+        <div class="quote-modal-body">
+            <!-- Ticket -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Ticket #:</span>
+                <span id="toship-modal-ticket" class="quote-modal-value"></span>
             </div>
+
+            <!-- Customer Info -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Customer:</span>
+                <span id="toship-modal-name" class="quote-modal-value"></span>
+            </div>
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Email:</span>
+                <span id="toship-modal-email" class="quote-modal-value"></span>
+            </div>
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Mobile:</span>
+                <span id="toship-modal-mobile" class="quote-modal-value"></span>
+            </div>
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Address:</span>
+                <span id="toship-modal-address" class="quote-modal-value address-value"></span>
+            </div>
+
+            <!-- Design -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Design:</span>
+                <div class="design-image-container">
+                    <img id="toship-modal-design" src="" alt="Design" class="design-image">
+                    <div class="design-buttons">
+                        <button class="download-design-btn">Download</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print Type & Quantity -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Print Type:</span>
+                <span id="toship-modal-print-type" class="quote-modal-value"></span>
+            </div>
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Quantity:</span>
+                <span id="toship-modal-quantity" class="quote-modal-value"></span>
+            </div>
+
+            <!-- Shirt Items -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Items:</span>
+                <div id="quote-modal-shirt-items" class="shirt-items-container"></div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Unit Price:</span>
+                <span id="toship-modal-pricing" class="quote-modal-value"></span>
+            </div>
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Subtotal:</span>
+                <span id="toship-modal-subtotal" class="quote-modal-value"></span>
+            </div>
+
+            <!-- Notes & Shipping Date -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Notes:</span>
+                <span id="toship-modal-note" class="quote-modal-value"></span>
+            </div>
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Shipping Date:</span>
+                <span id="toship-modal-ship-date" class="quote-modal-value"></span>
+            </div>
+
+            <!-- Hidden Inputs -->
+            <input type="hidden" id="toship-modal-id" name="id">
+            <input type="hidden" id="toship-modal-user-id" name="user_id">
+            <input type="hidden" id="toship-modal-ticket-input" name="ticket">
+            <input type="hidden" id="toship-modal-design-file" name="design_file">
+        </div>
+
+        <div class="quote-modal-footer">
+            <button id="toship-modal-complete" class="quote-modal-btn btn-process">Mark as Shipped</button>
+            <button id="toship-modal-close-btn" class="quote-modal-btn btn-close">Close</button>
+        </div>
     </div>
-      
-      <!-- Pricing -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Unit Price:</span>
-        <span id="toship-modal-pricing" class="quote-modal-value"></span>
-      </div>
-      
-      <!-- Subtotal -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Subtotal:</span>
-        <span id="toship-modal-subtotal" class="quote-modal-value"></span>
-      </div>
-      
-      <!-- Notes -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Notes:</span>
-        <span id="toship-modal-note" class="quote-modal-value"></span>
-      </div>
-      
-      <!-- Shipping Date -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Shipping Date:</span>
-        <span id="toship-modal-ship-date" class="quote-modal-value"></span>
-      </div>
-      
-      <!-- Hidden fields -->
-      <input type="hidden" id="toship-modal-id" name="id">
-      <input type="hidden" id="toship-modal-user-id" name="user_id">
-      <input type="hidden" id="toship-modal-ticket-input" name="ticket">
-      <input type="hidden" id="toship-modal-design-file" name="design_file">
-    </div>
-    <div class="quote-modal-footer">
-      <button id="toship-modal-complete" class="quote-modal-btn btn-process">Mark as Shipped</button>
-      <button id="toship-modal-close-btn" class="quote-modal-btn btn-close">Close</button>
-    </div>
-  </div>
 </div>
 
-<!-- Confirmation Modal for Shipping -->
+<!-- Confirmation Modal -->
 <div id="toship-confirm-modal" class="quote-modal">
-  <div class="quote-modal-content" style="max-width: 500px;">
-    <h2>Confirm Delivery</h2>
-    <div class="quote-modal-body">
-      <p>Are you sure this order has been delivered?</p>
-      <p>This will mark the order as completed and notify the customer.</p>
+    <div class="quote-modal-content" style="max-width: 500px;">
+        <h2>Confirm Delivery</h2>
+        <div class="quote-modal-body">
+            <p>Are you sure this order has been delivered?</p>
+            <p>This will mark the order as completed and notify the customer.</p>
+        </div>
+        <div class="quote-modal-footer">
+            <button id="toship-confirm-yes" class="quote-modal-btn btn-process">Yes, Delivered</button>
+            <button id="toship-confirm-no" class="quote-modal-btn btn-close">Cancel</button>
+        </div>
     </div>
-    <div class="quote-modal-footer">
-      <button id="toship-confirm-yes" class="quote-modal-btn btn-process">Yes, Delivered</button>
-      <button id="toship-confirm-no" class="quote-modal-btn btn-close">Cancel</button>
-    </div>
-  </div>
 </div>
-
-<style>
-
-</style>
 
 <script>
-// Helper function to get thumbnail path
+// ============================
+// Helper: Thumbnail Path
+// ============================
 function getToShipThumbnailPath(designFilePath) {
     const filename = designFilePath.split('/').pop();
     const fileExtension = filename.split('.').pop().toLowerCase();
-    
-    if (fileExtension === 'psd') {
-        return "../photoshop.png";
-    } else if (fileExtension === 'pdf') {
-        return "../pdf.png";
-    } else if (fileExtension === 'ai') {
-        return "../illustrator.png";
-    } else {
-        return "../user/" + designFilePath;
-    }
+
+    if (fileExtension === 'psd') return "../photoshop.png";
+    if (fileExtension === 'pdf') return "../pdf.png";
+    if (fileExtension === 'ai') return "../illustrator.png";
+    return "../user/" + designFilePath;
 }
 
-// Download design file handler for to-ship orders
+// ============================
+// Download Design Handler
+// ============================
 function handleToShipDownloadDesign(event) {
-    event.stopPropagation(); // Prevent event from bubbling
-    
+    event.stopPropagation();
     const designFilePath = document.getElementById('toship-modal-design-file').value;
     if (!designFilePath) {
         showToShipToast('Download Error', 'No file available for download', 'error');
         return;
     }
-    
-    // Create a temporary link to trigger download
     const downloadLink = document.createElement('a');
-    
-    // Use absolute path to avoid confusion with includes
     downloadLink.href = '../user/' + designFilePath;
-    
-    // Extract filename from path for the download attribute
-    const filename = designFilePath.split('/').pop();
-    downloadLink.download = filename;
-    
-    // For security, set target to _blank to avoid navigation issues
+    downloadLink.download = designFilePath.split('/').pop();
     downloadLink.target = '_blank';
-    
-    // Trigger download
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-    
-    // Show success toast
     showToShipToast('Download', 'File download started', 'success');
 }
 
-// Function to fetch and update the to-ship table
+// ============================
+// GLOBALS / SHARED
+// ============================
+let activeFiltersToShip = null; // stores current filters if applied
+
+// ============================
+// 1. REFRESH HANDLER (To-Ship only)
+// ============================
 function updateToShipTable() {
-        // Get all filter values from the form
-        const printType = document.querySelector('select[name="print_type"]').value;
-        const startDate = document.querySelector('input[name="start_date"]').value;
-        const endDate = document.querySelector('input[name="end_date"]').value;
-        const search = document.querySelector('input[name="search"]').value;
-        const params = new URLSearchParams(new FormData(document.querySelector('.filter-form')));
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentPage = urlParams.get('page_toship') || 1;
+
+    if (activeFiltersToShip) {
+        activeFiltersToShip.delete('page');
+        if (currentPage > 1) activeFiltersToShip.set('page', currentPage);
+        applyToShipFilters(activeFiltersToShip);
+    } else {
+        const params = new URLSearchParams();
+        if (currentPage > 1) params.set('page', currentPage);
+
         fetch('api/get_toship_orders.php?' + params.toString())
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('toship-table-body').innerHTML = data;
-            attachToShipViewButtonListeners();
-        })
-        .catch(error => {
-            console.error('Error fetching to-ship orders:', error);
-        });
+            .then(res => res.json())
+            .then(data => renderToShipTable(data))
+            .catch(err => console.error('Error refreshing to-ship table:', err));
+    }
 }
 
-// Function to attach event listeners to view buttons
+// ============================
+// 2. FILTERS (To-Ship only)
+// ============================
+function applyToShipFilters(params) {
+    fetch('api/get_toship_orders.php?' + params.toString())
+        .then(res => res.json())
+        .then(data => renderToShipTable(data))
+        .catch(err => console.error('Error applying to-ship filters:', err));
+}
+
+// ============================
+// 3. INITIAL LOAD / MANUAL FILTER
+// ============================
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.querySelector('.filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            activeFiltersToShip = params;
+            applyToShipFilters(params);
+        });
+    }
+
+    const resetBtn = document.querySelector('.reset-filters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            activeFiltersToShip = null;
+            updateToShipTable();
+        });
+    }
+
+    // Initial load
+    updateToShipTable();
+});
+
+// ============================
+// 4. RENDER TABLE + PAGINATION
+// ============================
+function renderToShipTable(data) {
+    const tbody = document.getElementById('toship-table-body');
+    const pagination = document.querySelector('#to-ship-table .pagination');
+
+    if (!tbody || !pagination) return;
+
+    if (data.total_records === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center">No orders currently to ship</td></tr>`;
+        pagination.innerHTML = '';
+    } else {
+        tbody.innerHTML = data.table;
+        pagination.innerHTML = data.pagination;
+    }
+
+    attachToShipViewButtonListeners();
+    attachToShipPaginationListeners();
+}
+
+// ============================
+// 5. PAGINATION BUTTON LISTENERS
+// ============================
+function attachToShipPaginationListeners() {
+    document.querySelectorAll('#to-ship-table .pagination a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = new URL(this.href);
+            const page = url.searchParams.get('page');
+            if (!activeFiltersToShip) activeFiltersToShip = new URLSearchParams();
+            activeFiltersToShip.set('page', page);
+            applyToShipFilters(activeFiltersToShip);
+        });
+    });
+}
+
+
+// ============================
+// Attach View Button Listeners
+// ============================
 function attachToShipViewButtonListeners() {
     document.querySelectorAll('.view-to-ship-modal').forEach(button => {
         button.addEventListener('click', handleToShipViewButtonClick);
     });
 }
 
-// View button click handler for to-ship orders
+// ============================
+// View Button Click Handler
+// ============================
 function handleToShipViewButtonClick() {
     const orderData = {
         id: this.getAttribute('data-id'),
@@ -280,30 +326,26 @@ function handleToShipViewButtonClick() {
         subtotal: this.getAttribute('data-subtotal')
     };
 
+    // Parse shirt items
     let items = [];
     try {
         const rawItems = this.getAttribute('data-items');
-        console.log("Raw data-items:", rawItems);
         items = JSON.parse(rawItems || "[]");
-        console.log("Parsed items:", items);
     } catch (e) {
         console.error("Error parsing shirt items:", e);
     }
 
-
-    // Store data in modal
-    const toShipModal = document.getElementById('toShipModal');
-    toShipModal.setAttribute('data-current-id', orderData.id);
+    // Populate modal
+    const modal = document.getElementById('toShipModal');
+    modal.setAttribute('data-current-id', orderData.id);
     document.getElementById('toship-modal-id').value = orderData.id;
     document.getElementById('toship-modal-user-id').value = orderData.userId;
     document.getElementById('toship-modal-email').value = orderData.email;
     document.getElementById('toship-modal-ticket-input').value = orderData.ticket;
     document.getElementById('toship-modal-design-file').value = orderData.design;
-    
-    // Get correct thumbnail path
+
     const thumbnailPath = getToShipThumbnailPath(orderData.design);
-    
-    // Populate modal fields
+
     document.getElementById('toship-modal-ticket').textContent = orderData.ticket;
     document.getElementById('toship-modal-name').textContent = orderData.name;
     document.getElementById('toship-modal-mobile').textContent = orderData.mobile || 'N/A';
@@ -315,83 +357,53 @@ function handleToShipViewButtonClick() {
     document.getElementById('toship-modal-subtotal').textContent = orderData.subtotal ? '₱' + parseFloat(orderData.subtotal).toFixed(2) : 'N/A';
     document.getElementById('toship-modal-note').textContent = orderData.note || 'No notes';
     document.getElementById('toship-modal-design').src = thumbnailPath;
-    document.getElementById('toship-modal-ship-date').textContent = orderData.date || new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-// 🆕 Populate Shirt Colors & Quantities
-const modal = document.getElementById("toShipModal");
-const itemsContainer = modal.querySelector("#quote-modal-shirt-items");
-itemsContainer.innerHTML = "";
+    document.getElementById('toship-modal-ship-date').textContent = orderData.date || new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 
-if (items.length > 0) {
-    items.forEach(item => {
-        const div = document.createElement("div");
-        div.classList.add("shirt-item");
-        div.innerHTML = `
-          <span class="shirt-color">${item.shirt_color}</span>
-          <span class="shirt-qty">${item.quantity}</span>
-        `;
-        itemsContainer.appendChild(div); // ✅ keep same container variable
-      });
-} else {
-    itemsContainer.innerHTML = "<em>No shirt colors added</em>";
-}
+    // Populate shirt items
+    const itemsContainer = modal.querySelector("#quote-modal-shirt-items");
+    itemsContainer.innerHTML = "";
+    if (items.length > 0) {
+        items.forEach(item => {
+            const div = document.createElement("div");
+            div.classList.add("shirt-item");
+            div.innerHTML = `<span class="shirt-color">${item.shirt_color}</span><span class="shirt-qty">${item.quantity}</span>`;
+            itemsContainer.appendChild(div);
+        });
+    } else {
+        itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+    }
 
-    // Remove any existing event listeners from modal buttons first
-    const downloadButtons = document.querySelectorAll('#toShipModal .download-design-btn');
-    
-    downloadButtons.forEach(button => {
+    // Reset modal buttons
+    modal.querySelectorAll('.download-design-btn').forEach(button => {
         button.replaceWith(button.cloneNode(true));
     });
-    
-    // Attach new event listeners to modal buttons
-    document.querySelectorAll('#toShipModal .download-design-btn').forEach(button => {
+    modal.querySelectorAll('.download-design-btn').forEach(button => {
         button.addEventListener('click', handleToShipDownloadDesign);
     });
-    
-    // Show modal
-    toShipModal.style.display = 'block';
+
+    modal.style.display = 'block';
 }
 
-// Initialize modals and event listeners
+// ============================
+// Initialize Modals
+// ============================
 function initializeToShipModals() {
     const toShipModal = document.getElementById('toShipModal');
     const confirmModal = document.getElementById('toship-confirm-modal');
-    
-    // Close buttons
-    document.querySelector('.toship-modal-close').addEventListener('click', function() {
-        toShipModal.style.display = 'none';
+
+    document.querySelector('.toship-modal-close').addEventListener('click', () => toShipModal.style.display = 'none');
+    document.getElementById('toship-modal-close-btn').addEventListener('click', () => toShipModal.style.display = 'none');
+    document.getElementById('toship-confirm-no').addEventListener('click', () => confirmModal.style.display = 'none');
+
+    window.addEventListener('click', (event) => {
+        if (event.target === toShipModal) toShipModal.style.display = 'none';
+        if (event.target === confirmModal) confirmModal.style.display = 'none';
     });
-    
-    document.getElementById('toship-modal-close-btn').addEventListener('click', function() {
-        toShipModal.style.display = 'none';
-    });
-    
-    document.getElementById('toship-confirm-no').addEventListener('click', function() {
-        confirmModal.style.display = 'none';
-    });
-    
-    // Close when clicking outside modal
-    window.addEventListener('click', function(event) {
-        if (event.target === toShipModal) {
-            toShipModal.style.display = 'none';
-        }
-        if (event.target === confirmModal) {
-            confirmModal.style.display = 'none';
-        }
-    });
-    
-    // Complete button handler
-    document.getElementById('toship-modal-complete').addEventListener('click', function() {
-        confirmModal.style.display = 'block';
-    });
-    
-    // Confirm delivery handler
+
+    // Complete button
+    document.getElementById('toship-modal-complete').addEventListener('click', () => confirmModal.style.display = 'block');
+
+    // Confirm delivery
     document.getElementById('toship-confirm-yes').addEventListener('click', function() {
         const id = document.getElementById('toship-modal-id').value;
         const userId = document.getElementById('toship-modal-user-id').value;
@@ -401,28 +413,15 @@ function initializeToShipModals() {
         const pricing = document.getElementById('toship-modal-pricing').textContent.replace('₱', '');
         const subtotal = document.getElementById('toship-modal-subtotal').textContent.replace('₱', '');
         const address = document.getElementById('toship-modal-address').textContent;
-        
-        // Show loading state
+
         const originalText = this.textContent;
         this.disabled = true;
         this.textContent = 'Processing...';
-        
-        // Send data to server
+
         fetch('api/confirm_delivery.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: id,
-                user_id: userId,
-                email: email,
-                ticket: ticket,
-                quantity: quantity,
-                pricing: pricing,
-                subtotal: subtotal,
-                address: address
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, user_id: userId, email, ticket, quantity, pricing, subtotal, address })
         })
         .then(response => response.json())
         .then(data => {
@@ -437,7 +436,7 @@ function initializeToShipModals() {
         })
         .catch(error => {
             showToShipToast('Error', 'An error occurred while updating order', 'error');
-            console.error('Error:', error);
+            console.error(error);
         })
         .finally(() => {
             this.disabled = false;
@@ -446,17 +445,19 @@ function initializeToShipModals() {
     });
 }
 
-// Initialize the table when tab is active
+// ============================
+// Initialize Table
+// ============================
 function initializeToShipTable() {
     if (document.getElementById('to-ship-table').style.display !== 'none') {
         updateToShipTable();
-        setInterval(updateToShipTable, 3000);
     }
 }
 
-// Toast notification function (FIXED TO WORK PROPERLY)
-function showToShipToast(title, message, type = 'info') {
-    // Create toast container if it doesn't exist
+// ============================
+// Toast Function
+// ============================
+function showToShipToast(title, message, type='info') {
     let toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
@@ -464,16 +465,12 @@ function showToShipToast(title, message, type = 'info') {
         toastContainer.className = 'toast-container';
         document.body.appendChild(toastContainer);
     }
-    
+
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
     toast.innerHTML = `
         <div class="toast-icon">
-            <i class="fas ${type === 'success' ? 'fa-check' : 
-                          type === 'error' ? 'fa-times' : 
-                          type === 'warning' ? 'fa-exclamation' : 
-                          'fa-info'}"></i>
+            <i class="fas ${type==='success'?'fa-check':type==='error'?'fa-times':type==='warning'?'fa-exclamation':'fa-info'}"></i>
         </div>
         <div class="toast-content">
             <h4 class="toast-title">${title}</h4>
@@ -481,43 +478,21 @@ function showToShipToast(title, message, type = 'info') {
         </div>
         <button class="toast-close">&times;</button>
     `;
-    
     toastContainer.appendChild(toast);
-    
-    // Trigger animation
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 100);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 5000);
-    
-    // Close button handler
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', () => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    });
+
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(()=>toast.remove(),300); }, 5000);
+
+    toast.querySelector('.toast-close').addEventListener('click', () => { toast.classList.remove('show'); setTimeout(()=>toast.remove(),300); });
 }
 
-// Initialize everything when DOM is loaded
+// ============================
+// DOMContentLoaded
+// ============================
 document.addEventListener('DOMContentLoaded', function() {
     initializeToShipModals();
     initializeToShipTable();
+    window.updateToShipTable = updateToShipTable;
+    window.initializeToShipTable = initializeToShipTable;
 });
-
-// Make functions available globally
-window.updateToShipTable = updateToShipTable;
-window.initializeToShipTable = initializeToShipTable;
 </script>

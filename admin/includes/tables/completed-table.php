@@ -12,404 +12,358 @@
             </tr>
         </thead>
         <tbody id="completed-table-body">
-            <!-- Content will be loaded via JavaScript -->
+            <!-- Content loaded via JS -->
         </tbody>
     </table>
-        <div class="pagination">
-          <?php 
-          // Build base URL with all parameters except page
-          $base_url = "?tab=" . urlencode($active_tab);
-          if (!empty($filter_print)) $base_url .= "&print_type=" . urlencode($filter_print);
-          if (!empty($filter_start)) $base_url .= "&start_date=" . urlencode($filter_start);
-          if (!empty($filter_end)) $base_url .= "&end_date=" . urlencode($filter_end);
-          if (!empty($filter_search)) $base_url .= "&search=" . urlencode($filter_search);
-          ?>
-          
-          <?php if ($page > 1): ?>
-              <a href="<?= $base_url ?>&page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
-          <?php endif; ?>
 
-          <!-- Always show first page -->
-          <a href="<?= $base_url ?>&page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
+    <div class="pagination">
+        <?php 
+        $base_url = "?tab=" . urlencode($active_tab);
+        if (!empty($filter_print)) $base_url .= "&print_type=" . urlencode($filter_print);
+        if (!empty($filter_start)) $base_url .= "&start_date=" . urlencode($filter_start);
+        if (!empty($filter_end)) $base_url .= "&end_date=" . urlencode($filter_end);
+        if (!empty($filter_search)) $base_url .= "&search=" . urlencode($filter_search);
+        ?>
 
-          <!-- Dots -->
-          <?php if ($page > 3): ?>
-              <span class="dots">...</span>
-          <?php endif; ?>
+        <?php if ($page > 1): ?>
+            <a href="<?= $base_url ?>&page=<?= $page - 1 ?>" class="btn btn-outline">&laquo; Prev</a>
+        <?php endif; ?>
 
-          <!-- Pages around current -->
-          <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
-              <a href="<?= $base_url ?>&page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>">
-                  <?= $i ?>
-              </a>
-          <?php endfor; ?>
+        <a href="<?= $base_url ?>&page=1" class="btn <?= $page == 1 ? 'btn-primary' : 'btn-outline' ?>">1</a>
 
-          <!-- Dots -->
-          <?php if ($page < $total_pages - 2): ?>
-              <span class="dots">...</span>
-          <?php endif; ?>
+        <?php if ($page > 3): ?><span class="dots">...</span><?php endif; ?>
 
-          <!-- Always show last page -->
-          <?php if ($total_pages > 1): ?>
-              <a href="<?= $base_url ?>&page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>">
-                  <?= $total_pages ?>
-              </a>
-          <?php endif; ?>
+        <?php for ($i = max(2, $page - 2); $i <= min($total_pages - 1, $page + 2); $i++): ?>
+            <a href="<?= $base_url ?>&page=<?= $i ?>" class="btn <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>"><?= $i ?></a>
+        <?php endfor; ?>
 
-          <?php if ($page < $total_pages): ?>
-              <a href="<?= $base_url ?>&page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
-          <?php endif; ?>
-      </div>
+        <?php if ($page < $total_pages - 2): ?><span class="dots">...</span><?php endif; ?>
+
+        <?php if ($total_pages > 1): ?>
+            <a href="<?= $base_url ?>&page=<?= $total_pages ?>" class="btn <?= $page == $total_pages ? 'btn-primary' : 'btn-outline' ?>"><?= $total_pages ?></a>
+        <?php endif; ?>
+
+        <?php if ($page < $total_pages): ?>
+            <a href="<?= $base_url ?>&page=<?= $page + 1 ?>" class="btn btn-outline">Next &raquo;</a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <!-- Completed Order Modal -->
 <div id="completedModal" class="quote-modal">
-  <div class="quote-modal-content">
-    <!-- Top Close X -->
-    <span class="completed-modal-close">&times;</span>
+    <div class="quote-modal-content">
+        <span class="completed-modal-close">&times;</span>
+        <h2>Completed Order Details</h2>
+        <div class="quote-modal-body">
 
-    <h2>Completed Order Details</h2>
-    <div class="quote-modal-body">
+            <!-- Ticket & Customer -->
+            <div class="quote-modal-row grouped-row">
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Ticket #:</span>
+                    <span id="completed-modal-ticket" class="quote-modal-value"></span>
+                </div>
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Customer:</span>
+                    <span id="completed-modal-name" class="quote-modal-value"></span>
+                </div>
+            </div>
 
-      <!-- Ticket and Customer -->
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Ticket #:</span>
-          <span id="completed-modal-ticket" class="quote-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Customer:</span>
-          <span id="completed-modal-name" class="quote-modal-value"></span>
-        </div>
-      </div>
+            <!-- Contact Info -->
+            <div class="quote-modal-row grouped-row">
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Email:</span>
+                    <span id="completed-modal-email" class="quote-modal-value"></span>
+                </div>
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Mobile #:</span>
+                    <span id="completed-modal-mobile" class="quote-modal-value"></span>
+                </div>
+            </div>
 
-      <!-- Contact Info -->
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Email:</span>
-          <span id="completed-modal-email" class="quote-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Mobile #:</span>
-          <span id="completed-modal-mobile" class="quote-modal-value"></span>
-        </div>
-      </div>
+            <!-- Address -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Address:</span>
+                <span id="completed-modal-address" class="quote-modal-value address-value"></span>
+            </div>
 
-      <!-- Address -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Address:</span>
-        <span id="completed-modal-address" class="quote-modal-value address-value"></span>
-      </div>
+            <!-- Design -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Design:</span>
+                <div class="design-image-container">
+                    <img id="completed-modal-design" src="" alt="Design" class="design-image">
+                    <div class="design-buttons">
+                        <button class="download-design-btn">Download</button>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Design -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Design:</span>
-        <div class="design-image-container">
-          <img id="completed-modal-design" src="" alt="Design" class="design-image">
-          <div class="design-buttons">
-            <button class="download-design-btn">Download</button>
-          </div>
-        </div>
-      </div>
+            <!-- Order Details & Pricing -->
+            <div class="quote-modal-row grouped-row">
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Print Type:</span>
+                    <span id="completed-modal-print-type" class="quote-modal-value"></span>
+                </div>
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Unit Price:</span>
+                    <span id="completed-modal-pricing" class="quote-modal-value"></span>
+                </div>
+            </div>
 
-      <!-- Order Details -->
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Print Type:</span>
-          <span id="completed-modal-print-type" class="quote-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Unit Price:</span>
-          <span id="completed-modal-pricing" class="quote-modal-value"></span>
-        </div>
-      </div>
+            <div class="quote-modal-row grouped-row">
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Total Quantity:</span>
+                    <span id="completed-modal-quantity" class="quote-modal-value"></span>
+                </div>
+                <div class="grouped-item">
+                    <span class="quote-modal-label">Subtotal:</span>
+                    <span id="completed-modal-subtotal" class="quote-modal-value"></span>
+                </div>
+            </div>
 
-      <!-- Pricing -->
-      <div class="quote-modal-row grouped-row">
-        <div class="grouped-item">
-          <span class="quote-modal-label">Total Quantity:</span>
-          <span id="completed-modal-quantity" class="quote-modal-value"></span>
-        </div>
-        <div class="grouped-item">
-          <span class="quote-modal-label">Subtotal:</span>
-          <span id="completed-modal-subtotal" class="quote-modal-value"></span>
-        </div>
-      </div>
+            <!-- Shirt Items -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Items:</span>
+                <div id="completed-modal-shirt-items" class="shirt-items-container"></div>
+            </div>
 
-      <!-- Items -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Items:</span>
-        <div id="completed-modal-shirt-items" class="shirt-items-container"></div>
-      </div>
+            <!-- Timeline -->
+            <div class="quote-modal-timeline">
+                <h3>Order Timeline</h3>
+                <div class="timeline-item"><span class="timeline-label">Order Placed:</span> <span id="completed-modal-created" class="timeline-value"></span></div>
+                <div class="timeline-item"><span class="timeline-label">Design Approved:</span> <span id="completed-modal-designer-approved" class="timeline-value"></span></div>
+                <div class="timeline-item"><span class="timeline-label">Admin Approved:</span> <span id="completed-modal-admin-approved" class="timeline-value"></span></div>
+                <div class="timeline-item"><span class="timeline-label">Processing Started:</span> <span id="completed-modal-processing" class="timeline-value"></span></div>
+                <div class="timeline-item"><span class="timeline-label">Pickup Date:</span> <span id="completed-modal-pickup" class="timeline-value"></span></div>
+                <div class="timeline-item"><span class="timeline-label">Shipping Date:</span> <span id="completed-modal-shipping" class="timeline-value"></span></div>
+                <div class="timeline-item"><span class="timeline-label">Completed Date:</span> <span id="completed-modal-completed" class="timeline-value"></span></div>
+            </div>
 
-      <!-- Timeline -->
-      <div class="quote-modal-timeline">
-        <h3>Order Timeline</h3>
-        <div class="timeline-item">
-          <span class="timeline-label">Order Placed:</span>
-          <span id="completed-modal-created" class="timeline-value"></span>
+            <!-- Notes -->
+            <div class="quote-modal-row">
+                <span class="quote-modal-label">Notes:</span>
+                <span id="completed-modal-note" class="quote-modal-value note-value"></span>
+            </div>
         </div>
-        <div class="timeline-item">
-          <span class="timeline-label">Design Approved:</span>
-          <span id="completed-modal-designer-approved" class="timeline-value"></span>
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-label">Admin Approved:</span>
-          <span id="completed-modal-admin-approved" class="timeline-value"></span>
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-label">Processing Started:</span>
-          <span id="completed-modal-processing" class="timeline-value"></span>
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-label">Pickup Date:</span>
-          <span id="completed-modal-pickup" class="timeline-value"></span>
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-label">Shipping Date:</span>
-          <span id="completed-modal-shipping" class="timeline-value"></span>
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-label">Completed Date:</span>
-          <span id="completed-modal-completed" class="timeline-value"></span>
-        </div>
-      </div>
 
-      <!-- Notes -->
-      <div class="quote-modal-row">
-        <span class="quote-modal-label">Notes:</span>
-        <span id="completed-modal-note" class="quote-modal-value note-value"></span>
-      </div>
+        <div class="quote-modal-footer">
+            <button id="completed-modal-close" class="quote-modal-btn btn-secondary">Close</button>
+        </div>
     </div>
-
-    <!-- Footer Close Button -->
-    <div class="quote-modal-footer">
-      <button id="completed-modal-close" class="quote-modal-btn btn-secondary">Close</button>
-    </div>
-  </div>
 </div>
 
 <style>
-    .quote-modal-timeline {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-}
-
-.quote-modal-timeline h3 {
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    color: #333;
-}
-
-.timeline-item {
-    display: flex;
-    margin-bottom: 8px;
-}
-
-.timeline-label {
-    font-weight: 500;
-    color: #666;
-    min-width: 150px;
-}
-
-.timeline-value {
-    color: #333;
-}
+.quote-modal-timeline { margin-top:20px; padding-top:20px; border-top:1px solid #eee; }
+.quote-modal-timeline h3 { margin-bottom:15px; font-size:1.1rem; color:#333; }
+.timeline-item { display:flex; margin-bottom:8px; }
+.timeline-label { font-weight:500; color:#666; min-width:150px; }
+.timeline-value { color:#333; }
 </style>
+
 <script>
-// Helper function to get thumbnail path
-function getCompletedThumbnailPath(designFilePath) {
-    const filename = designFilePath.split('/').pop();
-    const fileExtension = filename.split('.').pop().toLowerCase();
-    
-    if (fileExtension === 'psd') {
-        return "../photoshop.png";
-    } else if (fileExtension === 'pdf') {
-        return "../pdf.png";
-    } else if (fileExtension === 'ai') {
-        return "../illustrator.png";
-    } else {
-        return "../user/" + designFilePath;
-    }
+// ============================
+// HELPERS
+// ============================
+function getCompletedThumbnailPath(path) {
+    const ext = path.split('.').pop().toLowerCase();
+    if (ext==='psd') return "../photoshop.png";
+    if (ext==='pdf') return "../pdf.png";
+    if (ext==='ai') return "../illustrator.png";
+    return "../user/" + path;
 }
 
-// Download design file handler for completed orders
+function formatCompletedDate(dateStr) {
+    if (!dateStr || dateStr==='0000-00-00 00:00:00') return 'N/A';
+    return new Date(dateStr).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ============================
+// DOWNLOAD HANDLER
+// ============================
 function handleCompletedDownloadDesign(event) {
-    event.stopPropagation(); // Prevent event from bubbling
-    
-    const designFilePath = document.getElementById('completedModal').getAttribute('data-design-file');
-    if (!designFilePath) {
-        showToast('Download Error', 'No file available for download', 'error');
-        return;
-    }
-    
-    // Create a temporary link to trigger download
-    const downloadLink = document.createElement('a');
-    
-    // Use absolute path to avoid confusion with includes
-    downloadLink.href = '../user/' + designFilePath;
-    
-    // Extract filename from path for the download attribute
-    const filename = designFilePath.split('/').pop();
-    downloadLink.download = filename;
-    
-    // For security, set target to _blank to avoid navigation issues
-    downloadLink.target = '_blank';
-    
-    // Trigger download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    
-    // Show success toast
-    showToast('Download', 'File download started', 'success');
+    event.stopPropagation();
+    const modal = document.getElementById('completedModal');
+    const designFile = modal.getAttribute('data-design-file');
+    if (!designFile) { showCompletedToast('Error','No file to download','error'); return; }
+
+    const link = document.createElement('a');
+    link.href = '../user/' + designFile;
+    link.download = designFile.split('/').pop();
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showCompletedToast('Download','File download started','success');
 }
 
-// Function to fetch and update the completed orders table
+// ============================
+// GLOBALS / SHARED
+// ============================
+let activeFiltersCompleted = null; // stores current filters if applied
+
+// ============================
+// 1. REFRESH HANDLER (Completed only)
+// ============================
 function updateCompletedTable() {
-        const printType = document.querySelector('select[name="print_type"]').value;
-        const startDate = document.querySelector('input[name="start_date"]').value;
-        const endDate = document.querySelector('input[name="end_date"]').value;
-        const search = document.querySelector('input[name="search"]').value;
-        const params = new URLSearchParams(new FormData(document.querySelector('.filter-form')));
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentPage = urlParams.get('page_completed') || 1;
+
+    if (activeFiltersCompleted) {
+        activeFiltersCompleted.delete('page');
+        if (currentPage > 1) activeFiltersCompleted.set('page', currentPage);
+        applyCompletedFilters(activeFiltersCompleted);
+    } else {
+        const params = new URLSearchParams();
+        if (currentPage > 1) params.set('page', currentPage);
+
         fetch('api/get_completed_orders.php?' + params.toString())
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('completed-table-body').innerHTML = data;
-            attachCompletedViewButtonListeners();
-        })
-        .catch(error => {
-            console.error('Error fetching completed orders:', error);
+            .then(res => res.json())
+            .then(data => renderCompletedTable(data))
+            .catch(err => console.error('Error refreshing completed table:', err));
+    }
+}
+
+// ============================
+// 2. FILTERS (Completed only)
+// ============================
+function applyCompletedFilters(params) {
+    fetch('api/get_completed_orders.php?' + params.toString())
+        .then(res => res.json())
+        .then(data => renderCompletedTable(data))
+        .catch(err => console.error('Error applying completed filters:', err));
+}
+
+// ============================
+// 3. INITIAL LOAD / MANUAL FILTER
+// ============================
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.querySelector('.filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            activeFiltersCompleted = params;
+            applyCompletedFilters(params);
         });
-}
-
-// Function to attach event listeners to view buttons
-function attachCompletedViewButtonListeners() {
-    document.querySelectorAll('.view-completed-modal').forEach(button => {
-        button.addEventListener('click', handleCompletedViewButtonClick);
-    });
-}
-
-// View button click handler for completed orders
-function handleCompletedViewButtonClick() {
-    const orderData = {
-        id: this.getAttribute('data-id'),
-        userId: this.getAttribute('data-user-id'),
-        ticket: this.getAttribute('data-ticket'),
-        design: this.getAttribute('data-design'),
-        mobile: this.getAttribute('data-mobile'),
-        name: this.getAttribute('data-name'),
-        printType: this.getAttribute('data-print-type'),
-        quantity: this.getAttribute('data-quantity'),
-        date: this.getAttribute('data-date'),
-        status: this.getAttribute('data-status'),
-        note: this.getAttribute('data-note'),
-        address: this.getAttribute('data-address'),
-        email: this.getAttribute('data-email'),
-        pricing: this.getAttribute('data-pricing'),
-        subtotal: this.getAttribute('data-subtotal'),
-        created: this.getAttribute('data-created'),
-        designerApproved: this.getAttribute('data-designer-approved'),
-        adminApproved: this.getAttribute('data-admin-approved'),
-        processing: this.getAttribute('data-processing'),
-        pickup: this.getAttribute('data-pickup'),
-        shipping: this.getAttribute('data-shipping'),
-        delivered: this.getAttribute('data-delivered'),
-        completed: this.getAttribute('data-completed')
-    };
-
-    let items = [];
-    try {
-        const rawItems = this.getAttribute('data-items');
-        console.log("Raw data-items:", rawItems);
-        items = JSON.parse(rawItems || "[]");
-        console.log("Parsed items:", items);
-    } catch (e) {
-        console.error("Error parsing shirt items:", e);
     }
 
+    const resetBtn = document.querySelector('.completed-reset-filters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            activeFiltersCompleted = null;
+            updateCompletedTable();
+        });
+    }
 
-    // Store data in modal
-    const completedModal = document.getElementById('completedModal');
-    completedModal.setAttribute('data-current-id', orderData.id);
-    completedModal.setAttribute('data-design-file', orderData.design); // Store the actual design file path
-    
-    // Get correct thumbnail path
-    const thumbnailPath = getCompletedThumbnailPath(orderData.design);
-    
-    // Populate modal fields
-    document.getElementById('completed-modal-ticket').textContent = orderData.ticket;
-    document.getElementById('completed-modal-name').textContent = orderData.name;
-    document.getElementById('completed-modal-mobile').textContent = orderData.mobile || 'N/A';
-    document.getElementById('completed-modal-email').textContent = orderData.email;
-    document.getElementById('completed-modal-address').textContent = orderData.address || 'N/A';
-    document.getElementById('completed-modal-print-type').textContent = orderData.printType;
-    document.getElementById('completed-modal-quantity').textContent = orderData.quantity;
-    document.getElementById('completed-modal-pricing').textContent = orderData.pricing ? '₱' + parseFloat(orderData.pricing).toFixed(2) : 'N/A';
-    document.getElementById('completed-modal-subtotal').textContent = orderData.subtotal ? '₱' + parseFloat(orderData.subtotal).toFixed(2) : 'N/A';
-    document.getElementById('completed-modal-note').textContent = orderData.note || 'No notes';
-    document.getElementById('completed-modal-design').src = thumbnailPath;
-    
-    // Populate timeline
-    document.getElementById('completed-modal-created').textContent = formatCompletedDate(orderData.created);
-    document.getElementById('completed-modal-designer-approved').textContent = formatCompletedDate(orderData.designerApproved);
-    document.getElementById('completed-modal-admin-approved').textContent = formatCompletedDate(orderData.adminApproved);
-    document.getElementById('completed-modal-processing').textContent = formatCompletedDate(orderData.processing);
-    document.getElementById('completed-modal-pickup').textContent = formatCompletedDate(orderData.pickup);
-    document.getElementById('completed-modal-shipping').textContent = formatCompletedDate(orderData.shipping);
-    document.getElementById('completed-modal-completed').textContent = formatCompletedDate(orderData.completed);
-    
+    // Initial load
+    updateCompletedTable();
+});
 
-    // 🆕 Populate Shirt Colors & Quantities
-const modal = document.getElementById("completedModal");
-const itemsContainer = modal.querySelector("#completed-modal-shirt-items");
-itemsContainer.innerHTML = "";
+// ============================
+// 4. RENDER TABLE + PAGINATION
+// ============================
+function renderCompletedTable(data) {
+    const tbody = document.getElementById('completed-table-body');
+    const pagination = document.querySelector('#completed-table .pagination');
 
-if (items.length > 0) {
-    items.forEach(item => {
-        const div = document.createElement("div");
-        div.classList.add("shirt-item");
-        div.innerHTML = `
-          <span class="shirt-color">${item.shirt_color}</span>
-          <span class="shirt-qty">${item.quantity}</span>
-        `;
-        itemsContainer.appendChild(div); // ✅ keep same container variable
-      });
-} else {
-    itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+    if (!tbody || !pagination) return;
+
+    if (data.total_records === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center">No completed orders found</td></tr>`;
+        pagination.innerHTML = '';
+    } else {
+        tbody.innerHTML = data.table;
+        pagination.innerHTML = data.pagination;
+    }
+
+    attachCompletedViewButtonListeners();
+    attachCompletedPaginationListeners();
 }
 
-    // Remove any existing event listeners from modal buttons first
-    const downloadButtons = document.querySelectorAll('#completedModal .download-design-btn');
-    
-    downloadButtons.forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-    
-    // Attach new event listeners to modal buttons
-    document.querySelectorAll('#completedModal .download-design-btn').forEach(button => {
-        button.addEventListener('click', handleCompletedDownloadDesign);
-    });
-    
-    // Show modal
-    completedModal.style.display = 'block';
-}
-
-// Format date for display
-function formatCompletedDate(dateString) {
-    if (!dateString || dateString === '0000-00-00 00:00:00') return 'N/A';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+// ============================
+// 5. PAGINATION BUTTON LISTENERS
+// ============================
+function attachCompletedPaginationListeners() {
+    document.querySelectorAll('#completed-table .pagination a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = new URL(this.href);
+            const page = url.searchParams.get('page');
+            if (!activeFiltersCompleted) activeFiltersCompleted = new URLSearchParams();
+            activeFiltersCompleted.set('page', page);
+            applyCompletedFilters(activeFiltersCompleted);
+        });
     });
 }
 
+// ============================
+// MODAL HANDLERS
+// ============================
+function attachCompletedViewButtonListeners() {
+    document.querySelectorAll('.view-completed-modal').forEach(btn => btn.addEventListener('click', handleCompletedViewButtonClick));
+}
+
+function handleCompletedViewButtonClick() {
+    const modal = document.getElementById('completedModal');
+    const data = Object.fromEntries(Array.from(this.attributes).map(attr => [attr.name.replace('data-',''), attr.value]));
+
+    modal.setAttribute('data-current-id', data.id);
+    modal.setAttribute('data-design-file', data.design);
+
+    document.getElementById('completed-modal-ticket').textContent = data.ticket;
+    document.getElementById('completed-modal-name').textContent = data.name;
+    document.getElementById('completed-modal-mobile').textContent = data.mobile || 'N/A';
+    document.getElementById('completed-modal-email').textContent = data.email;
+    document.getElementById('completed-modal-address').textContent = data.address || 'N/A';
+    document.getElementById('completed-modal-print-type').textContent = data.print_type;
+    document.getElementById('completed-modal-quantity').textContent = data.quantity;
+    document.getElementById('completed-modal-pricing').textContent = data.pricing ? '₱'+parseFloat(data.pricing).toFixed(2) : 'N/A';
+    document.getElementById('completed-modal-subtotal').textContent = data.subtotal ? '₱'+parseFloat(data.subtotal).toFixed(2) : 'N/A';
+    document.getElementById('completed-modal-note').textContent = data.note || 'No notes';
+    document.getElementById('completed-modal-design').src = getCompletedThumbnailPath(data.design);
+
+    // Shirt items
+    const itemsContainer = modal.querySelector('#completed-modal-shirt-items');
+    itemsContainer.innerHTML = '';
+    let items = [];
+    try { items = JSON.parse(data.items || '[]'); } catch(e){ console.error(e); }
+    if (items.length) items.forEach(i => itemsContainer.innerHTML += `<div class="shirt-item"><span class="shirt-color">${i.shirt_color}</span> <span class="shirt-qty">${i.quantity}</span></div>`);
+    else itemsContainer.innerHTML = "<em>No shirt colors added</em>";
+
+    // Timeline
+    document.getElementById('completed-modal-created').textContent = formatCompletedDate(data.created);
+    document.getElementById('completed-modal-designer-approved').textContent = formatCompletedDate(data.designer_approved);
+    document.getElementById('completed-modal-admin-approved').textContent = formatCompletedDate(data.admin_approved);
+    document.getElementById('completed-modal-processing').textContent = formatCompletedDate(data.processing);
+    document.getElementById('completed-modal-pickup').textContent = formatCompletedDate(data.pickup);
+    document.getElementById('completed-modal-shipping').textContent = formatCompletedDate(data.shipping);
+    document.getElementById('completed-modal-completed').textContent = formatCompletedDate(data.completed);
+
+    // Attach download listener
+    modal.querySelectorAll('.download-design-btn').forEach(btn => btn.replaceWith(btn.cloneNode(true)));
+    modal.querySelectorAll('.download-design-btn').forEach(btn => btn.addEventListener('click', handleCompletedDownloadDesign));
+
+    modal.style.display = 'block';
+}
+
+// ============================
+// MODAL INIT
+// ============================
+function initializeCompletedModals() {
+    const modal = document.getElementById('completedModal');
+    modal.querySelector('.completed-modal-close').addEventListener('click', ()=>modal.style.display='none');
+    modal.querySelector('#completed-modal-close').addEventListener('click', ()=>modal.style.display='none');
+    window.addEventListener('click', e => { if(e.target===modal) modal.style.display='none'; });
+}
+
+// ============================
+// INITIALIZE
+// ============================
+function initializeCompletedTable() {
+    if (document.getElementById('completed-table').style.display!=='none') {
+        updateCompletedTable();
+    }
+}
 // Toast function
 function showCompletedToast(title, message, type = 'info') {
     const toastContainer = document.getElementById('toastContainer');
@@ -452,42 +406,13 @@ function showCompletedToast(title, message, type = 'info') {
         }, 300);
     });
 }
-
-// Initialize modals and event listeners
-function initializeCompletedModals() {
-    const completedModal = document.getElementById('completedModal');
-    
-    // Close buttons
-    document.querySelector('.completed-modal-close').addEventListener('click', function() {
-        completedModal.style.display = 'none';
-    });
-    
-    document.getElementById('completed-modal-close').addEventListener('click', function() {
-        completedModal.style.display = 'none';
-    });
-    
-    // Close when clicking outside modal
-    window.addEventListener('click', function(event) {
-        if (event.target === completedModal) {
-            completedModal.style.display = 'none';
-        }
-    });
-}
-
-// Initialize the table when tab is active
-function initializeCompletedTable() {
-    if (document.getElementById('completed-table').style.display !== 'none') {
-        updateCompletedTable();
-        setInterval(updateCompletedTable, 3000);
-    }
-}
-
-// Initialize everything when DOM is loaded
+// ============================
+// DOM READY
+// ============================
 document.addEventListener('DOMContentLoaded', function() {
     initializeCompletedModals();
 });
 
-// Make functions available globally
 window.updateCompletedTable = updateCompletedTable;
 window.initializeCompletedTable = initializeCompletedTable;
 </script>

@@ -10,7 +10,10 @@ use PHPMailer\PHPMailer\Exception;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
     // Get data from POST request
     $data = json_decode(file_get_contents('php://input'), true);
-    
+    file_put_contents('php_debug.log', print_r([
+    'raw_input' => file_get_contents('php://input'),
+    '_POST' => $_POST
+], true), FILE_APPEND);
     $id = isset($data['id']) ? intval($data['id']) : null;
     $user_id = isset($data['user_id']) ? intval($data['user_id']) : null;
     $email = isset($data['email']) ? filter_var($data['email'], FILTER_SANITIZE_EMAIL) : null;
