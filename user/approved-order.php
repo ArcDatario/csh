@@ -278,6 +278,9 @@ $full_address = trim($address);
     }
     ?>
 </div>
+
+<!-- Footer inside main content -->
+<?php include 'footer.php'; ?>
     </main>
 
     <div id="approvedOrderProcessModal" class="order-process-modal">

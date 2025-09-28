@@ -276,6 +276,8 @@ $full_address = trim($address);
     }
     ?>
 </div>
+<!-- Footer inside main content -->
+<?php include 'footer.php'; ?>
     </main>
 
     <!-- ✅ Details Modal -->

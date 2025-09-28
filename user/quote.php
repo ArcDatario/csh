@@ -275,6 +275,17 @@ if ($total_pages > 0) {
 ?>
 </div>
 
+    <!-- Add Quote Button -->
+    <button class="add-quote-btn pulse" id="addQuoteBtn">
+        <i class="fas fa-plus-circle"></i>
+        <span class="add-quote-text">Add Quote</span>
+    </button>
+    
+<!-- Footer inside main content -->
+<?php include 'footer.php'; ?>
+
+
+
     </main>
 
 
@@ -373,10 +384,7 @@ if ($total_pages > 0) {
 </div>
 <!-- Confirmation Modal (dynamically shown when user confirms/rejects) ends -->
 
-    <!-- Add Quote Button -->
-    <button class="add-quote-btn pulse" id="addQuoteBtn">
-        <i class="fas fa-plus-circle"></i> Add Quote
-    </button>
+
 
     <!-- Quote Modal -->
     <div class="quote-modal" id="quoteModal" style="z-index: 500 !important;">

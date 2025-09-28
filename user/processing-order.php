@@ -114,6 +114,8 @@ $full_address = trim($address);
                            placeholder="Search by Ticket #">
                     <span class="search-icon">&#128269;</span>
                     <button type="button" id="clearProcessingSearch" class="clear-search-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -279,6 +281,8 @@ $full_address = trim($address);
             }
             ?>
         </div>
+        <!-- Footer inside main content -->
+<?php include 'footer.php'; ?>
     </main>
 
     <div id="processingProcessModal" class="order-process-modal">

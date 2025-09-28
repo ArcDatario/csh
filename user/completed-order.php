@@ -284,6 +284,8 @@ if ($user_id) {
 }
 ?>
 </div>
+<!-- Footer inside main content -->
+<?php include 'footer.php'; ?>
     </main>
 
     <div id="completedProcessModal" class="order-process-modal">
