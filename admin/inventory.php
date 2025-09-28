@@ -14,7 +14,7 @@ if ($_SESSION['admin_role'] === "Field Manager" &&
 }
 
 // --- Pagination setup ---
-$logs_per_page = 6; // items per page
+$logs_per_page = 7; // items per page
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $offset = ($page - 1) * $logs_per_page;
 
@@ -248,376 +248,305 @@ if ($items_result) {
 
     <script src="assets/js/toast.js"></script>
     
-    <script>
-        // DOM Elements
-        const addItemBtn = document.getElementById('addItemBtn');
-        const requestStocksBtn = document.getElementById('requestStocksBtn');
-        const itemModal = document.getElementById('itemModal');
-        const deleteModal = document.getElementById('deleteModal');
-        const requestStocksModal = document.getElementById('requestStocksModal');
-        const itemForm = document.getElementById('itemForm');
-        const requestStocksForm = document.getElementById('requestStocksForm');
-        const confirmDeleteBtn = document.getElementById('confirmDelete');
-        const modalCloses = document.querySelectorAll('.modal-close');
-        const inventoryTableBody = document.getElementById('inventoryTableBody');
-        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-        const requestItemsContainer = document.getElementById('requestItemsContainer');
-        const paginationContainer = document.getElementById('paginationContainer');
+<script>
+    // DOM Elements
+    const addItemBtn = document.getElementById('addItemBtn');
+    const requestStocksBtn = document.getElementById('requestStocksBtn');
+    const itemModal = document.getElementById('itemModal');
+    const deleteModal = document.getElementById('deleteModal');
+    const requestStocksModal = document.getElementById('requestStocksModal');
+    const itemForm = document.getElementById('itemForm');
+    const requestStocksForm = document.getElementById('requestStocksForm');
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    const modalCloses = document.querySelectorAll('.modal-close');
+    const inventoryTableBody = document.getElementById('inventoryTableBody');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const requestItemsContainer = document.getElementById('requestItemsContainer');
+    const paginationContainer = document.getElementById('paginationContainer');
 
-        // Selected items array
-        let selectedItems = [];
-        let currentPage = 1;
-        let currentSearch = '';
+    // Selected items array
+    let selectedItems = [];
+    let currentPage = 1;
+    let currentSearch = '';
 
-        // Modal Functions
-        function openModal(modal) {
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
+    // Modal Functions
+    function openModal(modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 
-        function closeModal(modal) {
-            modal.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
+    function closeModal(modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
 
-        // Event Listeners
-        addItemBtn.addEventListener('click', () => {
-            document.getElementById('modalTitle').textContent = 'Add Item';
-            itemForm.reset();
-            document.getElementById('itemId').value = '';
-            openModal(itemModal);
-        });
+    // Event Listeners
+    addItemBtn.addEventListener('click', () => {
+        document.getElementById('modalTitle').textContent = 'Add Item';
+        itemForm.reset();
+        document.getElementById('itemId').value = '';
+        openModal(itemModal);
+    });
 
-        if (requestStocksBtn) {
-            requestStocksBtn.addEventListener('click', () => {
-                // Clear previous items
-                requestItemsContainer.innerHTML = '';
-                
-                // Add form fields for each selected item
-                selectedItems.forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'form-group';
-                    itemDiv.innerHTML = `
-                        <label>${item.name} (Current: ${item.quantity})</label>
-                        <input type="hidden" name="item_ids[]" value="${item.id}">
-                        <input type="number" name="quantities[]" min="1" required 
-                               placeholder="Enter quantity to request" class="request-quantity">
-                    `;
-                    requestItemsContainer.appendChild(itemDiv);
-                });
-                
-                openModal(requestStocksModal);
-            });
-        }
-
-        modalCloses.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const modal = this.closest('.modal');
-                closeModal(modal);
-            });
-        });
-
-        // Select/Deselect all items
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('.item-checkbox');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = this.checked;
-                });
-                updateSelectedItems();
-            });
-        }
-
-        // Update selected items array
-        function updateSelectedItems() {
-            selectedItems = [];
-            const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+    if (requestStocksBtn) {
+        requestStocksBtn.addEventListener('click', () => {
+            // Clear previous items
+            requestItemsContainer.innerHTML = '';
             
+            // Add form fields for each selected item
+            selectedItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'form-group';
+                itemDiv.innerHTML = `
+                    <label>${item.name} (Current: ${item.quantity})</label>
+                    <input type="hidden" name="item_ids[]" value="${item.id}">
+                    <input type="number" name="quantities[]" min="1" required 
+                           placeholder="Enter quantity to request" class="request-quantity">
+                `;
+                requestItemsContainer.appendChild(itemDiv);
+            });
+            
+            openModal(requestStocksModal);
+        });
+    }
+
+    modalCloses.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
+        });
+    });
+
+    // Select/Deselect all items
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
             checkboxes.forEach(checkbox => {
-                const row = checkbox.closest('tr');
-                selectedItems.push({
-                    id: checkbox.value,
-                    name: row.cells[<?php echo ($_SESSION['admin_role'] === "Field Manager") ? 1 : 0; ?>].textContent,
-                    quantity: row.cells[<?php echo ($_SESSION['admin_role'] === "Field Manager") ? 2 : 1; ?>].textContent
-                });
+                checkbox.checked = this.checked;
             });
-            
-            // Enable/disable request button based on selection
-            if (requestStocksBtn) {
-                requestStocksBtn.disabled = selectedItems.length === 0;
-            }
-        }
-
-        // Load Items with search and pagination
-        function refreshInventoryTable(searchTerm = '', page = 1) {
-            const url = `api/get_items.php?page=${page}` + (searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : '');
-            
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        renderInventoryItems(data.data);
-                        renderPagination(data.pagination);
-                    } else {
-                        showToast('Error', data.message || 'Failed to load items', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error', 'Failed to load items', 'error');
-                });
-        }
-
-        // Render inventory items to the table
-        function renderInventoryItems(items) {
-            inventoryTableBody.innerHTML = '';
-            
-            if (items.length === 0) {
-                inventoryTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="<?= ($_SESSION['admin_role'] === "Field Manager") ? 4 : 3 ?>" class="no-items">
-                            No items found
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            items.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
-                    <td><input type="checkbox" class="item-checkbox" value="${item.id}"></td>
-                    <?php endif; ?>
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td class="actions">
-                        <button class="btn-icon edit-item" data-id="${item.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-icon delete-item" data-id="${item.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                inventoryTableBody.appendChild(row);
-            });
-
-            // Add event listeners to the newly created elements
-            addEventListenersToItems();
             updateSelectedItems();
-        }
+        });
+    }
 
-        // Render pagination
-        function renderPagination(pagination) {
-            if (!pagination) return;
-            
-            const { current_page, total_pages } = pagination;
-            currentPage = current_page;
-            
-            let paginationHTML = '';
-            
-            // Previous button
-            if (current_page > 1) {
-                paginationHTML += `<a href="#" class="btn btn-outline" data-page="${current_page - 1}">&laquo; Prev</a>`;
-            }
-            
-            // First page
-            paginationHTML += `<a href="#" class="btn ${current_page == 1 ? 'btn-primary' : 'btn-outline'}" data-page="1">1</a>`;
-            
-            // Dots before current page
-            if (current_page > 3) {
-                paginationHTML += `<span class="dots">...</span>`;
-            }
-            
-            // Pages around current
-            for (let i = Math.max(2, current_page - 2); i <= Math.min(total_pages - 1, current_page + 2); i++) {
-                paginationHTML += `<a href="#" class="btn ${i == current_page ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i}</a>`;
-            }
-            
-            // Dots after current page
-            if (current_page < total_pages - 2) {
-                paginationHTML += `<span class="dots">...</span>`;
-            }
-            
-            // Last page (if different from first page)
-            if (total_pages > 1) {
-                paginationHTML += `<a href="#" class="btn ${current_page == total_pages ? 'btn-primary' : 'btn-outline'}" data-page="${total_pages}">${total_pages}</a>`;
-            }
-            
-            // Next button
-            if (current_page < total_pages) {
-                paginationHTML += `<a href="#" class="btn btn-outline" data-page="${current_page + 1}">Next &raquo;</a>`;
-            }
-            
-            paginationContainer.innerHTML = paginationHTML;
-            
-            // Add event listeners to pagination buttons
-            document.querySelectorAll('#paginationContainer a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = parseInt(this.getAttribute('data-page'));
-                    refreshInventoryTable(currentSearch, page);
-                });
+    // Update selected items array
+    function updateSelectedItems() {
+        selectedItems = [];
+        const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+        
+        checkboxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            selectedItems.push({
+                id: checkbox.value,
+                name: row.cells[<?php echo ($_SESSION['admin_role'] === "Field Manager") ? 1 : 0; ?>].textContent,
+                quantity: row.cells[<?php echo ($_SESSION['admin_role'] === "Field Manager") ? 2 : 1; ?>].textContent
             });
+        });
+        
+        // Enable/disable request button based on selection
+        if (requestStocksBtn) {
+            requestStocksBtn.disabled = selectedItems.length === 0;
         }
+    }
 
-        // Add event listeners to inventory items
-        function addEventListenersToItems() {
-            // Edit item buttons
-            document.querySelectorAll('.edit-item').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const itemId = this.getAttribute('data-id');
-                    editItem(itemId);
-                });
+    // Load Items with search and pagination
+    function refreshInventoryTable(searchTerm = '', page = 1) {
+        const url = `api/get_items.php?page=${page}` + (searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : '');
+        
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Check if current page is empty and we're not on page 1
+                    if (data.data.length === 0 && page > 1) {
+                        // Go back to previous page
+                        refreshInventoryTable(searchTerm, page - 1);
+                        return;
+                    }
+                    
+                    renderInventoryItems(data.data);
+                    renderPagination(data.pagination);
+                } else {
+                    showToast('Error', data.message || 'Failed to load items', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error', 'Failed to load items', 'error');
             });
+    }
 
-            // Delete item buttons
-            document.querySelectorAll('.delete-item').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const itemId = this.getAttribute('data-id');
-                    document.getElementById('deleteId').value = itemId;
-                    openModal(deleteModal);
-                });
-            });
-
-            // Checkbox event listeners for Field Manager
-            if (document.querySelectorAll('.item-checkbox')) {
-                document.querySelectorAll('.item-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', updateSelectedItems);
-                });
-            }
+    // Render inventory items to the table
+    function renderInventoryItems(items) {
+        inventoryTableBody.innerHTML = '';
+        
+        if (items.length === 0) {
+            inventoryTableBody.innerHTML = `
+                <tr>
+                    <td colspan="<?= ($_SESSION['admin_role'] === "Field Manager") ? 4 : 3 ?>" class="no-items">
+                        No items found
+                    </td>
+                </tr>
+            `;
+            return;
         }
+        
+        items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <?php if ($_SESSION['admin_role'] === "Field Manager"): ?>
+                <td><input type="checkbox" class="item-checkbox" value="${item.id}"></td>
+                <?php endif; ?>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td class="actions">
+                    <button class="btn-icon edit-item" data-id="${item.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon delete-item" data-id="${item.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            inventoryTableBody.appendChild(row);
+        });
 
-        // Search functionality
-        function setupInventorySearch() {
-            const searchInput = document.createElement('input');
-            searchInput.setAttribute('type', 'text');
-            searchInput.setAttribute('placeholder', 'Search items...');
-            searchInput.classList.add('search-input');
-            
-            // Add search icon
-            const searchContainer = document.createElement('div');
-            searchContainer.className = 'search-container';
-            searchContainer.innerHTML = '<i class="fas fa-search search-icon"></i>';
-            searchContainer.appendChild(searchInput);
-            
-            // Add search input to the table actions
-            const tableActions = document.querySelector('.table-actions');
-            tableActions.insertBefore(searchContainer, tableActions.firstChild);
-            
-            let searchTimeout;
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    currentSearch = e.target.value.trim();
-                    refreshInventoryTable(currentSearch, 1);
-                }, 500);
-            });
+        // Add event listeners to the newly created elements
+        addEventListenersToItems();
+        updateSelectedItems();
+    }
+
+    // Render pagination
+    function renderPagination(pagination) {
+        if (!pagination) return;
+        
+        const { current_page, total_pages } = pagination;
+        currentPage = current_page;
+        
+        let paginationHTML = '';
+        
+        // Previous button
+        if (current_page > 1) {
+            paginationHTML += `<a href="#" class="btn btn-outline" data-page="${current_page - 1}">&laquo; Prev</a>`;
         }
-
-        // Submit Stock Request
-        if (requestStocksForm) {
-            requestStocksForm.addEventListener('submit', function(e) {
+        
+        // First page
+        paginationHTML += `<a href="#" class="btn ${current_page == 1 ? 'btn-primary' : 'btn-outline'}" data-page="1">1</a>`;
+        
+        // Dots before current page
+        if (current_page > 3) {
+            paginationHTML += `<span class="dots">...</span>`;
+        }
+        
+        // Pages around current
+        for (let i = Math.max(2, current_page - 2); i <= Math.min(total_pages - 1, current_page + 2); i++) {
+            paginationHTML += `<a href="#" class="btn ${i == current_page ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i}</a>`;
+        }
+        
+        // Dots after current page
+        if (current_page < total_pages - 2) {
+            paginationHTML += `<span class="dots">...</span>`;
+        }
+        
+        // Last page (if different from first page)
+        if (total_pages > 1) {
+            paginationHTML += `<a href="#" class="btn ${current_page == total_pages ? 'btn-primary' : 'btn-outline'}" data-page="${total_pages}">${total_pages}</a>`;
+        }
+        
+        // Next button
+        if (current_page < total_pages) {
+            paginationHTML += `<a href="#" class="btn btn-outline" data-page="${current_page + 1}">Next &raquo;</a>`;
+        }
+        
+        paginationContainer.innerHTML = paginationHTML;
+        
+        // Add event listeners to pagination buttons
+        document.querySelectorAll('#paginationContainer a').forEach(link => {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-                
-                const formData = new FormData();
-                const itemIds = document.querySelectorAll('input[name="item_ids[]"]');
-                const quantities = document.querySelectorAll('input[name="quantities[]"]');
-                
-                // Add items to form data
-                itemIds.forEach((idInput, index) => {
-                    formData.append('item_ids[]', idInput.value);
-                    formData.append('quantities[]', quantities[index].value);
-                });
-                
-                // Add field manager ID
-                formData.append('field_manager_id', <?php echo $_SESSION['admin_id']; ?>);
-                
-                fetch('api/request_stocks.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('Success', 'Stock request submitted successfully', 'success');
-                        closeModal(requestStocksModal);
-                        // Uncheck all items
-                        document.querySelectorAll('.item-checkbox').forEach(checkbox => {
-                            checkbox.checked = false;
-                        });
-                        updateSelectedItems();
-                        // Refresh the table
-                        refreshInventoryTable(currentSearch, currentPage);
-                    } else {
-                        showToast('Error', data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error', 'An error occurred', 'error');
-                });
+                const page = parseInt(this.getAttribute('data-page'));
+                refreshInventoryTable(currentSearch, page);
+            });
+        });
+    }
+
+    // Add event listeners to inventory items
+    function addEventListenersToItems() {
+        // Edit item buttons
+        document.querySelectorAll('.edit-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                editItem(itemId);
+            });
+        });
+
+        // Delete item buttons
+        document.querySelectorAll('.delete-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                document.getElementById('deleteId').value = itemId;
+                openModal(deleteModal);
+            });
+        });
+
+        // Checkbox event listeners for Field Manager
+        if (document.querySelectorAll('.item-checkbox')) {
+            document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedItems);
             });
         }
+    }
 
-        // Edit Item
-        function editItem(id) {
-            fetch(`api/get_item.php?id=${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('modalTitle').textContent = 'Edit Item';
-                        document.getElementById('itemId').value = data.id;
-                        document.getElementById('name').value = data.name;
-                        document.getElementById('quantity').value = data.quantity;
-                        openModal(itemModal);
-                    } else {
-                        showToast('Error', data.message || 'Failed to load item data', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error', 'Failed to load item data', 'error');
-                });
-        }
+    // Search functionality
+    function setupInventorySearch() {
+        const searchInput = document.createElement('input');
+        searchInput.setAttribute('type', 'text');
+        searchInput.setAttribute('placeholder', 'Search items...');
+        searchInput.classList.add('search-input');
+        
+        // Add search icon
+        const searchContainer = document.createElement('div');
+        searchContainer.className = 'search-container';
+        searchContainer.innerHTML = '<i class="fas fa-search search-icon"></i>';
+        searchContainer.appendChild(searchInput);
+        
+        // Add search input to the table actions
+        const tableActions = document.querySelector('.table-actions');
+        tableActions.insertBefore(searchContainer, tableActions.firstChild);
+        
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentSearch = e.target.value.trim();
+                refreshInventoryTable(currentSearch, 1);
+            }, 500);
+        });
+    }
 
-        // Save Item (Add/Edit)
-        itemForm.addEventListener('submit', function(e) {
+    // Submit Stock Request
+    if (requestStocksForm) {
+        requestStocksForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const id = document.getElementById('itemId').value;
-            const name = document.getElementById('name').value;
-            const quantity = document.getElementById('quantity').value;
-
-            if (!name || quantity === '') {
-                showToast('Error', 'All fields are required', 'error');
-                return;
-            }
-
             const formData = new FormData();
-            formData.append('id', id);
-            formData.append('name', name);
-            formData.append('quantity', quantity);
-
-            const url = id ? 'api/update_item.php' : 'api/add_item.php';
-
-            fetch(url, {
+            const itemIds = document.querySelectorAll('input[name="item_ids[]"]');
+            const quantities = document.querySelectorAll('input[name="quantities[]"]');
+            
+            // Add items to form data
+            itemIds.forEach((idInput, index) => {
+                formData.append('item_ids[]', idInput.value);
+                formData.append('quantities[]', quantities[index].value);
+            });
+            
+            // Add field manager ID
+            formData.append('field_manager_id', <?php echo $_SESSION['admin_id']; ?>);
+            
+            fetch('api/request_stocks.php', {
                 method: 'POST',
                 body: formData
             })
@@ -629,9 +558,14 @@ if ($items_result) {
             })
             .then(data => {
                 if (data.success) {
-                    showToast('Success', data.message, 'success');
-                    closeModal(itemModal);
-                    // Refresh the table without reloading the page
+                    showToast('Success', 'Stock request submitted successfully', 'success');
+                    closeModal(requestStocksModal);
+                    // Uncheck all items
+                    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    updateSelectedItems();
+                    // Refresh the table
                     refreshInventoryTable(currentSearch, currentPage);
                 } else {
                     showToast('Error', data.message, 'error');
@@ -642,18 +576,11 @@ if ($items_result) {
                 showToast('Error', 'An error occurred', 'error');
             });
         });
+    }
 
-        // Delete Item
-        confirmDeleteBtn.addEventListener('click', function() {
-            const id = document.getElementById('deleteId').value;
-
-            fetch('api/delete_item.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `id=${id}`
-            })
+    // Edit Item
+    function editItem(id) {
+        fetch(`api/get_item.php?id=${id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -662,26 +589,121 @@ if ($items_result) {
             })
             .then(data => {
                 if (data.success) {
-                    showToast('Success', data.message, 'success');
-                    closeModal(deleteModal);
-                    // Refresh the table without reloading the page
-                    refreshInventoryTable(currentSearch, currentPage);
+                    document.getElementById('modalTitle').textContent = 'Edit Item';
+                    document.getElementById('itemId').value = data.id;
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('quantity').value = data.quantity;
+                    openModal(itemModal);
                 } else {
-                    showToast('Error', data.message, 'error');
+                    showToast('Error', data.message || 'Failed to load item data', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Error', 'An error occurred', 'error');
+                showToast('Error', 'Failed to load item data', 'error');
             });
-        });
+    }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            refreshInventoryTable();
-            setupInventorySearch();
+    // Save Item (Add/Edit) - SINGLE VERSION (REMOVED DUPLICATE)
+    function handleItemFormSubmit(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('itemId').value;
+        const name = document.getElementById('name').value;
+        const quantity = document.getElementById('quantity').value;
+
+        if (!name || quantity === '') {
+            showToast('Error', 'All fields are required', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('name', name);
+        formData.append('quantity', quantity);
+
+        const url = id ? 'api/update_item.php' : 'api/add_item.php';
+
+        // Disable the submit button to prevent double submission
+        const submitBtn = itemForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('Success', data.message, 'success');
+                closeModal(itemModal);
+                // Refresh the table - if we're adding a new item, go to page 1
+                const refreshPage = id ? currentPage : 1;
+                refreshInventoryTable(currentSearch, refreshPage);
+            } else {
+                showToast('Error', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred', 'error');
+        })
+        .finally(() => {
+            // Re-enable the button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
         });
-    </script>
+    }
+
+    // Delete Item
+    confirmDeleteBtn.addEventListener('click', function() {
+        const id = document.getElementById('deleteId').value;
+
+        fetch('api/delete_item.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${id}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('Success', data.message, 'success');
+                closeModal(deleteModal);
+                // Refresh the table - will automatically go back a page if current page is empty
+                refreshInventoryTable(currentSearch, currentPage);
+            } else {
+                showToast('Error', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error', 'An error occurred', 'error');
+        });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach form submit handler ONLY ONCE
+        itemForm.addEventListener('submit', handleItemFormSubmit);
+        
+        refreshInventoryTable();
+        setupInventorySearch();
+    });
+</script>
 
     <?php include "includes/script-src.php";?>
 </body>
