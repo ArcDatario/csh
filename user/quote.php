@@ -109,32 +109,31 @@ $full_address = trim($address);
 </div>
 
     <div class="search-wrapper">
-        <div class="search-container" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-            <!-- Print Type Filter -->
-            <div class="print-type-filter" style="margin-top: 10px; min-width: 220px;">
-                <select id="printTypeFilter" class="form-control" style="max-width: 250px;">
-                    <option value="">All Print Types</option>
-                    <option value="Direct to Film Print">Direct to Film Print</option>
-                    <option value="Screen Printing">Screen Printing</option>
-                    <option value="Emboss Print">Emboss Print</option>
-                    <option value="Hi-Density Print">Hi-Density Print</option>
-                    <option value="Glitters Print">Glitters Print</option>
-                    <option value="Silk Screen Print">Silk Screen Print</option>
-                </select>
-            </div>
-            <!-- Pending -->
-            <div class="pending-search" style="display: flex; align-items: center; gap: 8px; flex: 1 1 0; min-width: 220px;">
-                <input type="text"
-                       id="PendingSearchInput"
-                       class="search-input"
-                       placeholder="Search by Ticket #">
-                <button type="button" id="clearSearch" class="clear-search-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+    <div class="search-container">
+        <!-- Print Type Filter -->
+        <div class="print-type-filter">
+            <select id="printTypeFilter" class="form-control">
+                <option value="">All Print Types</option>
+                <option value="Direct to Film Print">Direct to Film Print</option>
+                <option value="Screen Printing">Screen Printing</option>
+                <option value="Emboss Print">Emboss Print</option>
+                <option value="Hi-Density Print">Hi-Density Print</option>
+                <option value="Glitters Print">Glitters Print</option>
+                <option value="Silk Screen Print">Silk Screen Print</option>
+            </select>
+        </div>
+        <!-- Search Input -->
+        <div class="pending-search">
+            <input type="text"
+                   id="PendingSearchInput"
+                   class="search-input"
+                   placeholder="Search by Ticket #">
+            <button type="button" id="clearSearch" class="clear-search-btn">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     </div>
-
+</div>
 
 
 

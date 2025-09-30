@@ -104,21 +104,30 @@ $full_address = trim($address);
     </a>
 </div>
 
-        <div class="search-wrapper">
-            <div class="search-container">
-                <!-- Cancelled Orders Search -->
-                <div class="cancelled-search" style="display: block;">
-                    <input type="text"
-                           id="CancelledSearchInput"
-                           class="search-input"
-                           placeholder="Search by Ticket #">
-                    <span class="search-icon">&#128269;</span>
-                    <button type="button" id="clearCancelledSearch" class="clear-search-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
+       <div class="search-wrapper">
+    <div class="search-container">
+        <!-- Print Type Filter -->
+        <div class="print-type-filter">
+            <select id="cancelledPrintTypeFilter" class="form-control">
+                <option value="">All Print Types</option>
+                <option value="Direct to Film Print">Direct to Film Print</option>
+                <option value="Screen Printing">Screen Printing</option>
+                <option value="Emboss Print">Emboss Print</option>
+                <option value="Hi-Density Print">Hi-Density Print</option>
+                <option value="Glitters Print">Glitters Print</option>
+                <option value="Silk Screen Print">Silk Screen Print</option>
+            </select>
         </div>
+        <!-- Cancelled Orders Search -->
+        <div class="cancelled-search" style="display: block;">
+            <input type="text"
+                   id="CancelledSearchInput"
+                   class="search-input"
+                   placeholder="Search by Ticket #">
+           
+        </div>
+    </div>
+</div>
 
 <div class="quotes-container cancelled-orders-container" id="cancelled-orders-container" style="display:block;">
     <?php
@@ -447,38 +456,49 @@ document.getElementById("ticket-value-input").value = ticket;
 
 
     // Cancelled Orders Search Functionality (AJAX-based)
+// Cancelled Orders Search Functionality (AJAX-based)
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('CancelledSearchInput');
     const clearSearchBtn = document.getElementById('clearCancelledSearch');
+    const printTypeFilter = document.getElementById('cancelledPrintTypeFilter');
     let searchTimeout;
     
+    function triggerSearch() {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        const printType = printTypeFilter ? printTypeFilter.value : '';
+        
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+        }
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Set new timeout to avoid too many requests
+        searchTimeout = setTimeout(() => {
+            searchCancelledOrders(searchTerm, 1, printType);
+        }, 500); // 500ms delay
+    }
+    
     if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.trim();
-            if (clearSearchBtn) {
-                clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
-            }
-            
-            // Clear previous timeout
-            clearTimeout(searchTimeout);
-            
-            // Set new timeout to avoid too many requests
-            searchTimeout = setTimeout(() => {
-                searchCancelledOrders(searchTerm, 1);
-            }, 500); // 500ms delay
-        });
+        searchInput.addEventListener('input', triggerSearch);
+    }
+    
+    // Add print type filter event
+    if (printTypeFilter) {
+        printTypeFilter.addEventListener('change', triggerSearch);
     }
     
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', function() {
             searchInput.value = '';
             clearSearchBtn.style.display = 'none';
-            searchCancelledOrders('', 1);
+            searchCancelledOrders('', 1, printTypeFilter.value);
         });
     }
 });
 
-function searchCancelledOrders(searchTerm = '', page = 1) {
+function searchCancelledOrders(searchTerm = '', page = 1, printType = '') {
     const container = document.getElementById('cancelled-orders-container');
     
     if (!container) {
@@ -492,11 +512,10 @@ function searchCancelledOrders(searchTerm = '', page = 1) {
     // Build URL with parameters
     const params = new URLSearchParams();
     if (searchTerm) params.append('search', searchTerm);
+    if (printType) params.append('print_type', printType);
     params.append('page', page);
     
     const searchUrl = 'functions/search_cancelled_orders.php?' + params.toString();
-    
-    console.log('Searching cancelled orders with URL:', searchUrl);
     
     fetch(searchUrl)
         .then(response => {
@@ -506,8 +525,6 @@ function searchCancelledOrders(searchTerm = '', page = 1) {
             return response.json();
         })
         .then(data => {
-            console.log('Cancelled orders search response:', data);
-            
             if (data.error) {
                 container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
                 return;
@@ -518,7 +535,7 @@ function searchCancelledOrders(searchTerm = '', page = 1) {
                 return;
             }
             
-            displayCancelledSearchResults(data, searchTerm, page);
+            displayCancelledSearchResults(data, searchTerm, printType, page);
         })
         .catch(error => {
             console.error('Cancelled orders search error:', error);
@@ -526,15 +543,20 @@ function searchCancelledOrders(searchTerm = '', page = 1) {
         });
 }
 
-function displayCancelledSearchResults(data, searchTerm, currentPage) {
+function displayCancelledSearchResults(data, searchTerm, printType, currentPage) {
     const container = document.getElementById('cancelled-orders-container');
     const orders = data.orders || [];
     const totalPages = data.total_pages || 1;
     
     if (orders.length === 0) {
-        const message = searchTerm 
-            ? `No cancelled orders found for ticket "${searchTerm}"`
-            : 'No cancelled orders found';
+        let message = 'No cancelled orders found';
+        if (searchTerm && printType) {
+            message = `No cancelled orders found for ticket "${searchTerm}" and print type "${printType}"`;
+        } else if (searchTerm) {
+            message = `No cancelled orders found for ticket "${searchTerm}"`;
+        } else if (printType) {
+            message = `No cancelled orders found for print type "${printType}"`;
+        }
         container.innerHTML = `<div class="no-orders">${message}</div>`;
         return;
     }
@@ -599,14 +621,14 @@ function displayCancelledSearchResults(data, searchTerm, currentPage) {
         
         // Previous button
         if (currentPage > 1) {
-            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${currentPage - 1})">‹ Prev</a>`;
+            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${currentPage - 1}, '${escapeHtml(printType)}')">‹ Prev</a>`;
         } else {
             html += `<span class="page-btn prev-next disabled">‹ Prev</span>`;
         }
         
         // First page
         if (currentPage > 3) {
-            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', 1)">1</a>`;
+            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', 1, '${escapeHtml(printType)}')">1</a>`;
             if (currentPage > 4) {
                 html += `<span class="page-dots">...</span>`;
             }
@@ -620,7 +642,7 @@ function displayCancelledSearchResults(data, searchTerm, currentPage) {
             if (i === currentPage) {
                 html += `<span class="page-btn active">${i}</span>`;
             } else {
-                html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${i})">${i}</a>`;
+                html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${i}, '${escapeHtml(printType)}')">${i}</a>`;
             }
         }
         
@@ -629,12 +651,12 @@ function displayCancelledSearchResults(data, searchTerm, currentPage) {
             if (currentPage < totalPages - 3) {
                 html += `<span class="page-dots">...</span>`;
             }
-            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${totalPages})">${totalPages}</a>`;
+            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${totalPages}, '${escapeHtml(printType)}')">${totalPages}</a>`;
         }
         
         // Next button
         if (currentPage < totalPages) {
-            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${currentPage + 1})">Next ›</a>`;
+            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchCancelledOrders('${escapeHtml(searchTerm)}', ${currentPage + 1}, '${escapeHtml(printType)}')">Next ›</a>`;
         } else {
             html += `<span class="page-btn prev-next disabled">Next ›</span>`;
         }

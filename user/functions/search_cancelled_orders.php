@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
+$printType = isset($_GET['print_type']) ? trim($_GET['print_type']) : '';
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $limit = 8;
 $offset = ($page - 1) * $limit;
@@ -41,6 +42,16 @@ try {
         $param_types .= "s";
     }
     
+    // Add print type filter if provided
+    if (!empty($printType)) {
+        $printCondition = " AND o.print_type = ?";
+        $count_sql .= $printCondition;
+        $sql .= $printCondition;
+        $params[] = $printType;
+        $param_types .= "s";
+    }
+    
+    // Add ordering and pagination
     $sql .= " ORDER BY o.cancelled_date DESC LIMIT ? OFFSET ?";
     $params[] = $limit;
     $params[] = $offset;
@@ -48,11 +59,18 @@ try {
     
     // Count total records
     $count_stmt = $conn->prepare($count_sql);
-    if (!empty($searchTerm)) {
+    
+    // Bind parameters for count query
+    if (!empty($searchTerm) && !empty($printType)) {
+        $count_stmt->bind_param("iss", $user_id, $searchTerm, $printType);
+    } elseif (!empty($searchTerm)) {
         $count_stmt->bind_param("is", $user_id, $searchTerm);
+    } elseif (!empty($printType)) {
+        $count_stmt->bind_param("is", $user_id, $printType);
     } else {
         $count_stmt->bind_param("i", $user_id);
     }
+    
     $count_stmt->execute();
     $total_result = $count_stmt->get_result();
     $total_orders = $total_result->fetch_assoc()['total'];

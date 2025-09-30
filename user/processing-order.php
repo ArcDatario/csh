@@ -106,16 +106,26 @@ $full_address = trim($address);
 
         <div class="search-wrapper">
             <div class="search-container">
-                <!-- Processing -->
+                <!-- Print Type Filter -->
+                <div class="print-type-filter">
+                    <select id="processingPrintTypeFilter" class="form-control">
+                        <option value="">All Print Types</option>
+                        <option value="Direct to Film Print">Direct to Film Print</option>
+                        <option value="Screen Printing">Screen Printing</option>
+                        <option value="Emboss Print">Emboss Print</option>
+                        <option value="Hi-Density Print">Hi-Density Print</option>
+                        <option value="Glitters Print">Glitters Print</option>
+                        <option value="Silk Screen Print">Silk Screen Print</option>
+                    </select>
+                </div>
+                <!-- Search Input -->
                 <div class="processing-search" style="display: block;">
                     <input type="text"
                            id="ProcessingSearchInput"
                            class="search-input"
                            placeholder="Search by Ticket #">
-                    <span class="search-icon">&#128269;</span>
-                    <button type="button" id="clearProcessingSearch" class="clear-search-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
+                   
+                    
                 </div>
             </div>
         </div>
@@ -589,85 +599,75 @@ detailsModal.addEventListener("click", e => {
         });
     });
 
-    // Processing Orders Search Functionality (AJAX-based)
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('ProcessingSearchInput');
-    const clearSearchBtn = document.getElementById('clearProcessingSearch');
-    let searchTimeout;
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.trim();
-            if (clearSearchBtn) {
-                clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
-            }
-            
-            // Clear previous timeout
-            clearTimeout(searchTimeout);
-            
-            // Set new timeout to avoid too many requests
-            searchTimeout = setTimeout(() => {
-                searchProcessingOrders(searchTerm, 1);
-            }, 500); // 500ms delay
-        });
-    }
-    
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', function() {
-            searchInput.value = '';
-            clearSearchBtn.style.display = 'none';
-            searchProcessingOrders('', 1);
-        });
-    }
-});
 
-function searchProcessingOrders(searchTerm = '', page = 1) {
-    const container = document.getElementById('processing-orders-container');
-    
-    if (!container) {
-        console.error('Processing orders container not found');
-        return;
+    // Processing Orders Search Functionality (AJAX-based) with Print Type Filter
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('ProcessingSearchInput');
+        const clearSearchBtn = document.getElementById('clearProcessingSearch');
+        const printTypeFilter = document.getElementById('processingPrintTypeFilter');
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim();
+                if (clearSearchBtn) {
+                    clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+                }
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchProcessingOrders(searchTerm, 1, printTypeFilter ? printTypeFilter.value : '');
+                }, 500);
+            });
+        }
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                if (searchInput) searchInput.value = '';
+                if (clearSearchBtn) clearSearchBtn.style.display = 'none';
+                searchProcessingOrders('', 1, printTypeFilter ? printTypeFilter.value : '');
+            });
+        }
+        if (printTypeFilter) {
+            printTypeFilter.addEventListener('change', function() {
+                searchProcessingOrders(searchInput ? searchInput.value : '', 1, printTypeFilter.value);
+            });
+        }
+        // Initial load with filter
+        searchProcessingOrders(searchInput ? searchInput.value : '', 1, printTypeFilter ? printTypeFilter.value : '');
+    });
+
+    function searchProcessingOrders(searchTerm = '', page = 1, printType = '') {
+        const container = document.getElementById('processing-orders-container');
+        if (!container) {
+            console.error('Processing orders container not found');
+            return;
+        }
+        container.innerHTML = '<div class="no-orders">Searching...</div>';
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('search', searchTerm);
+        if (printType) params.append('print_type', printType);
+        params.append('page', page);
+        const searchUrl = 'functions/search_processing_orders.php?' + params.toString();
+        fetch(searchUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
+                    return;
+                }
+                if (data.success === false) {
+                    container.innerHTML = `<div class="no-orders">${data.error || 'Search failed'}</div>`;
+                    return;
+                }
+                displayProcessingSearchResults(data, searchTerm, page, printType);
+            })
+            .catch(error => {
+                container.innerHTML = '<div class="no-orders">Search failed: ' + error.message + '</div>';
+            });
     }
-    
-    // Show loading state
-    container.innerHTML = '<div class="no-orders">Searching...</div>';
-    
-    // Build URL with parameters
-    const params = new URLSearchParams();
-    if (searchTerm) params.append('search', searchTerm);
-    params.append('page', page);
-    
-    const searchUrl = 'functions/search_processing_orders.php?' + params.toString();
-    
-    console.log('Searching processing orders with URL:', searchUrl);
-    
-    fetch(searchUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Processing orders search response:', data);
-            
-            if (data.error) {
-                container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
-                return;
-            }
-            
-            if (data.success === false) {
-                container.innerHTML = `<div class="no-orders">${data.error || 'Search failed'}</div>`;
-                return;
-            }
-            
-            displayProcessingSearchResults(data, searchTerm, page);
-        })
-        .catch(error => {
-            console.error('Processing orders search error:', error);
-            container.innerHTML = '<div class="no-orders">Search failed: ' + error.message + '</div>';
-        });
-}
 
 function displayProcessingSearchResults(data, searchTerm, currentPage) {
     const container = document.getElementById('processing-orders-container');

@@ -108,16 +108,25 @@ $full_address = trim($address);
 
         <div class="search-wrapper">
             <div class="search-container">
-                <!-- To Ship -->
+                <!-- Print Type Filter -->
+                <div class="print-type-filter">
+                    <select id="toShipPrintTypeFilter" class="form-control">
+                        <option value="">All Print Types</option>
+                        <option value="Direct to Film Print">Direct to Film Print</option>
+                        <option value="Screen Printing">Screen Printing</option>
+                        <option value="Emboss Print">Emboss Print</option>
+                        <option value="Hi-Density Print">Hi-Density Print</option>
+                        <option value="Glitters Print">Glitters Print</option>
+                        <option value="Silk Screen Print">Silk Screen Print</option>
+                    </select>
+                </div>
+                <!-- Search Input -->
                 <div class="ship-search" style="display: block;">
                     <input type="text"
                            id="ToShipSearchInput"
                            class="search-input"
                            placeholder="Search by Ticket #">
-                    <span class="search-icon">&#128269;</span>
-                    <button type="button" id="clearToShipSearch" class="clear-search-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    
                 </div>
             </div>
         </div>
@@ -600,57 +609,58 @@ function openToShipOrderModal(event) {
     });
 
     // To Ship Orders Search Functionality (AJAX-based)
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('ToShipSearchInput');
     const clearSearchBtn = document.getElementById('clearToShipSearch');
+    const printTypeFilter = document.getElementById('toShipPrintTypeFilter');
     let searchTimeout;
-    
+
+    function triggerSearch() {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        const printType = printTypeFilter ? printTypeFilter.value : '';
+        searchToShipOrders(searchTerm, 1, printType);
+    }
+
     if (searchInput) {
         searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.trim();
             if (clearSearchBtn) {
-                clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+                clearSearchBtn.style.display = this.value.trim() ? 'block' : 'none';
             }
-            
-            // Clear previous timeout
             clearTimeout(searchTimeout);
-            
-            // Set new timeout to avoid too many requests
-            searchTimeout = setTimeout(() => {
-                searchToShipOrders(searchTerm, 1);
-            }, 500); // 500ms delay
+            searchTimeout = setTimeout(triggerSearch, 400);
         });
     }
-    
+
+    if (printTypeFilter) {
+        printTypeFilter.addEventListener('change', triggerSearch);
+    }
+
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', function() {
-            searchInput.value = '';
+            if (searchInput) searchInput.value = '';
+            if (printTypeFilter) printTypeFilter.value = '';
             clearSearchBtn.style.display = 'none';
-            searchToShipOrders('', 1);
+            triggerSearch();
         });
     }
+
+    // Initial search
+    triggerSearch();
 });
 
-function searchToShipOrders(searchTerm = '', page = 1) {
+function searchToShipOrders(searchTerm = '', page = 1, printType = '') {
     const container = document.getElementById('ship-orders-container');
-    
     if (!container) {
         console.error('To ship orders container not found');
         return;
     }
-    
-    // Show loading state
     container.innerHTML = '<div class="no-orders">Searching...</div>';
-    
-    // Build URL with parameters
     const params = new URLSearchParams();
     if (searchTerm) params.append('search', searchTerm);
+    if (printType) params.append('print_type', printType);
     params.append('page', page);
-    
     const searchUrl = 'functions/search_to_ship_orders.php?' + params.toString();
-    
-    console.log('Searching to_ship orders with URL:', searchUrl);
-    
     fetch(searchUrl)
         .then(response => {
             if (!response.ok) {
@@ -659,22 +669,17 @@ function searchToShipOrders(searchTerm = '', page = 1) {
             return response.json();
         })
         .then(data => {
-            console.log('To ship orders search response:', data);
-            
             if (data.error) {
                 container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
                 return;
             }
-            
             if (data.success === false) {
                 container.innerHTML = `<div class="no-orders">${data.error || 'Search failed'}</div>`;
                 return;
             }
-            
             displayToShipSearchResults(data, searchTerm, page);
         })
         .catch(error => {
-            console.error('To ship orders search error:', error);
             container.innerHTML = '<div class="no-orders">Search failed: ' + error.message + '</div>';
         });
 }

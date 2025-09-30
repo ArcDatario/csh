@@ -108,13 +108,24 @@ $full_address = trim($address);
 
         <div class="search-wrapper">
             <div class="search-container">
-                <!-- To Pick Up -->
-                <div class="pickup-search" style="display: block;">
+                <!-- Print Type Filter -->
+                <div class="print-type-filter">
+                    <select id="pickupPrintTypeFilter" class="form-control">
+                        <option value="">All Print Types</option>
+                        <option value="Direct to Film Print">Direct to Film Print</option>
+                        <option value="Screen Printing">Screen Printing</option>
+                        <option value="Emboss Print">Emboss Print</option>
+                        <option value="Hi-Density Print">Hi-Density Print</option>
+                        <option value="Glitters Print">Glitters Print</option>
+                        <option value="Silk Screen Print">Silk Screen Print</option>
+                    </select>
+                </div>
+                <!-- Search Input -->
+                <div class="pickup-search">
                     <input type="text"
                            id="ToPickupSearchInput"
                            class="search-input"
                            placeholder="Search by Ticket #">
-                    <span class="search-icon">&#128269;</span>
                     <button type="button" id="clearToPickupSearch" class="clear-search-btn">
                         <i class="fas fa-times"></i>
                     </button>
@@ -122,169 +133,7 @@ $full_address = trim($address);
             </div>
         </div>
 
-        <div class="quotes-container pickup-orders-container" id="pickup-orders-container" style="display:block;">
-            <?php
-            include '../db_connection.php';
-
-            $user_id = $_SESSION['user_id'] ?? null;
-
-            if ($user_id) {
-                // Pagination setup
-                $limit = 8; // orders per page
-                $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-                $offset = ($page - 1) * $limit;
-
-                // Count total pickup orders
-                $count_sql = "SELECT COUNT(*) AS total FROM orders WHERE user_id = ? AND status = 'to-pick-up'";
-                $count_stmt = $conn->prepare($count_sql);
-                $count_stmt->bind_param("i", $user_id);
-                $count_stmt->execute();
-                $total_orders = $count_stmt->get_result()->fetch_assoc()['total'];
-                $total_pages = ceil($total_orders / $limit);
-                $count_stmt->close();
-
-                // Fetch paginated orders
-                $sql = "SELECT orders.*, users.name, users.phone_number 
-                        FROM orders 
-                        INNER JOIN users ON orders.user_id = users.id 
-                        WHERE orders.user_id = ? AND orders.status = 'to-pick-up' 
-                        ORDER BY orders.created_at DESC 
-                        LIMIT ? OFFSET ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iii", $user_id, $limit, $offset);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows === 0) {
-                    echo '<div class="no-orders">No orders found</div>';
-                } else {
-                    while ($order = $result->fetch_assoc()) {
-                        // fetch items
-                        $items_sql = "SELECT shirt_color, quantity FROM items WHERE order_id = ?";
-                        $items_stmt = $conn->prepare($items_sql);
-                        $items_stmt->bind_param("i", $order['id']);
-                        $items_stmt->execute();
-                        $items_result = $items_stmt->get_result();
-
-                        $shirtItems = [];
-                        while ($item = $items_result->fetch_assoc()) {
-                            $shirtItems[] = $item;
-                        }
-                        $items_stmt->close();
-
-                        $createdAt = date('M d, Y', strtotime($order['created_at']));
-                        $designFile = $order['design_file'];
-                        $ext = strtolower(pathinfo($designFile, PATHINFO_EXTENSION));
-                        $thumbnail = ($ext === 'psd') ? "../photoshop.png" : (($ext === 'pdf') ? "../pdf.png" : (($ext === 'ai') ? "../illustrator.png" : htmlspecialchars($designFile)));
-                        ?>
-                        <div class="quote-card animate__animated animate__fadeInUp" data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>">
-                            <img src="<?= $thumbnail ?>" alt="Design" class="card-image">
-                            <span class="card-status status-approved"><?= htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8') ?></span>
-                            <div class="card-content">
-                                <h3 class="card-title"><?= htmlspecialchars($order['print_type'], ENT_QUOTES, 'UTF-8') ?></h3>
-                                <div class="card-details">
-                                    <div class="card-detail"><span class="detail-label">Quantity</span><span class="detail-value"><?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?></span></div>
-                                    <div class="card-detail"><span class="detail-label">Ticket #</span><span class="detail-value"><?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?></span></div>
-                                </div>
-                                <span class="quote-date"><?= $createdAt ?></span>
-                                <i class="fa fa-info-circle bottom-right-details-icon"
-                                title="Click to see full order details"
-                                onclick="openDetailsModalFromCard(this)"
-                                data-id="<?= $order['id'] ?>"
-                                data-user-id="<?= $order['user_id'] ?>"
-                                data-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES) ?>"
-                                data-design="<?= htmlspecialchars($order['design_file'], ENT_QUOTES) ?>"
-                                data-mobile="<?= htmlspecialchars($order['phone_number'], ENT_QUOTES) ?>"
-                                data-name="<?= htmlspecialchars($order['name'], ENT_QUOTES) ?>"
-                                data-print-type="<?= htmlspecialchars($order['print_type'], ENT_QUOTES) ?>"
-                                data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES) ?>"
-                                data-date="<?= htmlspecialchars(date('M d, Y', strtotime($order['created_at'])), ENT_QUOTES) ?>"
-                                data-status="<?= htmlspecialchars($order['status'], ENT_QUOTES) ?>"
-                                data-note="<?= htmlspecialchars($order['note'], ENT_QUOTES) ?>"
-                                data-address="<?= htmlspecialchars($order['address'], ENT_QUOTES) ?>"
-                                data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES) ?>"
-                                data-subtotal="<?= htmlspecialchars($order['subtotal'], ENT_QUOTES) ?>"
-                                data-items='<?= json_encode($shirtItems, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
-                                </i>
-                                <div class="card-actions">
-                                    <div class="button-group">
-                                        <button class="view-details-btn to-pick-up-order-btn" 
-                                            data-approved-id="<?= htmlspecialchars($order['id'], ENT_QUOTES, 'UTF-8') ?>" 
-                                            data-approved-ticket="<?= htmlspecialchars($order['ticket'], ENT_QUOTES, 'UTF-8') ?>" 
-                                            data-approved-created-at="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-approved-admin="<?= htmlspecialchars($order['is_approved_admin'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-pricing="<?= htmlspecialchars($order['pricing'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-quantity="<?= htmlspecialchars($order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-subtotal="<?= htmlspecialchars($order['pricing'] * $order['quantity'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-admin-approved-date="<?= htmlspecialchars($order['admin_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-user-approved-date="<?= htmlspecialchars($order['user_approved_date'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-ready-date="<?= htmlspecialchars($order['created_at'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-is-for-pickup="<?= htmlspecialchars($order['is_for_pickup'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-pickup-date="<?= htmlspecialchars($order['pickup_date'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-pickup-attempt="<?= htmlspecialchars($order['pickup_attempt'], ENT_QUOTES, 'UTF-8') ?>">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <a href="<?= htmlspecialchars($order['design_file'], ENT_QUOTES, 'UTF-8') ?>" class="download-btn" download>
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php }
-                }
-                $stmt->close();
-
-                // Pagination Controls
-                if ($total_pages > 0) {
-                    echo '<div class="pagination">';
-                    
-                    // Previous button
-                    if ($page > 1) {
-                        echo '<a href="?page='.($page-1).'" class="page-btn prev-next">‹ Prev</a>';
-                    } else {
-                        echo '<span class="page-btn prev-next disabled">‹ Prev</span>';
-                    }
-                    
-                    // First page
-                    if ($page > 3) {
-                        echo '<a href="?page=1" class="page-btn">1</a>';
-                        if ($page > 4) {
-                            echo '<span class="page-dots">...</span>';
-                        }
-                    }
-                    
-                    // Page numbers around current page
-                    $startPage = max(2, $page - 1);
-                    $endPage = min($total_pages - 1, $page + 1);
-                    
-                    for ($i = $startPage; $i <= $endPage; $i++) {
-                        $active = ($i == $page) ? 'active' : '';
-                        echo '<a href="?page='.$i.'" class="page-btn '.$active.'">'.$i.'</a>';
-                    }
-                    
-                    // Last page
-                    if ($page < $total_pages - 2) {
-                        if ($page < $total_pages - 3) {
-                            echo '<span class="page-dots">...</span>';
-                        }
-                        echo '<a href="?page='.$total_pages.'" class="page-btn">'.$total_pages.'</a>';
-                    }
-                    
-                    // Next button
-                    if ($page < $total_pages) {
-                        echo '<a href="?page='.($page+1).'" class="page-btn prev-next">Next ›</a>';
-                    } else {
-                        echo '<span class="page-btn prev-next disabled">Next ›</span>';
-                    }
-                    
-                    echo '</div>';
-                }
-            } else {
-                echo '<div class="no-orders">No user ID found. Please log in.</div>';
-            }
-            ?>
-        </div>
+        <div class="quotes-container pickup-orders-container" id="pickup-orders-container" style="display:block;"></div>
         <!-- Footer inside main content -->
 <?php include 'footer.php'; ?>
     </main>
@@ -634,83 +483,51 @@ detailsModal.addEventListener("click", e => {
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('ToPickupSearchInput');
     const clearSearchBtn = document.getElementById('clearToPickupSearch');
+    const printTypeFilter = document.getElementById('pickupPrintTypeFilter');
     let searchTimeout;
-    
     if (searchInput) {
         searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.trim();
-            if (clearSearchBtn) {
-                clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
-            }
-            
-            // Clear previous timeout
             clearTimeout(searchTimeout);
-            
-            // Set new timeout to avoid too many requests
             searchTimeout = setTimeout(() => {
-                searchPickupOrders(searchTerm, 1);
-            }, 500); // 500ms delay
+                searchPickupOrders(searchInput.value, 1, printTypeFilter.value);
+            }, 400);
         });
     }
-    
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', function() {
             searchInput.value = '';
-            clearSearchBtn.style.display = 'none';
-            searchPickupOrders('', 1);
+            searchPickupOrders('', 1, printTypeFilter.value);
         });
     }
+    if (printTypeFilter) {
+        printTypeFilter.addEventListener('change', function() {
+            searchPickupOrders(searchInput.value, 1, printTypeFilter.value);
+        });
+    }
+    // Initial load with filter
+    searchPickupOrders(searchInput ? searchInput.value : '', 1, printTypeFilter ? printTypeFilter.value : '');
 });
 
-function searchPickupOrders(searchTerm = '', page = 1) {
+function searchPickupOrders(searchTerm = '', page = 1, printType = '') {
     const container = document.getElementById('pickup-orders-container');
-    
-    if (!container) {
-        console.error('Pickup orders container not found');
-        return;
-    }
-    
-    // Show loading state
+    if (!container) return;
     container.innerHTML = '<div class="no-orders">Searching...</div>';
-    
-    // Build URL with parameters
     const params = new URLSearchParams();
     if (searchTerm) params.append('search', searchTerm);
+    if (printType) params.append('print_type', printType);
     params.append('page', page);
-    
     const searchUrl = 'functions/search_to_pickup_orders.php?' + params.toString();
-    
-    console.log('Searching pickup orders with URL:', searchUrl);
-    
     fetch(searchUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.status);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Pickup orders search response:', data);
-            
-            if (data.error) {
-                container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
-                return;
-            }
-            
-            if (data.success === false) {
-                container.innerHTML = `<div class="no-orders">${data.error || 'Search failed'}</div>`;
-                return;
-            }
-            
-            displayPickupSearchResults(data, searchTerm, page);
+            displayPickupSearchResults(data, searchTerm, page, printType);
         })
-        .catch(error => {
-            console.error('Pickup orders search error:', error);
-            container.innerHTML = '<div class="no-orders">Search failed: ' + error.message + '</div>';
+        .catch(() => {
+            container.innerHTML = '<div class="no-orders">Error searching orders.</div>';
         });
 }
 
-function displayPickupSearchResults(data, searchTerm, currentPage) {
+function displayPickupSearchResults(data, searchTerm, currentPage, printType = '') {
     const container = document.getElementById('pickup-orders-container');
     const orders = data.orders || [];
     const totalPages = data.total_pages || 1;
@@ -791,72 +608,67 @@ function displayPickupSearchResults(data, searchTerm, currentPage) {
     
     if (totalPages > 0) {
         html += '<div class="pagination" id="pickup-search-pagination">';
-        
         // Previous button
         if (currentPage > 1) {
-            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchPickupOrders('${escapeHtml(searchTerm)}', ${currentPage - 1})">‹ Prev</a>`;
+            html += `<a href="#" class="page-btn prev-next" data-page="${currentPage - 1}">‹ Prev</a>`;
         } else {
             html += `<span class="page-btn prev-next disabled">‹ Prev</span>`;
         }
-        
         // First page
         if (currentPage > 3) {
-            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchPickupOrders('${escapeHtml(searchTerm)}', 1)">1</a>`;
+            html += `<a href="#" class="page-btn" data-page="1">1</a>`;
             if (currentPage > 4) {
                 html += `<span class="page-dots">...</span>`;
             }
         }
-        
         // Page numbers around current page
         const startPage = Math.max(2, currentPage - 1);
         const endPage = Math.min(totalPages - 1, currentPage + 1);
-        
         for (let i = startPage; i <= endPage; i++) {
             if (i === currentPage) {
                 html += `<span class="page-btn active">${i}</span>`;
             } else {
-                html += `<a href="javascript:void(0)" class="page-btn" onclick="searchPickupOrders('${escapeHtml(searchTerm)}', ${i})">${i}</a>`;
+                html += `<a href="#" class="page-btn" data-page="${i}">${i}</a>`;
             }
         }
-        
         // Last page
         if (currentPage < totalPages - 2) {
             if (currentPage < totalPages - 3) {
                 html += `<span class="page-dots">...</span>`;
             }
-            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchPickupOrders('${escapeHtml(searchTerm)}', ${totalPages})">${totalPages}</a>`;
+            html += `<a href="#" class="page-btn" data-page="${totalPages}">${totalPages}</a>`;
         }
-        
         // Next button
         if (currentPage < totalPages) {
-            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchPickupOrders('${escapeHtml(searchTerm)}', ${currentPage + 1})">Next ›</a>`;
+            html += `<a href="#" class="page-btn prev-next" data-page="${currentPage + 1}">Next ›</a>`;
         } else {
             html += `<span class="page-btn prev-next disabled">Next ›</span>`;
         }
-        
         html += '</div>';
     }
-    
     container.innerHTML = html;
-    
     // Re-attach event listeners to the new buttons
     document.querySelectorAll('.view-details-btn.to-pick-up-order-btn').forEach(button => {
         button.addEventListener('click', openToPickUpOrderModal);
+    });
+    // Pagination click events
+    container.querySelectorAll('.pagination .page-btn').forEach(btn => {
+        if (!btn.classList.contains('current') && !btn.classList.contains('disabled')) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = parseInt(this.getAttribute('data-page'));
+                searchPickupOrders(searchTerm, page, printType);
+            });
+        }
     });
 }
 
 // Clear pickup search functionality
 function clearPickupSearch() {
     const searchInput = document.getElementById('ToPickupSearchInput');
-    const clearSearchBtn = document.getElementById('clearToPickupSearch');
-    
     if (searchInput) {
         searchInput.value = '';
-        if (clearSearchBtn) {
-            clearSearchBtn.style.display = 'none';
-        }
-        // Reload the original page content
-        window.location.href = 'to-pickup-order?page=1';
+        searchPickupOrders('', 1, document.getElementById('pickupPrintTypeFilter').value);
     }
 }
 

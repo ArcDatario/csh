@@ -111,16 +111,25 @@ $full_address = trim($address);
 
 <div class="search-wrapper">
     <div class="search-container">
+        <!-- Print Type Filter -->
+        <div class="print-type-filter">
+            <select id="completedPrintTypeFilter" class="form-control">
+                <option value="">All Print Types</option>
+                <option value="Direct to Film Print">Direct to Film Print</option>
+                <option value="Screen Printing">Screen Printing</option>
+                <option value="Emboss Print">Emboss Print</option>
+                <option value="Hi-Density Print">Hi-Density Print</option>
+                <option value="Glitters Print">Glitters Print</option>
+                <option value="Silk Screen Print">Silk Screen Print</option>
+            </select>
+        </div>
         <!-- Completed Orders Search -->
         <div class="completed-search" style="display: block;">
             <input type="text"
                    id="CompletedSearchInput"
                    class="search-input"
                    placeholder="Search by Ticket #">
-            <span class="search-icon">&#128269;</span>
-            <button type="button" id="clearCompletedSearch" class="clear-search-btn">
-                <i class="fas fa-times"></i>
-            </button>
+           
         </div>
     </div>
 </div>
@@ -622,6 +631,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    const printTypeFilter = document.getElementById('completedPrintTypeFilter');
+    function triggerSearch() {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        const printType = printTypeFilter ? printTypeFilter.value : '';
+        searchCompletedOrders(searchTerm, 1, printType);
+    }
+
+    if (printTypeFilter) {
+        printTypeFilter.addEventListener('change', triggerSearch);
+    }
+
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', function() {
             searchInput.value = '';
@@ -631,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function searchCompletedOrders(searchTerm = '', page = 1) {
+function searchCompletedOrders(searchTerm = '', page = 1, printType = '') {
     const container = document.getElementById('completed-orders-container');
     
     if (!container) {
@@ -645,6 +665,7 @@ function searchCompletedOrders(searchTerm = '', page = 1) {
     // Build URL with parameters
     const params = new URLSearchParams();
     if (searchTerm) params.append('search', searchTerm);
+    if (printType) params.append('print_type', printType);
     params.append('page', page);
     
     const searchUrl = 'functions/search_completed_orders.php?' + params.toString();
