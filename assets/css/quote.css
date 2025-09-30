@@ -299,6 +299,12 @@
     margin-bottom: 5px !important;
     color: #333 !important;
     line-height: 1.3 !important;
+    text-align: left !important;
+    width: 100%;
+    word-break: break-word;
+    margin-left: -60px !important;
+    margin-right: 0 !important;
+    display: block;
 }
 
 .card-details {
@@ -1001,6 +1007,7 @@ hr {
     font-weight: 600;
     /* margin-bottom moved to desktop media query */
     box-shadow: 0 2px 5px rgba(74, 144, 226, 0.2);
+    z-index: 2000   !important;
 }
 
 @media (min-width: 601px) {
@@ -1121,20 +1128,12 @@ hr {
     }
 }
 
-/* Tablet - 3 columns */
-@media (max-width: 1460px) {
-    .quotes-container {
-        grid-template-columns: repeat(3, minmax(200px, 1fr)) !important;
-        margin-bottom: 200px;
-    }
-}
 
-/* Tablet - 2 columns */
+/* Keep 4 columns for medium-large screens, only reduce for small screens */
 @media (max-width: 900px) {
     .quotes-container {
         grid-template-columns: repeat(2, minmax(180px, 1fr)) !important;
     }
-    
 }
 
 /* Mobile adjustments */
