@@ -14,7 +14,9 @@ if (!$user_id) {
     exit;
 }
 
+
 $search_term = $_GET['search'] ?? '';
+$print_type = $_GET['print_type'] ?? '';
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $limit = 8;
 $offset = ($page - 1) * $limit;
@@ -25,9 +27,16 @@ try {
     $params = [$user_id];
     $param_types = "i";
 
+
     if (!empty($search_term)) {
         $where_conditions[] = "orders.ticket LIKE ?";
         $params[] = "$search_term%";
+        $param_types .= "s";
+    }
+
+    if (!empty($print_type)) {
+        $where_conditions[] = "orders.print_type = ?";
+        $params[] = $print_type;
         $param_types .= "s";
     }
 

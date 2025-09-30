@@ -999,9 +999,15 @@ hr {
     min-width: 45px;
     text-align: center;
     font-weight: 600;
+    /* margin-bottom moved to desktop media query */
     box-shadow: 0 2px 5px rgba(74, 144, 226, 0.2);
 }
 
+@media (min-width: 601px) {
+    .page-btn {
+        margin-bottom: 150px;
+    }
+}
 .page-btn:hover:not(.disabled) {
     background: #4a90e2;
     color: white;

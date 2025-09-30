@@ -109,14 +109,25 @@ $full_address = trim($address);
 </div>
 
     <div class="search-wrapper">
-        <div class="search-container">
+        <div class="search-container" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <!-- Print Type Filter -->
+            <div class="print-type-filter" style="margin-top: 10px; min-width: 220px;">
+                <select id="printTypeFilter" class="form-control" style="max-width: 250px;">
+                    <option value="">All Print Types</option>
+                    <option value="Direct to Film Print">Direct to Film Print</option>
+                    <option value="Screen Printing">Screen Printing</option>
+                    <option value="Emboss Print">Emboss Print</option>
+                    <option value="Hi-Density Print">Hi-Density Print</option>
+                    <option value="Glitters Print">Glitters Print</option>
+                    <option value="Silk Screen Print">Silk Screen Print</option>
+                </select>
+            </div>
             <!-- Pending -->
-            <div class="pending-search" style="display: block;">
+            <div class="pending-search" style="display: flex; align-items: center; gap: 8px; flex: 1 1 0; min-width: 220px;">
                 <input type="text"
                        id="PendingSearchInput"
                        class="search-input"
                        placeholder="Search by Ticket #">
-                <span class="search-icon">&#128269;</span>
                 <button type="button" id="clearSearch" class="clear-search-btn">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1047,48 +1058,47 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('PendingSearchInput');
     const clearSearchBtn = document.getElementById('clearSearch');
+    const printTypeFilter = document.getElementById('printTypeFilter');
     let searchTimeout;
-    
+
+    function triggerSearch() {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        const printType = printTypeFilter ? printTypeFilter.value : '';
+        searchPendingOrders(searchTerm, 1, printType);
+    }
+
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             const searchTerm = this.value.trim();
             clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
-            
-            // Clear previous timeout
             clearTimeout(searchTimeout);
-            
-            // Set new timeout to avoid too many requests
-            searchTimeout = setTimeout(() => {
-                searchPendingOrders(searchTerm, 1);
-            }, 500); // 500ms delay
+            searchTimeout = setTimeout(triggerSearch, 500);
         });
     }
-    
+
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', function() {
-            searchInput.value = '';
+            if (searchInput) searchInput.value = '';
             clearSearchBtn.style.display = 'none';
-            searchPendingOrders('', 1);
+            triggerSearch();
+        });
+    }
+
+    if (printTypeFilter) {
+        printTypeFilter.addEventListener('change', function() {
+            triggerSearch();
         });
     }
 });
 
-function searchPendingOrders(searchTerm = '', page = 1) {
+function searchPendingOrders(searchTerm = '', page = 1, printType = '') {
     const container = document.getElementById('pending-orders-container');
-    
-    // Show loading state
     container.innerHTML = '<div class="no-orders">Searching...</div>';
-    
-    // Build URL with parameters - fix the path
     const params = new URLSearchParams();
     if (searchTerm) params.append('search', searchTerm);
+    if (printType) params.append('print_type', printType);
     params.append('page', page);
-    
-    // Fix the URL path - adjust based on your folder structure
     const searchUrl = 'functions/search_pending_orders.php?' + params.toString();
-    
-    console.log('Searching with URL:', searchUrl); // Debug log
-    
     fetch(searchUrl)
         .then(response => {
             if (!response.ok) {
@@ -1097,35 +1107,35 @@ function searchPendingOrders(searchTerm = '', page = 1) {
             return response.json();
         })
         .then(data => {
-            console.log('Search response:', data); // Debug log
-            
             if (data.error) {
                 container.innerHTML = `<div class="no-orders">Error: ${data.error}</div>`;
                 return;
             }
-            
             if (data.success === false) {
                 container.innerHTML = `<div class="no-orders">${data.error || 'Search failed'}</div>`;
                 return;
             }
-            
-            displaySearchResults(data, searchTerm, page);
+            displaySearchResults(data, searchTerm, page, printType);
         })
         .catch(error => {
-            console.error('Search error:', error);
             container.innerHTML = '<div class="no-orders">Search failed: ' + error.message + '</div>';
         });
 }
 
-function displaySearchResults(data, searchTerm, currentPage) {
+function displaySearchResults(data, searchTerm, currentPage, printType = '') {
     const container = document.getElementById('pending-orders-container');
     const orders = data.orders || [];
     const totalPages = data.total_pages || 1;
     
     if (orders.length === 0) {
-        const message = searchTerm 
-            ? `No orders found for ticket "${searchTerm}"`
-            : 'No orders found';
+        let message = 'No orders found';
+        if (searchTerm && printType) {
+            message = `No orders found for ticket "${searchTerm}" and print type "${printType}"`;
+        } else if (searchTerm) {
+            message = `No orders found for ticket "${searchTerm}"`;
+        } else if (printType) {
+            message = `No orders found for print type "${printType}"`;
+        }
         container.innerHTML = `<div class="no-orders">${message}</div>`;
         return;
     }
@@ -1187,52 +1197,43 @@ function displaySearchResults(data, searchTerm, currentPage) {
         
         // Previous button
         if (currentPage > 1) {
-            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchPendingOrders('${escapeHtml(searchTerm)}', ${currentPage - 1})">‹ Prev</a>`;
+            html += `<a href=\"javascript:void(0)\" class=\"page-btn prev-next\" onclick=\"searchPendingOrders('${escapeHtml(searchTerm)}', ${currentPage - 1}, '${escapeHtml(printType)}')\">‹ Prev</a>`;
         } else {
-            html += `<span class="page-btn prev-next disabled">‹ Prev</span>`;
+            html += `<span class=\"page-btn prev-next disabled\">‹ Prev</span>`;
         }
-        
         // First page
         if (currentPage > 3) {
-            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchPendingOrders('${escapeHtml(searchTerm)}', 1)">1</a>`;
+            html += `<a href=\"javascript:void(0)\" class=\"page-btn\" onclick=\"searchPendingOrders('${escapeHtml(searchTerm)}', 1, '${escapeHtml(printType)}')\">1</a>`;
             if (currentPage > 4) {
-                html += `<span class="page-dots">...</span>`;
+                html += `<span class=\"page-dots\">...</span>`;
             }
         }
-        
         // Page numbers around current page
         const startPage = Math.max(2, currentPage - 1);
         const endPage = Math.min(totalPages - 1, currentPage + 1);
-        
         for (let i = startPage; i <= endPage; i++) {
             if (i === currentPage) {
-                html += `<span class="page-btn active">${i}</span>`;
+                html += `<span class=\"page-btn active\">${i}</span>`;
             } else {
-                html += `<a href="javascript:void(0)" class="page-btn" onclick="searchPendingOrders('${escapeHtml(searchTerm)}', ${i})">${i}</a>`;
+                html += `<a href=\"javascript:void(0)\" class=\"page-btn\" onclick=\"searchPendingOrders('${escapeHtml(searchTerm)}', ${i}, '${escapeHtml(printType)}')\">${i}</a>`;
             }
         }
-        
         // Last page
         if (currentPage < totalPages - 2) {
             if (currentPage < totalPages - 3) {
-                html += `<span class="page-dots">...</span>`;
+                html += `<span class=\"page-dots\">...</span>`;
             }
-            html += `<a href="javascript:void(0)" class="page-btn" onclick="searchPendingOrders('${escapeHtml(searchTerm)}', ${totalPages})">${totalPages}</a>`;
+            html += `<a href=\"javascript:void(0)\" class=\"page-btn\" onclick=\"searchPendingOrders('${escapeHtml(searchTerm)}', ${totalPages}, '${escapeHtml(printType)}')\">${totalPages}</a>`;
         }
-        
         // Next button
         if (currentPage < totalPages) {
-            html += `<a href="javascript:void(0)" class="page-btn prev-next" onclick="searchPendingOrders('${escapeHtml(searchTerm)}', ${currentPage + 1})">Next ›</a>`;
+            html += `<a href=\"javascript:void(0)\" class=\"page-btn prev-next\" onclick=\"searchPendingOrders('${escapeHtml(searchTerm)}', ${currentPage + 1}, '${escapeHtml(printType)}')\">Next ›</a>`;
         } else {
-            html += `<span class="page-btn prev-next disabled">Next ›</span>`;
+            html += `<span class=\"page-btn prev-next disabled\">Next ›</span>`;
         }
-        
         html += '</div>';
     }
-    
     container.innerHTML = html;
-    
-    // Re-attach event listeners to the new buttons
     document.querySelectorAll('.view-details-btn.view-pending-orders').forEach(button => {
         button.addEventListener('click', openPendingOrderModal);
     });
