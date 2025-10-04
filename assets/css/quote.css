@@ -1012,7 +1012,7 @@ hr {
 
 @media (min-width: 601px) {
     .page-btn {
-        margin-bottom: 150px;
+        margin-bottom: 0; /* removed large bottom margin to keep pagination fixed without extra spacing */
     }
 }
 .page-btn:hover:not(.disabled) {
@@ -1237,9 +1237,10 @@ hr {
         font-size: 15px;
         border-radius: 45px;
     }
-        .pagination {
+    .pagination {
         bottom: 70px;
     }
+    .page-btn { margin-bottom: 0; }
 }
 
 @media (max-width: 992px) {
@@ -1251,6 +1252,7 @@ hr {
     .pagination {
         bottom: 70px;
     }
+    .page-btn { margin-bottom: 0; }
 }
 
 @media (max-width: 600px) {
@@ -1267,6 +1269,7 @@ hr {
         padding: 6px 8px;
         min-width: 36px;
         font-size: 14px;
+        margin-bottom: 0;
     }
 }
 @media (max-width: 576px) {
