@@ -100,7 +100,7 @@ switch ($action) {
         
         // Insert notification for user
         if (!empty($notificationContent)) {
-            $notifyStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_user) VALUES (?, ?, ?, 'yes')");
+            $notifyStmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_user, is_viewed_user) VALUES (?, ?, ?, 'yes', 'no')");
             $notifyStmt->bind_param("iis", $userId, $id, $notificationContent);
             $notifyStmt->execute();
             $notifyStmt->close();

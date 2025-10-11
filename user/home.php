@@ -94,18 +94,99 @@ redirectIfNotLoggedIn();
     </div>
 
     <!-- Header -->
-    <header>
-        <div class="header-container">
-            <a href="#" class="logo">
-                 <img src="../csh-logo.png" alt="" style="height: 55px; width: 100%;">
-               
-            </a>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-            <?php include "includes/navbar.php";?>
-        </div>
-    </header>
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <a href="#" class="logo">
+             <img src="../csh-logo.png" alt="" style="height: 55px; width: 100%;">
+        </a>
+
+        <!-- Mobile Notification Bell (add this before the mobile menu button) -->
+        <a href="#" class="mobile-notification-icon" id="mobileNotificationToggle">
+            <span class="bell-icon">🔔</span>
+            <span class="notification-count" id="mobileNotificationCount">0</span>
+        </a>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <?php include "includes/navbar.php";?>
+    </div>
+</header>
+
+<style>
+/* Mobile Notification Icon Styles */
+.mobile-notification-icon {
+    display: none;
+    position: relative;
+    align-items: center;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: inherit;
+    font-size: 20px;
+}
+
+.mobile-notification-icon .bell-icon {
+    font-size: 24px;
+}
+
+.mobile-notification-icon .notification-count {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Show mobile notification icon on smaller screens */
+@media (max-width: 768px) {
+    .mobile-notification-icon {
+        display: flex;
+        margin-right: 10px;
+    }
+    
+    /* Adjust header container for better spacing */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    /* Group notification and menu button together */
+    .header-container > a.mobile-notification-icon,
+    .header-container > .mobile-menu-btn {
+        order: 2;
+    }
+    
+    .header-container > .logo {
+        order: 1;
+        flex: 1;
+    }
+    
+    .header-container > nav {
+        order: 3;
+    }
+}
+
+/* Adjust notification menu positioning for mobile */
+@media (max-width: 768px) {
+    .notification-menu {
+        position: fixed;
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: none;
+    }
+}
+</style>
 
     <!-- Hero Section -->
     <section class="hero" id="home" style="background-image: url('../assets/images/csh-hero.jpeg');">
