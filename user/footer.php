@@ -1,5 +1,5 @@
 <!-- Footer inside main content -->
-<footer class="quotes-main-footer">
+<footer class="quotes-main-footer" style="z-index: 1;">
     <div class="quotes-footer-simple">
         <div class="quotes-footer-content">
             <h3>CSH Enterprises</h3>
