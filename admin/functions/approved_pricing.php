@@ -89,114 +89,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
             // Execute the query
             if ($stmt->execute()) {
-                // Insert notification into the notification table with order_id and status = 'approved'
-                $content = "admin just approved a quote price of ₱" . number_format($unit_price, 2) . " on ticket #{$ticket}";
-                $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_field, status) VALUES (?, ?, ?, 'yes', 'approved')");
-                if ($notify_stmt === false) {
-                    throw new Exception("Failed to prepare the notification statement: " . $conn->error);
+                // Insert notification for user with notify_user = 'yes' and is_viewed_user = 'no'
+                $user_content = "Your quote price of ₱" . number_format($unit_price, 2) . " for ticket #{$ticket} has been approved by admin";
+                $user_notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_user, is_viewed_user, status) VALUES (?, ?, ?, 'yes', 'no', 'approved')");
+                if ($user_notify_stmt === false) {
+                    throw new Exception("Failed to prepare the user notification statement: " . $conn->error);
                 }
 
-                $notify_stmt->bind_param("iis", $user_id, $id, $content);
+                $user_notify_stmt->bind_param("iis", $user_id, $id, $user_content);
 
-                if ($notify_stmt->execute()) {
-                    // Send email notification
-                    $mail = new PHPMailer(true);
-                    
-                    try {
-                        // Server settings
-                        $mail->isSMTP();
-                        $mail->Host       = 'smtp.gmail.com';
-                        $mail->SMTPAuth   = true;
-                        $mail->Username   = 'capstoneproject0101@gmail.com';
-                        $mail->Password   = 'sgox knuc kool pftq';
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                        $mail->Port       = 587;
-
-                        // Recipients
-                        $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Enterprises');
-                        $mail->addAddress($user_email); // User's email
-
-                        // Content
-                        $mail->isHTML(true);
-                        $mail->Subject = 'Your Quote for Ticket #' . $ticket . ' Has Been Approved';
-                        
-                        // Build the email body with proper formatting
-                        $emailBody = '
-                        <html>
-                        <head>
-                            <style>
-                                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                                .details { margin: 20px 0; }
-                                .details li { margin-bottom: 10px; }
-                                .thank-you { margin-top: 20px; font-weight: bold; }
-                            </style>
-                        </head>
-                        <body>
-                            <p>Dear Valued Customer,</p>
-                            
-                            <p>We are pleased to inform you that your quote has been approved. Below are the details:</p>
-                            
-                            <div class="details">
-                                <ul>
-                                    <li><strong>Ticket Number:</strong> #' . htmlspecialchars($ticket) . '</li>
-                                    <li><strong>Unit Price:</strong> ₱' . htmlspecialchars(number_format($unit_price, 2)) . '</li>
-                                    <li><strong>Quantity:</strong> ' . htmlspecialchars($quantity) . '</li>
-                                    <li><strong>Total Amount:</strong> ₱' . htmlspecialchars(number_format($subtotal, 2)) . '</li>
-                                </ul>
-                            </div>
-                            
-                            <p class="thank-you">Thank you for choosing our service!</p>
-                            
-                            <p>Should you have any questions, please don\'t hesitate to contact us.</p>
-                            
-                            <p>Best regards,<br>
-                            CSH Enterprises</p>
-                        </body>
-                        </html>';
-
-                        $mail->Body = $emailBody;
-                        $mail->AltBody = "Dear Valued Customer,\n\n"
-                            . "We are pleased to inform you that your quote has been approved. Below are the details:\n\n"
-                            . "Ticket Number: #" . $ticket . "\n"
-                            . "Unit Price: ₱" . number_format($unit_price, 2) . "\n"
-                            . "Quantity: " . $quantity . "\n"
-                            . "Total Amount: ₱" . number_format($subtotal, 2) . "\n\n"
-                            . "Thank you for choosing our service!\n\n"
-                            . "Best regards,\n"
-                            . "CSH Enterprises";
-
-                        $mail->send();
-                        
-                    $admin_id = $_SESSION['admin_id']; // designer/admin performing the action
-                    $logContent = "Approved a quote of ₱" . number_format($price, 2);
-
-                    if ($subtotal && is_numeric($subtotal)) {
-                        $logContent .= " (Subtotal: ₱" . number_format($subtotal, 2) . ")";
+                if ($user_notify_stmt->execute()) {
+                    // Insert notification into the notification table with order_id and status = 'approved'
+                    $content = "admin just approved a quote price of ₱" . number_format($unit_price, 2) . " on ticket #{$ticket}";
+                    $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_field, status) VALUES (?, ?, ?, 'yes', 'approved')");
+                    if ($notify_stmt === false) {
+                        throw new Exception("Failed to prepare the notification statement: " . $conn->error);
                     }
 
-                    $logContent .= " for Ticket #{$ticket}";
+                    $notify_stmt->bind_param("iis", $user_id, $id, $content);
 
-                    logAction(
-                        $admin_id,        // actor/admin
-                        'update',         // action type
-                        'orders',         // entity type
-                        $id,              // order ID
-                        $logContent,      // human-readable log
-                        'Orders'          // module/category
-                    );
+                    if ($notify_stmt->execute()) {
+                        // Send email notification
+                        $mail = new PHPMailer(true);
+                        
+                        try {
+                            // Server settings
+                            $mail->isSMTP();
+                            $mail->Host       = 'smtp.gmail.com';
+                            $mail->SMTPAuth   = true;
+                            $mail->Username   = 'capstoneproject0101@gmail.com';
+                            $mail->Password   = 'sgox knuc kool pftq';
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                            $mail->Port       = 587;
 
-                        // All operations successful
-                        echo json_encode(['success' => true, 'message' => 'Pricing updated and notifications sent successfully']);
-                    } catch (Exception $emailException) {
-                        // Email failed but database operations succeeded
-                        error_log("Email sending failed: " . $emailException->getMessage());
-                        echo json_encode(['success' => true, 'message' => 'Pricing updated but email notification failed']);
+                            // Recipients
+                            $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Enterprises');
+                            $mail->addAddress($user_email); // User's email
+
+                            // Content
+                            $mail->isHTML(true);
+                            $mail->Subject = 'Your Quote for Ticket #' . $ticket . ' Has Been Approved';
+                            
+                            // Build the email body with proper formatting
+                            $emailBody = '
+                            <html>
+                            <head>
+                                <style>
+                                    body { font-family: Arial, sans-serif; line-height: 1.6; }
+                                    .details { margin: 20px 0; }
+                                    .details li { margin-bottom: 10px; }
+                                    .thank-you { margin-top: 20px; font-weight: bold; }
+                                </style>
+                            </head>
+                            <body>
+                                <p>Dear Valued Customer,</p>
+                                
+                                <p>We are pleased to inform you that your quote has been approved. Below are the details:</p>
+                                
+                                <div class="details">
+                                    <ul>
+                                        <li><strong>Ticket Number:</strong> #' . htmlspecialchars($ticket) . '</li>
+                                        <li><strong>Unit Price:</strong> ₱' . htmlspecialchars(number_format($unit_price, 2)) . '</li>
+                                        <li><strong>Quantity:</strong> ' . htmlspecialchars($quantity) . '</li>
+                                        <li><strong>Total Amount:</strong> ₱' . htmlspecialchars(number_format($subtotal, 2)) . '</li>
+                                    </ul>
+                                </div>
+                                
+                                <p class="thank-you">Thank you for choosing our service!</p>
+                                
+                                <p>Should you have any questions, please don\'t hesitate to contact us.</p>
+                                
+                                <p>Best regards,<br>
+                                CSH Enterprises</p>
+                            </body>
+                            </html>';
+
+                            $mail->Body = $emailBody;
+                            $mail->AltBody = "Dear Valued Customer,\n\n"
+                                . "We are pleased to inform you that your quote has been approved. Below are the details:\n\n"
+                                . "Ticket Number: #" . $ticket . "\n"
+                                . "Unit Price: ₱" . number_format($unit_price, 2) . "\n"
+                                . "Quantity: " . $quantity . "\n"
+                                . "Total Amount: ₱" . number_format($subtotal, 2) . "\n\n"
+                                . "Thank you for choosing our service!\n\n"
+                                . "Best regards,\n"
+                                . "CSH Enterprises";
+
+                            $mail->send();
+                            
+                        $admin_id = $_SESSION['admin_id']; // designer/admin performing the action
+                        $logContent = "Approved a quote of ₱" . number_format($price, 2);
+
+                        if ($subtotal && is_numeric($subtotal)) {
+                            $logContent .= " (Subtotal: ₱" . number_format($subtotal, 2) . ")";
+                        }
+
+                        $logContent .= " for Ticket #{$ticket}";
+
+                        logAction(
+                            $admin_id,        // actor/admin
+                            'update',         // action type
+                            'orders',         // entity type
+                            $id,              // order ID
+                            $logContent,      // human-readable log
+                            'Orders'          // module/category
+                        );
+
+                            // All operations successful
+                            echo json_encode(['success' => true, 'message' => 'Pricing updated and notifications sent successfully']);
+                        } catch (Exception $emailException) {
+                            // Email failed but database operations succeeded
+                            error_log("Email sending failed: " . $emailException->getMessage());
+                            echo json_encode(['success' => true, 'message' => 'Pricing updated but email notification failed']);
+                        }
+                    } else {
+                        echo json_encode(['success' => false, 'message' => 'Failed to insert notification']);
                     }
+
+                    $notify_stmt->close();
                 } else {
-                    echo json_encode(['success' => false, 'message' => 'Failed to insert notification']);
+                    echo json_encode(['success' => false, 'message' => 'Failed to insert user notification']);
                 }
 
-                $notify_stmt->close();
+                $user_notify_stmt->close();
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to update pricing: ' . $stmt->error]);
             }
@@ -224,91 +239,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['admin_id'])) {
 
             // Execute the query
             if ($stmt->execute()) {
-                // Insert notification into the notification table with order_id and status = 'cancelled'
-                $content = "admin has cancelled your order with ticket #{$ticket}. Reason: " . htmlspecialchars($cancellation_reason);
-                $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_field, status) VALUES (?, ?, ?, 'yes', 'cancelled')");
-                if ($notify_stmt === false) {
-                    error_log("Failed to prepare the notification statement: " . $conn->error);
-                    echo json_encode(['success' => false, 'message' => 'Failed to prepare notification statement: ' . $conn->error]);
+                // Insert notification for user with notify_user = 'yes' and is_viewed_user = 'no'
+                $user_content = "Your order with ticket #{$ticket} has been cancelled by admin. Reason: " . htmlspecialchars($cancellation_reason);
+                $user_notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_user, is_viewed_user, status) VALUES (?, ?, ?, 'yes', 'no', 'cancelled')");
+                if ($user_notify_stmt === false) {
+                    error_log("Failed to prepare the user notification statement: " . $conn->error);
+                    echo json_encode(['success' => false, 'message' => 'Failed to prepare user notification statement: ' . $conn->error]);
                     exit;
                 }
 
-                $notify_stmt->bind_param("iis", $user_id, $id, $content);
+                $user_notify_stmt->bind_param("iis", $user_id, $id, $user_content);
 
-                if ($notify_stmt->execute()) {
-                    // Send cancellation email notification
-                    $mail = new PHPMailer(true);
-                    try {
-                        // Server settings
-                        $mail->isSMTP();
-                        $mail->Host       = 'smtp.gmail.com';
-                        $mail->SMTPAuth   = true;
-                        $mail->Username   = 'capstoneproject0101@gmail.com';
-                        $mail->Password   = 'sgox knuc kool pftq';
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                        $mail->Port       = 587;
-
-                        // Recipients
-                        $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Enterprises');
-                        $mail->addAddress($user_email); // User's email
-
-                        // Content
-                        $mail->isHTML(true);
-                        $mail->Subject = 'Your Order with Ticket #' . $ticket . ' Has Been Cancelled';
-                        $emailBody = '
-                        <html>
-                        <head>
-                            <style>
-                                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                                .thank-you { margin-top: 20px; font-weight: bold; }
-                            </style>
-                        </head>
-                        <body>
-                            <p>Dear Valued Customer,</p>
-                            <p>We regret to inform you that your order with Ticket #' . htmlspecialchars($ticket) . ' has been cancelled.</p>
-                            <p><strong>Reason for cancellation:</strong> ' . htmlspecialchars($cancellation_reason) . '</p>
-                            <p>If you believe this was done in error or have any questions, please don\'t hesitate to contact us.</p>
-                            <p class="thank-you">Thank you for your understanding.</p>
-                            <p>Best regards,<br>
-                            CSH Enterprises</p>
-                        </body>
-                        </html>';
-
-                        $mail->Body = $emailBody;
-                        $mail->AltBody = "Dear Valued Customer,\n\n"
-                            . "We regret to inform you that your order with Ticket #" . $ticket . " has been cancelled.\n"
-                            . "Reason for cancellation: " . $cancellation_reason . "\n\n"
-                            . "If you believe this was done in error or have any questions, please don't hesitate to contact us.\n\n"
-                            . "Thank you for your understanding.\n\n"
-                            . "Best regards,\n"
-                            . "CSH Enterprises";
-
-                        $mail->send();
-
-                        $admin_id = $_SESSION['admin_id']; // designer/admin performing the action
-                        $logContent = "Cancelled order with Ticket #{$ticket}. Reason: " . $cancellation_reason;
-
-                        logAction(
-                            $admin_id,        // actor/admin
-                            'update',         // action type
-                            'orders',         // entity type
-                            $id,              // order ID
-                            $logContent,      // human-readable log
-                            'Orders'          // module/category
-                        );
-
-                        // All operations successful
-                        echo json_encode(['success' => true, 'message' => 'Order cancelled and notifications sent successfully']);
-                    } catch (Exception $emailException) {
-                        error_log("Email sending failed: " . $emailException->getMessage());
-                        echo json_encode(['success' => true, 'message' => 'Order cancelled but email notification failed']);
+                if ($user_notify_stmt->execute()) {
+                    // Insert notification into the notification table with order_id and status = 'cancelled'
+                    $content = "admin has cancelled your order with ticket #{$ticket}. Reason: " . htmlspecialchars($cancellation_reason);
+                    $notify_stmt = $conn->prepare("INSERT INTO notification (user_id, order_id, content, notify_field, status) VALUES (?, ?, ?, 'yes', 'cancelled')");
+                    if ($notify_stmt === false) {
+                        error_log("Failed to prepare the notification statement: " . $conn->error);
+                        echo json_encode(['success' => false, 'message' => 'Failed to prepare notification statement: ' . $conn->error]);
+                        exit;
                     }
+
+                    $notify_stmt->bind_param("iis", $user_id, $id, $content);
+
+                    if ($notify_stmt->execute()) {
+                        // Send cancellation email notification
+                        $mail = new PHPMailer(true);
+                        try {
+                            // Server settings
+                            $mail->isSMTP();
+                            $mail->Host       = 'smtp.gmail.com';
+                            $mail->SMTPAuth   = true;
+                            $mail->Username   = 'capstoneproject0101@gmail.com';
+                            $mail->Password   = 'sgox knuc kool pftq';
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                            $mail->Port       = 587;
+
+                            // Recipients
+                            $mail->setFrom('capstoneproject0101@gmail.com', 'CSH Enterprises');
+                            $mail->addAddress($user_email); // User's email
+
+                            // Content
+                            $mail->isHTML(true);
+                            $mail->Subject = 'Your Order with Ticket #' . $ticket . ' Has Been Cancelled';
+                            $emailBody = '
+                            <html>
+                            <head>
+                                <style>
+                                    body { font-family: Arial, sans-serif; line-height: 1.6; }
+                                    .thank-you { margin-top: 20px; font-weight: bold; }
+                                </style>
+                            </head>
+                            <body>
+                                <p>Dear Valued Customer,</p>
+                                <p>We regret to inform you that your order with Ticket #' . htmlspecialchars($ticket) . ' has been cancelled.</p>
+                                <p><strong>Reason for cancellation:</strong> ' . htmlspecialchars($cancellation_reason) . '</p>
+                                <p>If you believe this was done in error or have any questions, please don\'t hesitate to contact us.</p>
+                                <p class="thank-you">Thank you for your understanding.</p>
+                                <p>Best regards,<br>
+                                CSH Enterprises</p>
+                            </body>
+                            </html>';
+
+                            $mail->Body = $emailBody;
+                            $mail->AltBody = "Dear Valued Customer,\n\n"
+                                . "We regret to inform you that your order with Ticket #" . $ticket . " has been cancelled.\n"
+                                . "Reason for cancellation: " . $cancellation_reason . "\n\n"
+                                . "If you believe this was done in error or have any questions, please don't hesitate to contact us.\n\n"
+                                . "Thank you for your understanding.\n\n"
+                                . "Best regards,\n"
+                                . "CSH Enterprises";
+
+                            $mail->send();
+
+                            $admin_id = $_SESSION['admin_id']; // designer/admin performing the action
+                            $logContent = "Cancelled order with Ticket #{$ticket}. Reason: " . $cancellation_reason;
+
+                            logAction(
+                                $admin_id,        // actor/admin
+                                'update',         // action type
+                                'orders',         // entity type
+                                $id,              // order ID
+                                $logContent,      // human-readable log
+                                'Orders'          // module/category
+                            );
+
+                            // All operations successful
+                            echo json_encode(['success' => true, 'message' => 'Order cancelled and notifications sent successfully']);
+                        } catch (Exception $emailException) {
+                            error_log("Email sending failed: " . $emailException->getMessage());
+                            echo json_encode(['success' => true, 'message' => 'Order cancelled but email notification failed']);
+                        }
+                    } else {
+                        error_log("Failed to insert notification: " . $notify_stmt->error);
+                        echo json_encode(['success' => false, 'message' => 'Failed to insert notification: ' . $notify_stmt->error]);
+                    }
+
+                    $notify_stmt->close();
                 } else {
-                    error_log("Failed to insert notification: " . $notify_stmt->error);
-                    echo json_encode(['success' => false, 'message' => 'Failed to insert notification: ' . $notify_stmt->error]);
+                    error_log("Failed to insert user notification: " . $user_notify_stmt->error);
+                    echo json_encode(['success' => false, 'message' => 'Failed to insert user notification: ' . $user_notify_stmt->error]);
                 }
 
-                $notify_stmt->close();
+                $user_notify_stmt->close();
             } else {
                 error_log("Failed to cancel order: " . $stmt->error);
                 echo json_encode(['success' => false, 'message' => 'Failed to cancel order: ' . $stmt->error]);
