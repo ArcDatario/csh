@@ -21,25 +21,25 @@
         </li>
         
         <!-- Notification Bell -->
-        <li class="notification-dropdown desktop-notification">
-            <a href="#" class="notification-icon" id="notificationToggle">
-                <span class="bell-icon">🔔</span>
-                <span class="notification-count" id="notificationCount">0</span>
-            </a>
-            <div class="notification-menu" id="notificationMenu">
-                <div class="notification-header">
-                    <h3>Notifications</h3>
-                    <button id="markAllRead">Mark all as read</button>
-                </div>
-                <div class="notification-list" id="notificationList">
-                    <!-- Notifications will be loaded here via AJAX -->
-                    <div class="loading-notifications">Loading notifications...</div>
-                </div>
-                <!-- <div class="notification-footer">
-                    <a href="notifications.php">View All Notifications</a>
-                </div> -->
-            </div>
-        </li>
+<li class="notification-dropdown desktop-notification">
+    <a href="#" class="notification-icon" id="notificationToggle">
+        <span class="bell-icon">🔔</span>
+        <span class="notification-count" id="notificationCount">0</span>
+    </a>
+    <div class="notification-menu" id="notificationMenu">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button id="markAllRead">Mark all as read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <!-- Notifications will be loaded here via AJAX -->
+            <div class="loading-notifications">Loading notifications...</div>
+        </div>
+        <!-- <div class="notification-footer">
+            <a href="notifications.php">View All Notifications</a>
+        </div> -->
+    </div>
+</li>
 
         <li class="profile-dropdown">
             <a href="#" class="profile-icon" id="profileToggle">
@@ -54,7 +54,29 @@
 </nav>
 
 <style>
-/* Notification Styles */
+
+.desktop-notification{
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    margin-top: -12px;
+}
+
+.notification-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #666; /* Neutral color */
+}
+
+.bell-icon {
+    font-size: 20px;
+    filter: grayscale(100%) brightness(0.7); /* Neutral color effect */
+}
+
 .notification-dropdown {
     position: relative;
 }
